@@ -1,20 +1,51 @@
 /**
  * ============================================================================
- * KONFIGURASI GAME & KONTEN PERSONALISASI (GAME_CONFIG)
+ * KONFIGURASI ASET & KONTEN PERSONALISASI (ASSET_CONFIG & GAME_CONFIG)
  * ============================================================================
- * Anda dapat dengan mudah mengubah nama panggilan, nama pengirim, isi surat,
- * deskripsi item kenangan, dialog NPC, dan kupon hadiah di bawah ini.
- * Semua teks menggunakan bahasa Indonesia yang hangat, tulus, santai, dan dewasa.
+ * Anda dapat dengan mudah menambahkan gambar custom di folder assets/,
+ * mengubah nama panggilan, isi surat, dialog NPC, dan kupon di bawah ini.
  */
 
+// --- 1. KONFIGURASI CUSTOM ASET (assets/) DENGAN AUTO-FALLBACK ---
+window.ASSET_CONFIG = {
+  // Pengaturan Karakter Pemain
+  player: {
+    useCustom: true, // Jika true, mencoba load file di bawah ini terlebih dahulu
+    spritesheet: "assets/player/character.png",
+    cols: 3,
+    rows: 4,
+    // File per-arah alternatif (opsional jika tidak menggunakan 1 spritesheet penuh)
+    down: "assets/player/walk_down.png",
+    up: "assets/player/walk_up.png",
+    left: "assets/player/walk_left.png",
+    right: "assets/player/walk_right.png",
+    singleImage: "assets/player/idle.png"
+  },
+
+  // Pengaturan NPC
+  npcs: {
+    arga: { path: "assets/npcs/npc_1.png", cols: 1, rows: 1 },
+    rina: { path: "assets/npcs/npc_2.png", cols: 1, rows: 1 },
+    dito: { path: "assets/npcs/npc_3.png", cols: 1, rows: 1 }
+  },
+
+  // Pengaturan Hewan Peliharaan
+  pets: {
+    catOrange: { path: "assets/pets/cat.png", cols: 1, rows: 1 },
+    catCalico: { path: "assets/pets/cat.png", cols: 1, rows: 1 },
+    chicken: { path: "assets/pets/chicken.png", cols: 1, rows: 1 }
+  }
+};
+
+// --- 2. KONFIGURASI GAME & CERITA ---
 window.GAME_CONFIG = {
-  // --- IDENTITAS & TEMA UTAMA ---
-  recipientName: "Keyzha",        // Nama orang tersayang / penerima (dapat diubah sesuai keinginan)
-  senderName: "Dimas",            // Nama pengirim / pembuat
+  // Identitas & Tema
+  recipientName: "Keyzha",
+  senderName: "Dimas",
   occasionTitle: "Catatan Perjalanan & Sudut Kenangan",
   gameTitle: "Diorama Kenangan",
 
-  // --- QUEST 1: SURAT PEMBUKA (Di Kotak Surat Depan Rumah) ---
+  // Quest 1: Surat Pembuka (Di Kotak Pos Depan Rumah)
   openingLetter: {
     title: "Surat di Kotak Pos",
     date: "Sebuah Hari yang Tenang",
@@ -28,7 +59,7 @@ window.GAME_CONFIG = {
     closing: "Selamat menikmati harimu di sini ya."
   },
 
-  // --- QUEST 2: 4 ITEM KENANGAN TERSEMBUNYI ---
+  // Quest 2: 4 Item Kenangan Tersembunyi
   questItems: [
     {
       id: "item_ticket",
@@ -68,7 +99,7 @@ window.GAME_CONFIG = {
     }
   ],
 
-  // --- DIALOG NPC (3 Tokoh Ramah & Santai) ---
+  // Dialog 3 NPC Ramah
   npcs: {
     arga: {
       name: "Kak Arga",
@@ -102,7 +133,7 @@ window.GAME_CONFIG = {
     }
   },
 
-  // --- HEWAN PELIHARAAN & INTERAKSI ---
+  // Hewan Peliharaan & Interaksi
   animals: {
     catOrange: {
       name: "Miko si Kucing Oranye",
@@ -121,7 +152,7 @@ window.GAME_CONFIG = {
     }
   },
 
-  // --- QUEST 3: MINI-GAME ARCADE ---
+  // Quest 3: Mini-Game Arcade
   arcadeConfig: {
     title: "Bintang Kenangan Retro",
     subtitle: "Tangkap bintang & hati yang berjatuhan, hindari awan mendung!",
@@ -130,7 +161,7 @@ window.GAME_CONFIG = {
     rewardDesc: "Berhasil meraih skor di mesin arcade! Gerbang menuju taman belakang kini dapat terbuka."
   },
 
-  // --- QUEST 4: PHOTOBOOTH ---
+  // Quest 4: Photobooth
   photoboothConfig: {
     title: "Photobooth Kenangan",
     subtitle: "Ambil potret diorama bergaya retro sebagai kenang-kenangan",
@@ -143,7 +174,7 @@ window.GAME_CONFIG = {
     defaultNote: "Diambil di sudut taman diorama yang damai."
   },
 
-  // --- QUEST 5: SURAT PENUTUP & HADIAH UTAMA (Di Gazebo Taman Belakang) ---
+  // Quest 5: Surat Penutup & Hadiah Utama (Di Gazebo)
   closingLetter: {
     title: "Surat di Bawah Lampu Gazebo",
     date: "Hari yang Istimewa",

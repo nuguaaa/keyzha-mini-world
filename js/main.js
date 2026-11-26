@@ -2,8 +2,8 @@
  * ============================================================================
  * LOGIKA UTAMA GAME, SISTEM QUEST & STATE MANAGEMENT
  * ============================================================================
- * Mengatur alur misi berurutan (Quest 1 - 5), penyimpanan otomatis di localStorage,
- * loop animasi game 60 FPS, dan respon kontrol desktop serta layar sentuh.
+ * Mengatur alur misi berurutan (Quest 1 - 5), penguncian input saat modal aktif,
+ * loop game 60 FPS dengan Third-Person Follow Camera, dan auto-save localStorage.
  */
 
 class GameApp {
@@ -16,7 +16,7 @@ class GameApp {
     this.photobooth = null;
     this.arcadeGame = null;
 
-    // State Input
+    // State Input & Penguncian Modal
     this.input = {
       left: false,
       right: false,
@@ -24,9 +24,10 @@ class GameApp {
       down: false,
       interact: false
     };
+    this.isInputLocked = false; // Mengunci pergerakan saat modal terbuka
 
-    // State Progres Misi & Penyimpanan
-    this.currentQuestIndex = 1; // 1 to 5
+    // State Progres Misi
+    this.currentQuestIndex = 1;
     this.collectedItems = [];
     this.arcadeCompleted = false;
     this.photoTaken = false;
@@ -42,13 +43,13 @@ class GameApp {
   }
 
   init() {
-    // 1. Inisialisasi Dunia 3D Diorama
+    // 1. Inisialisasi Dunia 3D Diorama Luas
     this.world = new DioramaWorld(this.container);
 
     // 2. Inisialisasi Pemain di Halaman Depan
     this.player = new Player(this.world, -6, 6);
 
-    // 3. Inisialisasi Pengelola Interaksi
+    // 3. Inisialisasi Pengelola Interaksi Tunggal
     this.interactionManager = new InteractionManager(this.world, this.player);
 
     // 4. Inisialisasi Photobooth
@@ -63,7 +64,7 @@ class GameApp {
     // 7. Muat Progres Tersimpan dari localStorage
     this.loadProgress();
 
-    // 8. Daftarkan Event Listener Keyboard & Tap Objek
+    // 8. Daftarkan Event Listener Keyboard & Tap
     this.setupDesktopControls();
 
     // 9. Mulai Loop Game Utama
@@ -75,7 +76,7 @@ class GameApp {
   spawnEntities() {
     const cfg = window.GAME_CONFIG;
 
-    // 1. Tiga NPC Ramah di Lokasi Berbeda
+    // 1. Tiga NPC Ramah
     const arga = new NPC(this.world, "arga", cfg.npcs.arga, -8.5, -4.5, 1.2);
     arga.onInteract = () => {
       this.ui.openDialog(cfg.npcs.arga.name, cfg.npcs.arga.role, cfg.npcs.arga.avatarColor, arga.getNextDialogue());
@@ -122,7 +123,7 @@ class GameApp {
     this.animals.push(chicken1);
     this.interactionManager.register(chicken1);
 
-    // 3. Objek Interaktif Khusus (Kotak Pos, Arcade, Photobooth, Peti Hadiah)
+    // 3. Objek Interaktif Khusus
     // Kotak Pos (Quest 1)
     const mailbox = {
       x: -5.5,
@@ -202,19 +203,26 @@ class GameApp {
   setupDesktopControls() {
     window.addEventListener("keydown", (e) => {
       window.soundSystem.ensureContext();
-      if (e.key === "ArrowLeft" || e.key === "a" || e.key === "A") this.input.left = true;
-      if (e.key === "ArrowRight" || e.key === "d" || e.key === "D") this.input.right = true;
-      if (e.key === "ArrowUp" || e.key === "w" || e.key === "W") this.input.up = true;
-      if (e.key === "ArrowDown" || e.key === "s" || e.key === "S") this.input.down = true;
 
-      // Tombol Interaksi (E, Enter, Space)
+      if (!this.isInputLocked) {
+        if (e.key === "ArrowLeft" || e.key === "a" || e.key === "A") this.input.left = true;
+        if (e.key === "ArrowRight" || e.key === "d" || e.key === "D") this.input.right = true;
+        if (e.key === "ArrowUp" || e.key === "w" || e.key === "W") this.input.up = true;
+        if (e.key === "ArrowDown" || e.key === "s" || e.key === "S") this.input.down = true;
+      }
+
+      // Tombol Interaksi (E, Enter, Spasi)
       if (e.key === "e" || e.key === "E" || e.key === "Enter" || e.key === " ") {
-        // Jika dialog aktif, percepat / tutup dialog
+        // Jika dialog sedang aktif, gunakan tombol untuk lanjut/tutup dialog
         if (this.ui.dialogModal.classList.contains("active")) {
           if (this.ui.isTyping) this.ui.skipTypewriter();
           else this.ui.closeDialog();
           return;
         }
+
+        // Jangan picu objek dunia jika modal lain sedang terbuka
+        if (this.isInputLocked) return;
+
         this.triggerInteraction();
       }
     });
@@ -226,13 +234,13 @@ class GameApp {
       if (e.key === "ArrowDown" || e.key === "s" || e.key === "S") this.input.down = false;
     });
 
-    // Klik langsung pada kanvas untuk interaksi terdekat bila dalam jarak jangkauan
     this.container.addEventListener("pointerdown", () => {
       window.soundSystem.ensureContext();
     });
   }
 
   triggerInteraction() {
+    if (this.isInputLocked) return;
     this.interactionManager.trigger();
   }
 
@@ -293,14 +301,12 @@ class GameApp {
     if (itemObj.collected) return;
     itemObj.collect();
 
-    // Tambahkan ke inventory
     this.collectedItems.push(itemObj.data);
     window.soundSystem.playItemCollect();
     this.ui.showToast(`Ditemukan: "${itemObj.data.name}" ✨`);
     this.updateQuestUI();
     this.saveProgress();
 
-    // Cek apakah 4 item kenangan sudah lengkap
     const memoryCount = this.collectedItems.filter(i => i.id && i.id.startsWith("item_")).length;
     if (memoryCount >= 4 && this.currentQuestIndex === 2) {
       setTimeout(() => {
@@ -313,7 +319,6 @@ class GameApp {
     if (this.arcadeCompleted) return;
     this.arcadeCompleted = true;
 
-    // Hadiah Kupon Arcade Masuk Inventory
     const rewardItem = {
       id: "coupon_arcade",
       name: window.GAME_CONFIG.arcadeConfig.rewardName,
@@ -323,11 +328,11 @@ class GameApp {
     this.collectedItems.push(rewardItem);
     this.saveProgress();
 
-    // Buka Gerbang Taman Rahasia
     this.world.openSecretGarden();
 
     setTimeout(() => {
       this.ui.arcadeModal.classList.remove("active");
+      this.ui.updateModalState();
       this.advanceQuest(4);
     }, 1200);
   }
@@ -344,7 +349,6 @@ class GameApp {
       this.collectedItems.push(photoItem);
       this.saveProgress();
 
-      // Buka Gerbang bila belum
       this.world.openSecretGarden();
 
       setTimeout(() => {
@@ -386,7 +390,6 @@ class GameApp {
         this.photoTaken = !!data.photoTaken;
         this.closingLetterOpened = !!data.closingLetterOpened;
 
-        // Pulihkan item yang sudah diambil
         if (Array.isArray(data.items)) {
           data.items.forEach(itemId => {
             const cObj = this.collectibles.find(c => c.data.id === itemId);
@@ -413,7 +416,6 @@ class GameApp {
           });
         }
 
-        // Buka gerbang jika quest sudah melewati 3 atau 4
         if (this.currentQuestIndex >= 4 || this.arcadeCompleted) {
           this.world.openSecretGarden();
         }
@@ -441,8 +443,8 @@ class GameApp {
     this.lastTime = currentTime;
     const time = currentTime * 0.001;
 
-    // 1. Update Pemain
-    this.player.update(delta, this.input);
+    // 1. Update Pemain (dengan Third-Person Follow Camera & Input Lock)
+    this.player.update(delta, this.input, this.isInputLocked);
 
     // 2. Update NPC & Hewan
     this.npcs.forEach(npc => npc.update(time));
@@ -451,35 +453,38 @@ class GameApp {
     // 3. Update Item Berkilau
     this.collectibles.forEach(col => col.update(time));
 
-    // 4. Update Partikel Dunia
-    this.world.updateParticles(delta, time);
+    // 4. Update Lingkungan (Pohon goyang angin, air kolam, kupu-kupu, kunang-kunang)
+    this.world.updateEnvironment(delta, time);
 
-    // 5. Cek Objek Terdekat untuk Prompt Kontekstual
-    const nearest = this.interactionManager.update();
-    if (nearest) {
-      let promptText = nearest.promptText;
-      if (!promptText) {
-        if (nearest.config && nearest.config.name) {
-          promptText = nearest.type === "cat" || nearest.type === "chicken"
-            ? `[A] Elus ${nearest.config.name}`
-            : `[A] Bicara dengan ${nearest.config.name}`;
-        } else {
-          promptText = "[A] Interaksi";
+    // 5. Cek Objek Terdekat untuk Prompt Kontekstual Tunggal
+    if (!this.isInputLocked) {
+      const nearest = this.interactionManager.update();
+      if (nearest) {
+        let promptText = nearest.promptText;
+        if (!promptText) {
+          if (nearest.config && nearest.config.name) {
+            promptText = nearest.type === "cat" || nearest.type === "chicken"
+              ? `[A] Elus ${nearest.config.name}`
+              : `[A] Bicara dengan ${nearest.config.name}`;
+          } else {
+            promptText = "[A] Interaksi";
+          }
         }
+        this.ui.updateContextPrompt(promptText);
+      } else {
+        this.ui.updateContextPrompt(null);
       }
-      this.ui.updateContextPrompt(promptText);
     } else {
       this.ui.updateContextPrompt(null);
     }
 
-    // 6. Render 3D Scene
+    // 6. Render Scene 3D
     this.world.render();
 
     requestAnimationFrame(this.gameLoop);
   }
 }
 
-// Inisialisasi saat window dimuat
 window.addEventListener("DOMContentLoaded", () => {
   window.gameApp = new GameApp();
 });

@@ -3,7 +3,8 @@
  * PENGELOLA TAMPILAN PENGGUNA (HUD, MODAL, DIALOG & VIRTUAL JOYSTICK)
  * ============================================================================
  * Menyediakan antarmuka yang bersih, responsif untuk HP (mobile-first) dan
- * Desktop/PC, dengan prompt kontekstual, dialog berkarakter, dan modal surat.
+ * Desktop/PC, dengan penguncian input otomatis saat modal terbuka (agar karakter
+ * tidak jalan sendiri di belakang layar), dan prompt interaksi tunggal.
  */
 
 class UIManager {
@@ -53,6 +54,20 @@ class UIManager {
     this.setupVirtualJoystick();
   }
 
+  // Helper Penguncian Input Karakter saat Modal Terbuka
+  updateModalState() {
+    const isAnyModalActive = !!document.querySelector(".modal-overlay.active");
+    this.game.isInputLocked = isAnyModalActive;
+
+    // Reset input agar karakter berhenti bergerak
+    if (isAnyModalActive) {
+      this.game.input.left = false;
+      this.game.input.right = false;
+      this.game.input.up = false;
+      this.game.input.down = false;
+    }
+  }
+
   setupEventListeners() {
     // Tombol Waktu (Siang / Sore / Malam)
     const timeBtn = document.getElementById("btn-time");
@@ -94,7 +109,7 @@ class UIManager {
       });
     }
 
-    // Tombol Pengaturan / Reset
+    // Tombol Pengaturan
     const settingsBtn = document.getElementById("btn-settings");
     if (settingsBtn) {
       settingsBtn.addEventListener("click", () => {
@@ -128,7 +143,6 @@ class UIManager {
     if (dialogNextBtn) {
       dialogNextBtn.addEventListener("click", () => {
         if (this.isTyping) {
-          // Lewati animasi ketik
           this.skipTypewriter();
         } else {
           this.closeDialog();
@@ -141,9 +155,12 @@ class UIManager {
       btn.addEventListener("click", (e) => {
         window.soundSystem.playClick();
         const modal = e.target.closest(".modal-overlay");
-        if (modal) modal.classList.remove("active");
-        if (modal === this.arcadeModal && this.game.arcadeGame) {
-          this.game.arcadeGame.stop();
+        if (modal) {
+          modal.classList.remove("active");
+          if (modal === this.arcadeModal && this.game.arcadeGame) {
+            this.game.arcadeGame.stop();
+          }
+          this.updateModalState();
         }
       });
     });
@@ -168,9 +185,10 @@ class UIManager {
     let touchId = null;
     let startX = 0;
     let startY = 0;
-    const maxRadius = 40;
+    const maxRadius = 38;
 
     const handleStart = (clientX, clientY, id) => {
+      if (this.game.isInputLocked) return;
       touchId = id;
       const rect = zone.getBoundingClientRect();
       startX = rect.left + rect.width / 2;
@@ -180,6 +198,11 @@ class UIManager {
     };
 
     const handleMove = (clientX, clientY) => {
+      if (this.game.isInputLocked) {
+        handleEnd();
+        return;
+      }
+
       const dx = clientX - startX;
       const dy = clientY - startY;
       const dist = Math.hypot(dx, dy);
@@ -191,8 +214,7 @@ class UIManager {
 
       knob.style.transform = `translate(${knobX}px, ${knobY}px)`;
 
-      // Ambang batas sensitivitas gerak
-      const threshold = 12;
+      const threshold = 10;
       this.game.input.left = dx < -threshold;
       this.game.input.right = dx > threshold;
       this.game.input.up = dy < -threshold;
@@ -253,7 +275,7 @@ class UIManager {
   }
 
   updateContextPrompt(promptText) {
-    if (promptText) {
+    if (promptText && !this.game.isInputLocked) {
       this.promptBtnEl.innerText = promptText;
       this.promptBtnEl.classList.add("visible");
       this.actionBtnEl.classList.add("highlight");
@@ -290,8 +312,8 @@ class UIManager {
     this.fullDialogText = text;
     this.dialogText.innerHTML = "";
     this.dialogModal.classList.add("active");
+    this.updateModalState();
 
-    // Efek Ketik Halus
     this.isTyping = true;
     let idx = 0;
     clearInterval(this.typewriterTimer);
@@ -316,16 +338,16 @@ class UIManager {
   closeDialog() {
     clearInterval(this.typewriterTimer);
     this.dialogModal.classList.remove("active");
+    this.updateModalState();
   }
 
-  // --- MODAL SURAT (SURAT PEMBUKA & SURAT PENUTUP) ---
+  // --- MODAL SURAT (SURAT PEMBUKA & SURAT PENUTUP PARCHMENT) ---
 
   openLetter(data, isClosing = false) {
     this.letterTitle.innerText = data.title;
     this.letterDate.innerText = data.date;
     this.letterGreeting.innerText = data.greeting;
 
-    // Bersihkan isi paragraf
     this.letterContent.innerHTML = "";
     data.paragraphs.forEach(p => {
       const pEl = document.createElement("p");
@@ -340,7 +362,6 @@ class UIManager {
       this.letterContent.appendChild(hintEl);
     }
 
-    // Tampilkan kupon kenangan bila ada (Surat Penutup)
     this.letterCoupons.innerHTML = "";
     if (isClosing && data.coupons) {
       const cTitle = document.createElement("h4");
@@ -362,6 +383,7 @@ class UIManager {
 
     this.letterSignature.innerText = `${data.signature || ""} \n${data.closingSender || data.closing || ""}`;
     this.letterModal.classList.add("active");
+    this.updateModalState();
   }
 
   // --- MODAL INVENTORY ---
@@ -391,6 +413,7 @@ class UIManager {
     }
 
     this.inventoryModal.classList.add("active");
+    this.updateModalState();
   }
 
   showItemDetail(item) {
@@ -403,13 +426,14 @@ class UIManager {
 
   openArcade() {
     this.arcadeModal.classList.add("active");
+    this.updateModalState();
+
     const canvas = document.getElementById("arcade-canvas");
     if (!this.game.arcadeGame) {
       this.game.arcadeGame = new ArcadeGame(canvas, () => {
         this.game.onArcadeWin();
       });
 
-      // Kontrol Arcade Touch untuk Mobile
       const leftBtn = document.getElementById("arcade-btn-left");
       const rightBtn = document.getElementById("arcade-btn-right");
       if (leftBtn && rightBtn) {
@@ -419,7 +443,6 @@ class UIManager {
         rightBtn.addEventListener("touchend", () => { this.game.arcadeGame.moveRight = false; });
       }
 
-      // Kontrol Keyboard Arcade
       window.addEventListener("keydown", (e) => {
         if (!this.arcadeModal.classList.contains("active")) return;
         if (e.key === "ArrowLeft" || e.key === "a" || e.key === "A") this.game.arcadeGame.moveLeft = true;
@@ -439,12 +462,13 @@ class UIManager {
 
   openPhotobooth() {
     this.photoboothModal.classList.add("active");
+    this.updateModalState();
+
     const previewEl = document.getElementById("photo-preview");
     const snapBtn = document.getElementById("btn-snap-photo");
     const saveBtn = document.getElementById("btn-save-photo");
     const noteInput = document.getElementById("photo-note-input");
 
-    // Setup stiker buttons
     const stickerContainer = document.getElementById("photo-stickers");
     stickerContainer.innerHTML = "";
     window.GAME_CONFIG.photoboothConfig.stickers.forEach((stk, idx) => {
@@ -487,6 +511,7 @@ class UIManager {
 
   openSettings() {
     this.settingsModal.classList.add("active");
+    this.updateModalState();
   }
 }
 
