@@ -144,13 +144,14 @@ class Player {
     }
 
     // --- KETINGGIAN & RAMP TANGGA TERAS ---
-    // Teras terangkat berada di x: [-14.5, 0.5] dan z: [-15.5, -4.5]
-    // Tangga akses depan di x: [-9.5, -4.5] dan z: [-4.5, -0.8]
-    const onTerrace = (this.x >= -14.2 && this.x <= 0.2 && this.z >= -15.2 && this.z <= -4.5);
-    const onStairs = (this.x >= -9.5 && this.x <= -4.5 && this.z >= -4.5 && this.z <= -0.8);
+    const isInterior = (this.world.currentZone === "interior");
+    const onTerrace = !isInterior && (this.x >= -14.2 && this.x <= 0.2 && this.z >= -15.2 && this.z <= -4.5);
+    const onStairs = !isInterior && (this.x >= -9.5 && this.x <= -4.5 && this.z >= -4.5 && this.z <= -0.8);
 
     let targetY = 0;
-    if (onTerrace) {
+    if (isInterior) {
+      targetY = 0;
+    } else if (onTerrace) {
       targetY = 1.2;
     } else if (onStairs) {
       // Interpolasi ramp halus saat menaiki tangga
@@ -171,7 +172,8 @@ class Player {
       if (this.stepTimer > 0.3) {
         this.stepTimer = 0;
         if (window.soundSystem) {
-          window.soundSystem.playFootstep((onTerrace || onStairs) ? "stone" : "grass");
+          const stepType = isInterior ? "stone" : ((onTerrace || onStairs) ? "stone" : "grass");
+          window.soundSystem.playFootstep(stepType);
         }
       }
     } else {
@@ -194,9 +196,11 @@ class Player {
   // Cek Collision Lingkaran Pemain vs Kotak AABB
   checkCollisionAt(tx, tz) {
     const r = this.radius;
+    const isInterior = (this.world.currentZone === "interior");
+
     for (let c of this.world.colliders) {
-      // Jika berada di tangga, abaikan collider depan teras agar bisa naik
-      if (c.isTerraceFront && tx >= -9.5 && tx <= -4.5) {
+      // Jika berada di eksterior dan di tangga, abaikan collider depan teras agar bisa naik
+      if (!isInterior && c.isTerraceFront && tx >= -9.5 && tx <= -4.5) {
         continue;
       }
 
@@ -223,6 +227,7 @@ class NPC {
     this.y = y;
     this.z = z;
     this.dialogueIndex = 0;
+    this.badgeHeight = 2.4;
 
     this.initMesh();
   }
@@ -296,6 +301,7 @@ class RoamingAnimal {
     this.z = startZ;
     this.vx = 0;
     this.vz = 0;
+    this.badgeHeight = 1.3;
 
     this.state = "idle";
     this.stateTimer = 1.5 + Math.random() * 2.5;
@@ -401,6 +407,7 @@ class CollectibleItem {
     this.y = y;
     this.z = z;
     this.collected = false;
+    this.badgeHeight = 1.6;
 
     this.initMesh();
   }
@@ -456,9 +463,14 @@ class InteractionManager {
   update() {
     let nearest = null;
     let minDst = this.interactionRange;
+    const currentZone = this.world.currentZone || "exterior";
 
     for (let item of this.interactables) {
       if (item.collected) continue;
+
+      // Filter berdasarkan zona (eksterior vs interior rumah)
+      const itemZone = item.zone || (item.x > 50 ? "interior" : "exterior");
+      if (itemZone !== currentZone) continue;
 
       const dst = Math.hypot(this.player.x - item.x, this.player.z - item.z);
       if (dst < minDst) {
@@ -469,6 +481,27 @@ class InteractionManager {
 
     this.currentNearest = nearest;
     return nearest;
+  }
+
+  // Hitung proyeksi koordinat 3D ke posisi layar (piksel) untuk badge interaksi yang tajam
+  getScreenPosition(camera) {
+    if (!this.currentNearest || !camera) return null;
+    const target = this.currentNearest;
+    const posX = target.mesh ? target.mesh.position.x : target.x;
+    const posY = target.mesh ? target.mesh.position.y : (target.y || 0);
+    const posZ = target.mesh ? target.mesh.position.z : target.z;
+    const badgeOffset = target.badgeHeight !== undefined ? target.badgeHeight : (target.type === "cat" || target.type === "chicken" ? 1.3 : 2.5);
+
+    const vec = new THREE.Vector3(posX, posY + badgeOffset, posZ);
+    vec.project(camera);
+
+    // Hanya tampilkan jika berada di depan frustum kamera (vec.z < 1.0)
+    if (vec.z < 1.0) {
+      const screenX = (vec.x * 0.5 + 0.5) * window.innerWidth;
+      const screenY = (-(vec.y * 0.5) + 0.5) * window.innerHeight;
+      return { x: screenX, y: screenY, visible: true };
+    }
+    return { x: 0, y: 0, visible: false };
   }
 
   trigger() {

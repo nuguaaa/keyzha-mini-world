@@ -8,28 +8,22 @@
 
 // --- 1. KONFIGURASI CUSTOM ASET (assets/) DENGAN AUTO-FALLBACK ---
 window.ASSET_CONFIG = {
-  // Pengaturan Karakter Pemain
   player: {
-    useCustom: true, // Jika true, mencoba load file di bawah ini terlebih dahulu
+    useCustom: true,
     spritesheet: "assets/player/character.png",
     cols: 3,
     rows: 4,
-    // File per-arah alternatif (opsional jika tidak menggunakan 1 spritesheet penuh)
     down: "assets/player/walk_down.png",
     up: "assets/player/walk_up.png",
     left: "assets/player/walk_left.png",
     right: "assets/player/walk_right.png",
     singleImage: "assets/player/idle.png"
   },
-
-  // Pengaturan NPC
   npcs: {
     arga: { path: "assets/npcs/npc_1.png", cols: 1, rows: 1 },
     rina: { path: "assets/npcs/npc_2.png", cols: 1, rows: 1 },
     dito: { path: "assets/npcs/npc_3.png", cols: 1, rows: 1 }
   },
-
-  // Pengaturan Hewan Peliharaan
   pets: {
     catOrange: { path: "assets/pets/cat.png", cols: 1, rows: 1 },
     catCalico: { path: "assets/pets/cat.png", cols: 1, rows: 1 },
@@ -39,11 +33,26 @@ window.ASSET_CONFIG = {
 
 // --- 2. KONFIGURASI GAME & CERITA ---
 window.GAME_CONFIG = {
-  // Identitas & Tema
   recipientName: "Keyzha",
   senderName: "Dimas",
   occasionTitle: "Catatan Perjalanan & Sudut Kenangan",
   gameTitle: "Diorama Kenangan",
+
+  // Pesan saat pintu depan rumah masih terkunci
+  lockedDoorMessage: {
+    title: "Pintu Terkunci",
+    text: "Pintu rumah kayu ini terkunci rapat. Sepertinya kunci kuningan terselip di suatu tempat di sekitar halaman... Coba periksa di balik pohon besar dekat bebatuan tepi kolam!"
+  },
+
+  // Item Kunci Rumah
+  houseKeyItem: {
+    id: "item_house_key",
+    name: "Kunci Rumah Kuningan",
+    iconType: "key",
+    summary: "Kunci kuningan berukir daun untuk membuka pintu depan rumah.",
+    story: "Kunci kecil berukir halus yang tersimpan di balik keteduhan pohon besar. Dengan kunci ini, pintu rumah pondok yang hangat bisa dibuka.",
+    color: "#f6c445"
+  },
 
   // Quest 1: Surat Pembuka (Di Kotak Pos Depan Rumah)
   openingLetter: {
@@ -53,9 +62,9 @@ window.GAME_CONFIG = {
     paragraphs: [
       "Kalau kamu membaca surat ini, berarti kamu sudah sampai di halaman depan. Tempat kecil ini sengaja dibuat seperti sebuah diorama hangat—sebuah sudut santai untuk rehat sejenak dari hiruk-pikuk hari-hari yang sibuk.",
       "Waktu sering kali berjalan terlalu cepat tanpa sempat kita sadari. Tapi kalau kita menengok ke belakang, ada banyak sekali momen-momen sederhana yang ternyata sangat berarti dan berkesan.",
-      "Sebelum menuju ke taman belakang, cobalah berjalan-jalan keliling halaman ini. Ada beberapa benda kenangan kecil yang tersebar di sudut-sudut taman, teman-teman yang ramah, dan mesin arcade tua yang masih menyala."
+      "Sebelum menuju ke dalam rumah dan taman belakang, cobalah berjalan-jalan keliling halaman ini. Ada beberapa benda kenangan kecil yang tersebar di sudut taman, teman-teman yang ramah, dan kunci rumah yang tersimpan rapi."
     ],
-    hint: "Petunjuk: Mulailah dengan menyapa orang-orang di sekitar taman dan periksa sudut-sudut bunga atau bangku santai.",
+    hint: "Petunjuk: Cari 4 benda kenangan di taman dan temukan kunci rumah di dekat pepohonan rindang.",
     closing: "Selamat menikmati harimu di sini ya."
   },
 
@@ -107,8 +116,8 @@ window.GAME_CONFIG = {
       avatarColor: "#e07a5f",
       dialogues: [
         "Hai! Udara hari ini sejuk sekali ya. Sangat pas untuk jalan-jalan santai tanpa perlu buru-buru.",
-        "Kopi hangat di teras depan sambil mendengar gemerisik daun itu salah satu nikmat sederhana terbaik.",
-        "Oh iya, tadi aku melihat sesuatu yang berkilau di dekat bangku kayu bawah pohon besar. Coba kamu tengok ke sana!"
+        "Kopi hangat di teras depan sambil mendengar gemerisik daun pohon tinggi itu nikmat sederhana terbaik.",
+        "Oh iya, kalau kamu mencari kunci pintu rumah, coba perhatikan sudut teduh di dekat pohon besar samping kolam!"
       ]
     },
     rina: {
@@ -118,7 +127,7 @@ window.GAME_CONFIG = {
       dialogues: [
         "Halo nak! Senang melihatmu mampir ke taman ini. Bunga-bunga hari ini sedang mekar dengan sangat harum.",
         "Merawat tanaman itu mengajari kita tentang kesabaran. Hal yang indah tidak tumbuh dalam semalam, tapi selalu mekar tepat pada waktunya.",
-        "Kalau kamu mencari hal istimewa, coba perhatikan sudut-sudut bunga di dekat aliran air batu."
+        "Rumah kayu di teras itu sangat nyaman di dalamnya. Pastikan kamu sudah menemukan kuncinya ya."
       ]
     },
     dito: {
@@ -174,15 +183,15 @@ window.GAME_CONFIG = {
     defaultNote: "Diambil di sudut taman diorama yang damai."
   },
 
-  // Quest 5: Surat Penutup & Hadiah Utama (Di Gazebo)
+  // Quest 5: Surat Penutup & Hadiah Utama (Di Dalam Rumah / Gazebo)
   closingLetter: {
-    title: "Surat di Bawah Lampu Gazebo",
+    title: "Surat di Ruang Tamu Hangat",
     date: "Hari yang Istimewa",
     greeting: "Untuk Keyzha tersayang,",
     paragraphs: [
-      "Terima kasih banyak sudah meluangkan waktu untuk berjalan keliling, mengumpulkan setiap kenangan kecil, dan sampai di sudut taman rahasia ini.",
-      "Diorama kecil ini mungkin hanya sebuah dunia piksel sederhana, tapi setiap detail di dalamnya dibuat dengan tulus untuk menggambarkan betapa berharganya setiap obrolan, tawa, dan waktu yang kita lalui bersama.",
-      "Hidup mungkin sering kali penuh dengan dinamika, tapi kuharap kamu selalu ingat bahwa kamu selalu punya ruang aman untuk beristirahat, menjadi dirimu sendiri apa adanya, dan merasa dihargai.",
+      "Terima kasih banyak sudah meluangkan waktu untuk berjalan keliling, menemukan kunci rumah, mengumpulkan setiap kenangan kecil, dan sampai di ruangan hangat ini.",
+      "Diorama kecil ini mungkin hanya sebuah dunia piksel sederhana, tapi setiap sudut dan detail di dalamnya dibuat dengan tulus untuk menggambarkan betapa berharganya setiap obrolan, tawa, dan waktu yang kita lalui bersama.",
+      "Hidup mungkin sering kali penuh dengan dinamika dan kesibukan, tapi kuharap kamu selalu ingat bahwa kamu selalu punya ruang aman untuk beristirahat, menjadi dirimu sendiri apa adanya, dan merasa dihargai.",
       "Semoga hari-harimu ke depan selalu dinaungi ketenangan, langkahmu dimudahkan, dan hal-hal baik selalu menemukan jalannya kepadamu."
     ],
     couponsTitle: "Daftar Kupon Kenangan Spesial Untukmu:",

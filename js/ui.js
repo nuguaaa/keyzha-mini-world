@@ -19,6 +19,8 @@ class UIManager {
     this.actionBtnEl = document.getElementById("btn-action");
     this.invBadgeEl = document.getElementById("inv-badge");
     this.toastEl = document.getElementById("toast");
+    this.floatingPromptEl = document.getElementById("floating-prompt-3d");
+    this.screenFadeEl = document.getElementById("screen-fade");
 
     // Modal DOM
     this.dialogModal = document.getElementById("modal-dialog");
@@ -65,6 +67,9 @@ class UIManager {
       this.game.input.right = false;
       this.game.input.up = false;
       this.game.input.down = false;
+      if (this.floatingPromptEl) {
+        this.floatingPromptEl.classList.remove("visible");
+      }
     }
   }
 
@@ -283,6 +288,38 @@ class UIManager {
       this.promptBtnEl.classList.remove("visible");
       this.actionBtnEl.classList.remove("highlight");
     }
+  }
+
+  // Tampilkan badge interaksi 3D mengambang tajam di atas target
+  update3DPrompt(screenPos, promptText) {
+    if (!this.floatingPromptEl) return;
+    if (promptText && screenPos && screenPos.visible && !this.game.isInputLocked) {
+      this.floatingPromptEl.innerText = promptText;
+      this.floatingPromptEl.style.left = `${Math.round(screenPos.x)}px`;
+      this.floatingPromptEl.style.top = `${Math.round(screenPos.y)}px`;
+      this.floatingPromptEl.classList.add("visible");
+    } else {
+      this.floatingPromptEl.classList.remove("visible");
+    }
+  }
+
+  // Efek transisi fade hitam halus saat masuk / keluar rumah
+  triggerFadeTransition(onMidpoint, onComplete) {
+    const fadeEl = this.screenFadeEl || document.getElementById("screen-fade");
+    if (!fadeEl) {
+      if (onMidpoint) onMidpoint();
+      if (onComplete) onComplete();
+      return;
+    }
+
+    fadeEl.classList.add("active");
+    setTimeout(() => {
+      if (onMidpoint) onMidpoint();
+      setTimeout(() => {
+        fadeEl.classList.remove("active");
+        if (onComplete) onComplete();
+      }, 250);
+    }, 450);
   }
 
   updateTimeButtonIcon(time) {
