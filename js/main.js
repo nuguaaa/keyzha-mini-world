@@ -32,6 +32,9 @@ class GameApp {
     this.arcadeCompleted = false;
     this.photoTaken = false;
     this.closingLetterOpened = false;
+    this.hasHouseKey = false;
+    this.houseUnlocked = false;
+    this.isTransitioning = false;
 
     // Entitas di Dunia
     this.npcs = [];
@@ -128,6 +131,8 @@ class GameApp {
     const mailbox = {
       x: -5.5,
       z: 2.8,
+      zone: "exterior",
+      badgeHeight: 1.8,
       promptText: "[A] Baca Surat di Kotak Pos",
       onInteract: () => {
         window.soundSystem.playClick();
@@ -143,6 +148,8 @@ class GameApp {
     const arcade = {
       x: 5,
       z: 5,
+      zone: "exterior",
+      badgeHeight: 2.4,
       promptText: "[A] Mainkan Mesin Arcade",
       onInteract: () => {
         window.soundSystem.playClick();
@@ -155,6 +162,8 @@ class GameApp {
     const photobooth = {
       x: 9.5,
       z: 1.5,
+      zone: "exterior",
+      badgeHeight: 2.5,
       promptText: "[A] Masuk ke Photobooth",
       onInteract: () => {
         window.soundSystem.playClick();
@@ -163,10 +172,12 @@ class GameApp {
     };
     this.interactionManager.register(photobooth);
 
-    // Peti Hadiah Utama (Quest 5)
+    // Peti Hadiah Utama (Quest 5 di Gazebo)
     const giftChest = {
       x: 0,
       z: -16.5,
+      zone: "exterior",
+      badgeHeight: 1.8,
       promptText: "[A] Buka Peti Hadiah Utama",
       onInteract: () => {
         window.soundSystem.playChestOpen();
@@ -176,6 +187,72 @@ class GameApp {
       }
     };
     this.interactionManager.register(giftChest);
+
+    // Pintu Depan Rumah Kayu (Awalnya Terkunci)
+    const frontDoor = {
+      x: -7.0,
+      z: -4.8,
+      y: 1.2,
+      zone: "exterior",
+      badgeHeight: 2.3,
+      promptText: this.hasHouseKey ? "[A] Masuk ke Dalam Rumah" : "[A] Pintu Depan Terkunci",
+      onInteract: () => {
+        if (this.hasHouseKey || this.houseUnlocked) {
+          this.enterHouse();
+        } else {
+          window.soundSystem.playDoorLocked();
+          this.ui.openDialog(cfg.lockedDoorMessage.title, "Pondok Kayu", "#b08968", cfg.lockedDoorMessage.text);
+        }
+      }
+    };
+    this.frontDoorEntity = frontDoor;
+    this.interactionManager.register(frontDoor);
+
+    // Keset Pintu Keluar Interior Rumah
+    const interiorExitDoor = {
+      x: 100.0,
+      z: 103.8,
+      y: 0,
+      zone: "interior",
+      badgeHeight: 1.5,
+      promptText: "[A] Keluar ke Halaman",
+      onInteract: () => {
+        this.exitHouse();
+      }
+    };
+    this.interiorExitDoorEntity = interiorExitDoor;
+    this.interactionManager.register(interiorExitDoor);
+
+    // Meja Belajar & Kado Spesial di Dalam Rumah
+    const studyTable = {
+      x: 104.5,
+      z: 97.5,
+      y: 0.8,
+      zone: "interior",
+      badgeHeight: 2.0,
+      promptText: "[A] Buka Kado & Surat Meja Belajar",
+      onInteract: () => {
+        window.soundSystem.playChestOpen();
+        this.ui.openLetter(cfg.closingLetter, true);
+        this.closingLetterOpened = true;
+        this.saveProgress();
+      }
+    };
+    this.studyTableEntity = studyTable;
+    this.interactionManager.register(studyTable);
+
+    // Kunci Rumah Tersembunyi di Balik Pohon Besar (Dekat Bebatuan)
+    const keyData = cfg.houseKeyItem;
+    const houseKeyObj = new CollectibleItem(this.world, keyData, -13.5, 2.8, 0.4);
+    houseKeyObj.zone = "exterior";
+    houseKeyObj.badgeHeight = 1.6;
+    houseKeyObj.promptText = `[A] Ambil ${keyData.name}`;
+    houseKeyObj.onInteract = () => {
+      this.collectHouseKey(houseKeyObj);
+    };
+    this.houseKeyEntity = houseKeyObj;
+    this.collectibles.push(houseKeyObj);
+    this.interactionManager.register(houseKeyObj);
 
     // 4. 4 Item Kenangan (Quest 2)
     const itemPositions = [
@@ -189,6 +266,8 @@ class GameApp {
       const itemData = cfg.questItems.find(it => it.id === pos.id);
       if (itemData) {
         const itemObj = new CollectibleItem(this.world, itemData, pos.x, pos.z, pos.y);
+        itemObj.zone = "exterior";
+        itemObj.badgeHeight = 1.6;
         itemObj.promptText = `[A] Ambil ${itemData.name}`;
         itemObj.onInteract = () => {
           this.collectItem(itemObj);
@@ -307,12 +386,60 @@ class GameApp {
     this.updateQuestUI();
     this.saveProgress();
 
-    const memoryCount = this.collectedItems.filter(i => i.id && i.id.startsWith("item_")).length;
+    const memoryCount = this.collectedItems.filter(i => i.id && i.id.startsWith("item_") && i.id !== "item_house_key").length;
     if (memoryCount >= 4 && this.currentQuestIndex === 2) {
       setTimeout(() => {
         this.advanceQuest(3);
       }, 800);
     }
+  }
+
+  // Mengambil Kunci Rumah Kuningan
+  collectHouseKey(itemObj) {
+    if (itemObj.collected) return;
+    itemObj.collect();
+
+    this.hasHouseKey = true;
+    this.houseUnlocked = true;
+    if (this.frontDoorEntity) {
+      this.frontDoorEntity.promptText = "[A] Masuk ke Dalam Rumah";
+    }
+
+    this.collectedItems.push(itemObj.data);
+    window.soundSystem.playItemCollect();
+    this.ui.showToast(`🗝️ Ditemukan: "${itemObj.data.name}"! Pintu rumah kini bisa dibuka.`);
+    this.ui.updateInventoryBadge(this.collectedItems.length);
+    this.saveProgress();
+  }
+
+  // Masuk ke dalam rumah dengan fade transisi halus
+  enterHouse() {
+    if (this.isTransitioning) return;
+    this.isTransitioning = true;
+    this.isInputLocked = true;
+    window.soundSystem.playDoorOpen();
+
+    this.ui.triggerFadeTransition(() => {
+      this.world.enterHouse(this.player);
+      this.isInputLocked = false;
+      this.isTransitioning = false;
+      this.ui.showToast("Memasuki ruang tamu pondok yang hangat 🏡");
+    });
+  }
+
+  // Keluar dari dalam rumah kembali ke halaman
+  exitHouse() {
+    if (this.isTransitioning) return;
+    this.isTransitioning = true;
+    this.isInputLocked = true;
+    window.soundSystem.playDoorOpen();
+
+    this.ui.triggerFadeTransition(() => {
+      this.world.exitHouse(this.player);
+      this.isInputLocked = false;
+      this.isTransitioning = false;
+      this.ui.showToast("Kembali ke halaman taman yang asri 🌿");
+    });
   }
 
   onArcadeWin() {
@@ -368,6 +495,8 @@ class GameApp {
     const data = {
       quest: this.currentQuestIndex,
       items: this.collectedItems.map(i => i.id),
+      hasHouseKey: this.hasHouseKey,
+      houseUnlocked: this.houseUnlocked,
       arcadeCompleted: this.arcadeCompleted,
       photoTaken: this.photoTaken,
       closingLetterOpened: this.closingLetterOpened,
@@ -389,11 +518,25 @@ class GameApp {
         this.arcadeCompleted = !!data.arcadeCompleted;
         this.photoTaken = !!data.photoTaken;
         this.closingLetterOpened = !!data.closingLetterOpened;
+        this.hasHouseKey = !!data.hasHouseKey;
+        this.houseUnlocked = !!data.houseUnlocked;
+
+        if (this.hasHouseKey && this.frontDoorEntity) {
+          this.frontDoorEntity.promptText = "[A] Masuk ke Dalam Rumah";
+        }
 
         if (Array.isArray(data.items)) {
           data.items.forEach(itemId => {
             const cObj = this.collectibles.find(c => c.data.id === itemId);
-            if (cObj) {
+            if (itemId === "item_house_key") {
+              this.hasHouseKey = true;
+              this.houseUnlocked = true;
+              if (this.houseKeyEntity) this.houseKeyEntity.collect();
+              if (this.frontDoorEntity) this.frontDoorEntity.promptText = "[A] Masuk ke Dalam Rumah";
+              if (!this.collectedItems.some(it => it.id === itemId)) {
+                this.collectedItems.push(window.GAME_CONFIG.houseKeyItem);
+              }
+            } else if (cObj) {
               cObj.collect();
               if (!this.collectedItems.some(it => it.id === itemId)) {
                 this.collectedItems.push(cObj.data);
@@ -456,7 +599,7 @@ class GameApp {
     // 4. Update Lingkungan (Pohon goyang angin, air kolam, kupu-kupu, kunang-kunang)
     this.world.updateEnvironment(delta, time);
 
-    // 5. Cek Objek Terdekat untuk Prompt Kontekstual Tunggal
+    // 5. Cek Objek Terdekat untuk Prompt Kontekstual Tunggal & Badge 3D Mengambang Tajam
     if (!this.isInputLocked) {
       const nearest = this.interactionManager.update();
       if (nearest) {
@@ -471,11 +614,15 @@ class GameApp {
           }
         }
         this.ui.updateContextPrompt(promptText);
+        const screenPos = this.interactionManager.getScreenPosition(this.world.camera);
+        this.ui.update3DPrompt(screenPos, promptText);
       } else {
         this.ui.updateContextPrompt(null);
+        this.ui.update3DPrompt(null, null);
       }
     } else {
       this.ui.updateContextPrompt(null);
+      this.ui.update3DPrompt(null, null);
     }
 
     // 6. Render Scene 3D

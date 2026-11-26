@@ -4,7 +4,7 @@
  * ============================================================================
  * 100% tanpa file audio eksternal (.mp3/.wav).
  * Menghasilkan efek suara langkah, klik, dialog, item pickup, kuis/quest,
- * suara hewan, dan musik latar santai (BGM) bernuansa cozy/lofi.
+ * suara hewan, suara pintu kayu (buka & terkunci), dan musik latar santai (BGM).
  */
 
 class SoundSystem {
@@ -121,7 +121,63 @@ class SoundSystem {
     osc.stop(t + 0.05);
   }
 
-  // Huruf Dialog / Blip (Animal Crossing style santai)
+  // Suara Pintu Terkunci (Goyang Handle Kayu & Kunci Macet)
+  playDoorLocked() {
+    if (this.isMuted || !this.initialized) return;
+    this.ensureContext();
+    const t = this.ctx.currentTime;
+
+    // Ketukan kayu berderak
+    [0, 0.09].forEach(delay => {
+      const osc = this.ctx.createOscillator();
+      const gain = this.ctx.createGain();
+      osc.type = "triangle";
+      osc.frequency.setValueAtTime(140, t + delay);
+      osc.frequency.exponentialRampToValueAtTime(50, t + delay + 0.07);
+      gain.gain.setValueAtTime(0.18, t + delay);
+      gain.gain.exponentialRampToValueAtTime(0.001, t + delay + 0.07);
+
+      osc.connect(gain);
+      gain.connect(this.sfxGain);
+      osc.start(t + delay);
+      osc.stop(t + delay + 0.07);
+    });
+  }
+
+  // Suara Pintu Terbuka (Kunci Membuka & Ayunan Kayu Hangat)
+  playDoorOpen() {
+    if (this.isMuted || !this.initialized) return;
+    this.ensureContext();
+    const t = this.ctx.currentTime;
+
+    // Dentang kunci kuningan terbuka
+    const osc1 = this.ctx.createOscillator();
+    const gain1 = this.ctx.createGain();
+    osc1.type = "sine";
+    osc1.frequency.setValueAtTime(880, t);
+    osc1.frequency.exponentialRampToValueAtTime(1320, t + 0.06);
+    gain1.gain.setValueAtTime(0.15, t);
+    gain1.gain.exponentialRampToValueAtTime(0.001, t + 0.08);
+    osc1.connect(gain1);
+    gain1.connect(this.sfxGain);
+    osc1.start(t);
+    osc1.stop(t + 0.08);
+
+    // Ayunan pintu kayu berat
+    const osc2 = this.ctx.createOscillator();
+    const gain2 = this.ctx.createGain();
+    osc2.type = "triangle";
+    osc2.frequency.setValueAtTime(90, t + 0.06);
+    osc2.frequency.linearRampToValueAtTime(160, t + 0.35);
+    gain2.gain.setValueAtTime(0.14, t + 0.06);
+    gain2.gain.exponentialRampToValueAtTime(0.001, t + 0.45);
+    osc2.connect(gain2);
+    gain2.connect(this.sfxGain);
+    osc2.start(t + 0.06);
+    osc2.stop(t + 0.45);
+  }
+
+  // Huruf Dialog / Blip
   playDialogueBlip(pitch = 1.0) {
     if (this.isMuted || !this.initialized) return;
     this.ensureContext();
@@ -144,11 +200,11 @@ class SoundSystem {
     osc.stop(t + 0.04);
   }
 
-  // Mengambil Item Kenangan (Arpeggio Berkilau)
+  // Mengambil Item Kenangan / Kunci (Arpeggio Berkilau)
   playItemCollect() {
     if (this.isMuted || !this.initialized) return;
     this.ensureContext();
-    const notes = [523.25, 659.25, 783.99, 1046.5]; // C5, E5, G5, C6
+    const notes = [523.25, 659.25, 783.99, 1046.5];
     const t = this.ctx.currentTime;
 
     notes.forEach((freq, idx) => {
@@ -175,9 +231,9 @@ class SoundSystem {
     if (this.isMuted || !this.initialized) return;
     this.ensureContext();
     const chords = [
-      { notes: [440, 554.37, 659.25], delay: 0.0, dur: 0.25 }, // A
-      { notes: [493.88, 622.25, 739.99], delay: 0.22, dur: 0.25 }, // B
-      { notes: [523.25, 659.25, 783.99, 1046.5], delay: 0.45, dur: 0.8 } // C Maj
+      { notes: [440, 554.37, 659.25], delay: 0.0, dur: 0.25 },
+      { notes: [493.88, 622.25, 739.99], delay: 0.22, dur: 0.25 },
+      { notes: [523.25, 659.25, 783.99, 1046.5], delay: 0.45, dur: 0.8 }
     ];
 
     const t = this.ctx.currentTime;
@@ -201,7 +257,6 @@ class SoundSystem {
     });
   }
 
-  // Suara Kucing (Meow Hangat)
   playMeow() {
     if (this.isMuted || !this.initialized) return;
     this.ensureContext();
@@ -226,7 +281,6 @@ class SoundSystem {
     osc.stop(t + 0.48);
   }
 
-  // Suara Ayam (Petok riang)
   playChicken() {
     if (this.isMuted || !this.initialized) return;
     this.ensureContext();
@@ -252,7 +306,6 @@ class SoundSystem {
     });
   }
 
-  // Suara Shutter Kamera Photobooth
   playCameraFlash() {
     if (this.isMuted || !this.initialized) return;
     this.ensureContext();
@@ -282,7 +335,6 @@ class SoundSystem {
     osc2.stop(t + 0.35);
   }
 
-  // Suara Arcade Mini-Game
   playArcadeScore() {
     if (this.isMuted || !this.initialized) return;
     this.ensureContext();
@@ -382,10 +434,10 @@ class SoundSystem {
     this.bgmPlaying = true;
 
     const chordProgression = [
-      { root: 174.61, notes: [261.63, 329.63, 392.00, 523.25] }, // Fmaj7
-      { root: 164.81, notes: [246.94, 329.63, 392.00, 493.88] }, // Em7
-      { root: 146.83, notes: [220.00, 261.63, 349.23, 440.00] }, // Dm7
-      { root: 130.81, notes: [196.00, 261.63, 329.63, 392.00] }  // Cmaj7
+      { root: 174.61, notes: [261.63, 329.63, 392.00, 523.25] },
+      { root: 164.81, notes: [246.94, 329.63, 392.00, 493.88] },
+      { root: 146.83, notes: [220.00, 261.63, 349.23, 440.00] },
+      { root: 130.81, notes: [196.00, 261.63, 329.63, 392.00] }
     ];
 
     let chordIndex = 0;
@@ -401,7 +453,6 @@ class SoundSystem {
       filter.frequency.setValueAtTime(800, now);
       filter.connect(this.bgmGain);
 
-      // Root Bass yang dalam & lembut
       const bassOsc = this.ctx.createOscillator();
       const bassGain = this.ctx.createGain();
       bassOsc.type = "sine";
@@ -414,7 +465,6 @@ class SoundSystem {
       bassOsc.start(now);
       bassOsc.stop(now + duration);
 
-      // Not-not akor
       chord.notes.forEach((freq, idx) => {
         const noteDelay = idx * 0.14;
         const osc = this.ctx.createOscillator();
@@ -434,7 +484,6 @@ class SoundSystem {
         osc.stop(now + noteDelay + 2.9);
       });
 
-      // Melodi hiasan kecil acak
       if (Math.random() > 0.3) {
         const melodyNotes = [523.25, 587.33, 659.25, 783.99, 880.00];
         const randomNote = melodyNotes[Math.floor(Math.random() * melodyNotes.length)];

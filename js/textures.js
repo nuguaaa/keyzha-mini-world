@@ -21,22 +21,18 @@ class TextureGenerator {
       return tex;
     }
 
-    // Buat placeholder awal dari fallback agar tidak pernah ada frame kosong
     const initialTex = fallbackFn();
 
     this.loader.load(
       path,
       (customTexture) => {
-        // Berhasil load dari assets/
         customTexture.magFilter = THREE.NearestFilter;
         customTexture.minFilter = THREE.NearestFilter;
         customTexture.generateMipmaps = false;
         if (onLoaded) onLoaded(customTexture);
       },
       undefined,
-      (err) => {
-        // 404 / Gagal load: tetap menggunakan fallback procedural tanpa error
-        // Tidak perlu log error agar konsol tetap bersih
+      () => {
         if (onLoaded) onLoaded(initialTex);
       }
     );
@@ -60,17 +56,51 @@ class TextureGenerator {
     return texture;
   }
 
+  // --- TEKSTUR POHON MENJULANG TINGGI (KULIT KAYU BERTEKSTUR) ---
+
+  // Kulit Kayu Batang Pohon Alami (Bark Texture)
+  getBarkTexture() {
+    if (this.cache.bark) return this.cache.bark;
+    this.cache.bark = this.createCanvasTexture(32, 64, (ctx, w, h) => {
+      // Dasar cokelat kayu tua
+      ctx.fillStyle = "#3e2312";
+      ctx.fillRect(0, 0, w, h);
+
+      // Guratan alur kulit kayu vertikal
+      const barkTones = ["#4a2c17", "#321b0d", "#5a361c", "#28150a"];
+      for (let x = 0; x < w; x += 3) {
+        ctx.fillStyle = barkTones[(x * 7) % barkTones.length];
+        ctx.fillRect(x, 0, 2, h);
+      }
+
+      // Garis serat kayu bergelombang
+      for (let i = 0; i < 40; i++) {
+        const bx = Math.floor(Math.random() * (w - 2));
+        const by = Math.floor(Math.random() * (h - 8));
+        ctx.fillStyle = Math.random() > 0.5 ? "#5a361c" : "#241308";
+        ctx.fillRect(bx, by, 2, 6 + Math.floor(Math.random() * 8));
+      }
+
+      // Sentuhan lumut kehijauan di bagian bawah batang
+      ctx.fillStyle = "#3a5a24";
+      for (let i = 0; i < 20; i++) {
+        ctx.fillRect(Math.floor(Math.random() * w), h - 14 + Math.floor(Math.random() * 14), 2, 2);
+      }
+    });
+    this.cache.bark.wrapS = THREE.RepeatWrapping;
+    this.cache.bark.wrapT = THREE.RepeatWrapping;
+    return this.cache.bark;
+  }
+
   // --- TEKSTUR PERMUKAAN TANAH & ALAM ---
 
-  // Rumput Subur HD-2D dengan Clover & Bunga Liar
+  // Rumput Subur HD-2D
   getGrassTexture() {
     if (this.cache.grass) return this.cache.grass;
     this.cache.grass = this.createCanvasTexture(64, 64, (ctx, w, h) => {
-      // Base hijau zamrud hangat
       ctx.fillStyle = "#5c9442";
       ctx.fillRect(0, 0, w, h);
 
-      // Variasi warna helai rumput
       const colors = ["#4e8235", "#68a649", "#78bc53", "#43732c", "#89cb62"];
       for (let i = 0; i < 320; i++) {
         const x = Math.floor(Math.random() * w);
@@ -79,7 +109,6 @@ class TextureGenerator {
         ctx.fillRect(x, y, 1, 2);
       }
 
-      // Daun Semanggi (Clover)
       for (let i = 0; i < 6; i++) {
         const cx = 6 + Math.floor(Math.random() * (w - 12));
         const cy = 6 + Math.floor(Math.random() * (h - 12));
@@ -89,7 +118,6 @@ class TextureGenerator {
         ctx.fillRect(cx, cy + 2, 1, 2);
       }
 
-      // Titik Bunga Daisy & Buttercup
       for (let i = 0; i < 7; i++) {
         const x = 4 + Math.floor(Math.random() * (w - 8));
         const y = 4 + Math.floor(Math.random() * (h - 8));
@@ -108,67 +136,43 @@ class TextureGenerator {
     return this.cache.grass;
   }
 
-  // Lapisan Tanah Potongan Diorama (Cutaway Soil Strata)
+  // Sisi Teras & Lapisan Tanah (Tanpa Peregangan)
   getSoilSideTexture() {
     if (this.cache.soilSide) return this.cache.soilSide;
-    this.cache.soilSide = this.createCanvasTexture(64, 96, (ctx, w, h) => {
-      // Lapisan rumput atas dengan sulur rumput menggantung
+    this.cache.soilSide = this.createCanvasTexture(32, 32, (ctx, w, h) => {
+      // Rumput atas 4px
       ctx.fillStyle = "#4e8235";
-      ctx.fillRect(0, 0, w, 8);
-      for (let x = 0; x < w; x += 2) {
-        const drop = 3 + Math.floor(Math.random() * 5);
-        ctx.fillStyle = (x % 4 === 0) ? "#3e6b29" : "#68a649";
-        ctx.fillRect(x, 8, 2, drop);
-      }
+      ctx.fillRect(0, 0, w, 4);
 
-      // Lapisan tanah humus subur (coklat gelap)
+      // Tanah humus subur
       ctx.fillStyle = "#5c3d2e";
-      ctx.fillRect(0, 14, w, 28);
+      ctx.fillRect(0, 4, w, 14);
 
-      // Lapisan lempung tengah (coklat kemerahan)
+      // Tanah lempung batu
       ctx.fillStyle = "#442b1f";
-      ctx.fillRect(0, 42, w, 30);
+      ctx.fillRect(0, 18, w, 14);
 
-      // Lapisan batuan dasar (bedrock gelap)
-      ctx.fillStyle = "#291912";
-      ctx.fillRect(0, 72, w, 24);
-
-      // Bebatuan tertanam dalam tanah
-      const rockColors = ["#8a705f", "#6f5a4c", "#3d2b23", "#b09a88", "#544337"];
-      for (let i = 0; i < 60; i++) {
-        const rx = Math.floor(Math.random() * (w - 4));
-        const ry = 18 + Math.floor(Math.random() * (h - 24));
+      // Kerikil batu
+      const rockColors = ["#8a705f", "#6f5a4c", "#3d2b23", "#b09a88"];
+      for (let i = 0; i < 18; i++) {
+        const rx = Math.floor(Math.random() * (w - 2));
+        const ry = 6 + Math.floor(Math.random() * (h - 8));
         ctx.fillStyle = rockColors[Math.floor(Math.random() * rockColors.length)];
-        const rw = Math.random() > 0.6 ? 3 : 2;
-        const rh = Math.random() > 0.6 ? 3 : 2;
-        ctx.fillRect(rx, ry, rw, rh);
-      }
-
-      // Akar pohon kecil merambat
-      ctx.fillStyle = "#8a6642";
-      for (let i = 0; i < 6; i++) {
-        let ax = 6 + Math.floor(Math.random() * (w - 12));
-        let ay = 14;
-        for (let s = 0; s < 12; s++) {
-          ctx.fillRect(ax, ay + s * 2, 1, 2);
-          if (Math.random() > 0.45) ax += (Math.random() > 0.5 ? 1 : -1);
-        }
+        ctx.fillRect(rx, ry, 2, 2);
       }
     });
     this.cache.soilSide.wrapS = THREE.RepeatWrapping;
-    this.cache.soilSide.wrapT = THREE.ClampToEdgeWrapping;
+    this.cache.soilSide.wrapT = THREE.RepeatWrapping;
     return this.cache.soilSide;
   }
 
-  // Jalan Batu Paving Diorama (Cobblestone Path)
+  // Jalan Paving Batu
   getStonePathTexture() {
     if (this.cache.stonePath) return this.cache.stonePath;
     this.cache.stonePath = this.createCanvasTexture(64, 64, (ctx, w, h) => {
-      // Mortar semen gelap antar batu
       ctx.fillStyle = "#4a443b";
       ctx.fillRect(0, 0, w, h);
 
-      // Blok batu alami bertekstur
       const stoneGrid = [
         { x: 2, y: 2, w: 18, h: 12, c: "#9c9489" },
         { x: 23, y: 2, w: 22, h: 14, c: "#aba398" },
@@ -188,23 +192,15 @@ class TextureGenerator {
         ctx.fillStyle = s.c;
         ctx.fillRect(s.x, s.y, s.w, s.h);
 
-        // Highlight tepi atas & kiri batu
         ctx.fillStyle = "rgba(255, 255, 255, 0.28)";
         ctx.fillRect(s.x, s.y, s.w, 2);
         ctx.fillRect(s.x, s.y, 2, s.h);
 
-        // Bayangan tepi bawah & kanan
         ctx.fillStyle = "rgba(0, 0, 0, 0.32)";
         ctx.fillRect(s.x, s.y + s.h - 2, s.w, 2);
         ctx.fillRect(s.x + s.w - 2, s.y, 2, s.h);
-
-        // Bintik tekstur batu
-        ctx.fillStyle = "rgba(0, 0, 0, 0.08)";
-        ctx.fillRect(s.x + 4, s.y + 4, 2, 2);
-        ctx.fillRect(s.x + s.w - 6, s.y + 5, 2, 2);
       });
 
-      // Lumut hijau di sela-sela batu
       ctx.fillStyle = "#5c8c38";
       ctx.fillRect(20, 14, 4, 3);
       ctx.fillRect(45, 28, 4, 4);
@@ -215,7 +211,7 @@ class TextureGenerator {
     return this.cache.stonePath;
   }
 
-  // Papan Kayu Teras (Wood Planks)
+  // Papan Kayu Teras
   getWoodDeckTexture() {
     if (this.cache.woodDeck) return this.cache.woodDeck;
     this.cache.woodDeck = this.createCanvasTexture(64, 64, (ctx, w, h) => {
@@ -224,18 +220,15 @@ class TextureGenerator {
 
       const plankHeight = 16;
       for (let y = 0; y < h; y += plankHeight) {
-        // Celah antar bilah papan
         ctx.fillStyle = "#3d2212";
         ctx.fillRect(0, y, w, 2);
 
-        // Serat kayu
         ctx.fillStyle = "#9c653d";
         ctx.fillRect(0, y + 2, w, 2);
         ctx.fillStyle = "#784b2a";
         ctx.fillRect(6, y + 6, 26, 2);
         ctx.fillRect(36, y + 10, 22, 2);
 
-        // Paku kayu kuningan
         ctx.fillStyle = "#2d180c";
         ctx.fillRect(4, y + 7, 2, 3);
         ctx.fillRect(w - 6, y + 7, 2, 3);
@@ -246,14 +239,13 @@ class TextureGenerator {
     return this.cache.woodDeck;
   }
 
-  // Air Kolam Berkilau Transparan
+  // Air Kolam
   getWaterTexture() {
     if (this.cache.water) return this.cache.water;
     this.cache.water = this.createCanvasTexture(64, 64, (ctx, w, h) => {
       ctx.fillStyle = "#2b7ba8";
       ctx.fillRect(0, 0, w, h);
 
-      // Gelombang riak air
       ctx.fillStyle = "#4fa8db";
       for (let y = 4; y < h; y += 8) {
         for (let x = 0; x < w; x += 16) {
@@ -261,24 +253,108 @@ class TextureGenerator {
         }
       }
 
-      // Cahaya pantulan putih berkilau
       ctx.fillStyle = "rgba(255, 255, 255, 0.55)";
       ctx.fillRect(8, 8, 5, 2);
       ctx.fillRect(36, 20, 6, 2);
       ctx.fillRect(18, 40, 5, 2);
-      ctx.fillRect(46, 52, 4, 2);
     });
     this.cache.water.wrapS = THREE.RepeatWrapping;
     this.cache.water.wrapT = THREE.RepeatWrapping;
     return this.cache.water;
   }
 
-  // --- BANGUNAN & PROPS DETAIL ---
+  // --- TEKSTUR INTERIOR RUMAH ---
+
+  // Lantai Kayu Parket Ruang Tamu (Interior Wood Flooring)
+  getWoodFloorTexture() {
+    if (this.cache.woodFloor) return this.cache.woodFloor;
+    this.cache.woodFloor = this.createCanvasTexture(64, 64, (ctx, w, h) => {
+      ctx.fillStyle = "#a26a42";
+      ctx.fillRect(0, 0, w, h);
+
+      // Pola parket kayu hangat
+      const rowH = 16;
+      for (let y = 0; y < h; y += rowH) {
+        ctx.fillStyle = "#633c24";
+        ctx.fillRect(0, y, w, 2);
+
+        const colW = 32;
+        const offset = (y / rowH) % 2 === 0 ? 0 : 16;
+        for (let x = offset; x < w; x += colW) {
+          ctx.fillStyle = "#633c24";
+          ctx.fillRect(x, y, 2, rowH);
+        }
+
+        ctx.fillStyle = "#b87b50";
+        ctx.fillRect(0, y + 2, w, 1);
+      }
+    });
+    this.cache.woodFloor.wrapS = THREE.RepeatWrapping;
+    this.cache.woodFloor.wrapT = THREE.RepeatWrapping;
+    return this.cache.woodFloor;
+  }
+
+  // Karpet Hangat Ruang Tamu (Cozy Living Room Rug)
+  getInteriorRugTexture() {
+    if (this.cache.rug) return this.cache.rug;
+    this.cache.rug = this.createCanvasTexture(64, 48, (ctx, w, h) => {
+      // Dasar merah marun hangat
+      ctx.fillStyle = "#8b1e2f";
+      ctx.fillRect(0, 0, w, h);
+
+      // Border ornamen krem emas
+      ctx.strokeStyle = "#e8c37d";
+      ctx.lineWidth = 3;
+      ctx.strokeRect(3, 3, w - 6, h - 6);
+
+      // Motif berlian tengah
+      ctx.fillStyle = "#c0392b";
+      ctx.fillRect(16, 12, 32, 24);
+
+      ctx.fillStyle = "#e8c37d";
+      ctx.fillRect(28, 20, 8, 8);
+      ctx.fillRect(30, 16, 4, 16);
+      ctx.fillRect(24, 22, 16, 4);
+
+      // Rumbai-rumbai putih di ujung kiri dan kanan
+      ctx.fillStyle = "#f5f5f5";
+      for (let y = 2; y < h; y += 4) {
+        ctx.fillRect(0, y, 2, 2);
+        ctx.fillRect(w - 2, y, 2, 2);
+      }
+    });
+    return this.cache.rug;
+  }
+
+  // Dinding Interior Rumah
+  getInteriorWallTexture() {
+    if (this.cache.intWall) return this.cache.intWall;
+    this.cache.intWall = this.createCanvasTexture(64, 64, (ctx, w, h) => {
+      ctx.fillStyle = "#fbf5eb"; // Wallpaper krem hangat
+      ctx.fillRect(0, 0, w, h);
+
+      // Motif garis vertikal pastel lembut
+      ctx.fillStyle = "#f0e4d2";
+      for (let x = 0; x < w; x += 8) {
+        ctx.fillRect(x, 0, 3, h);
+      }
+
+      // Baseboard kayu cokelat di bawah
+      ctx.fillStyle = "#5c371f";
+      ctx.fillRect(0, h - 8, w, 8);
+      ctx.fillStyle = "#3e2312";
+      ctx.fillRect(0, h - 8, w, 2);
+    });
+    this.cache.intWall.wrapS = THREE.RepeatWrapping;
+    this.cache.intWall.wrapT = THREE.RepeatWrapping;
+    return this.cache.intWall;
+  }
+
+  // --- BANGUNAN & PROPS EKSTERIOR ---
 
   getHouseWallTexture() {
     if (this.cache.houseWall) return this.cache.houseWall;
     this.cache.houseWall = this.createCanvasTexture(64, 64, (ctx, w, h) => {
-      // Plester krem hangat
       ctx.fillStyle = "#f3ead9";
       ctx.fillRect(0, 0, w, h);
 
@@ -287,17 +363,14 @@ class TextureGenerator {
         ctx.fillRect(Math.floor(Math.random() * w), Math.floor(Math.random() * h), 2, 2);
       }
 
-      // Balok kayu kokoh vertikal & horizontal
       ctx.fillStyle = "#5c371f";
       ctx.fillRect(0, 0, 5, h);
       ctx.fillRect(w - 5, 0, 5, h);
       ctx.fillRect(0, 0, w, 5);
       ctx.fillRect(0, h - 5, w, 5);
-
-      // Balok silang estetika Tudor
-      ctx.fillStyle = "#4a2c17";
-      ctx.fillRect(w / 2 - 2, 0, 4, h);
     });
+    this.cache.houseWall.wrapS = THREE.RepeatWrapping;
+    this.cache.houseWall.wrapT = THREE.RepeatWrapping;
     return this.cache.houseWall;
   }
 
@@ -327,11 +400,10 @@ class TextureGenerator {
     return this.cache.roof;
   }
 
-  // --- KARAKTER DETAIL TINGGI (192 x 256 px -> 3 Kolom x 4 Baris) ---
+  // --- KARAKTER DETAIL TINGGI (192 x 256 px) ---
   getPlayerSpriteSheet() {
     if (this.cache.playerSheet) return this.cache.playerSheet;
 
-    // Canvas 192 x 256: 3 Frame Kolom (64px tiap kolom) x 4 Arah Baris (64px tiap baris)
     this.cache.playerSheet = this.createCanvasTexture(192, 256, (ctx, w, h) => {
       const fw = 64;
       const fh = 64;
@@ -348,12 +420,11 @@ class TextureGenerator {
           const bounce = (frame === 1 || frame === 2) ? -1 : 0;
 
           // 1. Kaki & Sepatu
-          ctx.fillStyle = "#2c3e50"; // Celana navy
+          ctx.fillStyle = "#2c3e50";
           if (dir === "down" || dir === "up") {
             ctx.fillRect(cx - 9, cy + 12 + (frame === 1 ? -2 : 0) + bounce, 7, 12);
             ctx.fillRect(cx + 2, cy + 12 + (frame === 2 ? -2 : 0) + bounce, 7, 12);
 
-            // Sepatu kulit coklat bertekstur
             ctx.fillStyle = "#4a2e1b";
             ctx.fillRect(cx - 10, cy + 22 + (frame === 1 ? -2 : 0) + bounce, 9, 5);
             ctx.fillRect(cx + 2, cy + 22 + (frame === 2 ? -2 : 0) + bounce, 9, 5);
@@ -363,22 +434,22 @@ class TextureGenerator {
             ctx.fillRect(cx - 6 + stepOffset, cy + 22 + bounce, 12, 5);
           }
 
-          // 2. Jaket Hangat Mustard / Autumn Knit
+          // 2. Jaket Hangat Mustard
           ctx.fillStyle = "#d47a28";
           ctx.fillRect(cx - 12, cy - 4 + bounce, 24, 18);
           ctx.fillStyle = "#b8631b";
-          ctx.fillRect(cx - 12, cy + 10 + bounce, 24, 4); // Pinggiran jaket
+          ctx.fillRect(cx - 12, cy + 10 + bounce, 24, 4);
 
           // Syal Marun Hangat
           ctx.fillStyle = "#9d0208";
           ctx.fillRect(cx - 11, cy - 6 + bounce, 22, 6);
           if (dir === "down") {
-            ctx.fillRect(cx - 2, cy + bounce, 5, 10); // Ujung syal menjuntai ke depan
+            ctx.fillRect(cx - 2, cy + bounce, 5, 10);
             ctx.fillStyle = "#ba181b";
             ctx.fillRect(cx - 1, cy + 1 + bounce, 3, 8);
           }
 
-          // Tas Ransel Kulit (Tampak Belakang & Samping)
+          // Tas Ransel
           if (dir === "up") {
             ctx.fillStyle = "#556b2f";
             ctx.fillRect(cx - 10, cy - 2 + bounce, 20, 16);
@@ -393,12 +464,10 @@ class TextureGenerator {
           }
 
           // 3. Kepala & Wajah
-          ctx.fillStyle = "#fed0bb"; // Kulit hangat
+          ctx.fillStyle = "#fed0bb";
           ctx.fillRect(cx - 10, cy - 22 + bounce, 20, 18);
 
-          // Mata & Ekspresi
           if (dir === "down") {
-            // Mata dengan pupil ekspresif
             ctx.fillStyle = "#1e1e24";
             ctx.fillRect(cx - 7, cy - 15 + bounce, 4, 5);
             ctx.fillRect(cx + 3, cy - 15 + bounce, 4, 5);
@@ -406,7 +475,6 @@ class TextureGenerator {
             ctx.fillRect(cx - 6, cy - 16 + bounce, 2, 2);
             ctx.fillRect(cx + 4, cy - 16 + bounce, 2, 2);
 
-            // Pipi merona lembut (Blush)
             ctx.fillStyle = "rgba(255, 130, 150, 0.6)";
             ctx.fillRect(cx - 8, cy - 10 + bounce, 4, 2);
             ctx.fillRect(cx + 4, cy - 10 + bounce, 4, 2);
@@ -426,31 +494,28 @@ class TextureGenerator {
             ctx.fillRect(cx + 5, cy - 10 + bounce, 3, 2);
           }
 
-          // Rambut Coklat Bertekstur
           ctx.fillStyle = "#4a2810";
           ctx.fillRect(cx - 12, cy - 25 + bounce, 24, 8);
           if (dir === "up") {
             ctx.fillRect(cx - 11, cy - 22 + bounce, 22, 14);
           }
 
-          // Topi Baret Hijau Zaitun Bergaya
           ctx.fillStyle = "#283618";
           ctx.fillRect(cx - 13, cy - 29 + bounce, 26, 8);
-          ctx.fillRect(cx - 1, cy - 32 + bounce, 3, 4); // Pentul atas baret
+          ctx.fillRect(cx - 1, cy - 32 + bounce, 3, 4);
         }
       });
     });
     return this.cache.playerSheet;
   }
 
-  // --- NPC DETAIL BERKUALITAS ---
+  // --- NPC DETAIL ---
 
   getNpcArgaSprite() {
     if (this.cache.npcArga) return this.cache.npcArga;
     this.cache.npcArga = this.createCanvasTexture(64, 64, (ctx, w, h) => {
       const cx = 32, cy = 32;
 
-      // Celana
       ctx.fillStyle = "#5c4033";
       ctx.fillRect(cx - 8, cy + 12, 6, 12);
       ctx.fillRect(cx + 2, cy + 12, 6, 12);
@@ -458,38 +523,30 @@ class TextureGenerator {
       ctx.fillRect(cx - 9, cy + 22, 8, 4);
       ctx.fillRect(cx + 2, cy + 22, 8, 4);
 
-      // Rajutan Sweater Biru Hangat
       ctx.fillStyle = "#3a6b88";
       ctx.fillRect(cx - 11, cy - 4, 22, 18);
 
-      // Celemek Barista
       ctx.fillStyle = "#a8dadc";
       ctx.fillRect(cx - 8, cy, 16, 13);
 
-      // Cangkir Kopi Keramik Steaming
       ctx.fillStyle = "#ffffff";
       ctx.fillRect(cx + 7, cy + 2, 7, 7);
       ctx.fillStyle = "#6f4e37";
       ctx.fillRect(cx + 8, cy + 3, 5, 2);
-      // Uap kopi tipis putih
       ctx.fillStyle = "rgba(255, 255, 255, 0.7)";
       ctx.fillRect(cx + 9, cy - 3, 2, 4);
 
-      // Wajah
       ctx.fillStyle = "#fed0bb";
       ctx.fillRect(cx - 9, cy - 20, 18, 16);
 
-      // Kacamata Bulat
       ctx.fillStyle = "#1d3557";
       ctx.fillRect(cx - 7, cy - 14, 5, 4);
       ctx.fillRect(cx + 2, cy - 14, 5, 4);
       ctx.fillRect(cx - 2, cy - 13, 4, 2);
 
-      // Senyum
       ctx.fillStyle = "#9c6644";
       ctx.fillRect(cx - 2, cy - 7, 4, 2);
 
-      // Rambut Rapi
       ctx.fillStyle = "#1e1e24";
       ctx.fillRect(cx - 10, cy - 25, 20, 8);
     });
@@ -501,34 +558,28 @@ class TextureGenerator {
     this.cache.npcRina = this.createCanvasTexture(64, 64, (ctx, w, h) => {
       const cx = 32, cy = 32;
 
-      // Rok Panjang Coklat
       ctx.fillStyle = "#7f5539";
       ctx.fillRect(cx - 10, cy + 10, 20, 14);
 
-      // Celemek Kebun Sage Green
       ctx.fillStyle = "#84a98c";
       ctx.fillRect(cx - 11, cy - 4, 22, 16);
       ctx.fillStyle = "#52796f";
-      ctx.fillRect(cx - 6, cy + 4, 12, 7); // Kantong celemek
+      ctx.fillRect(cx - 6, cy + 4, 12, 7);
 
-      // Penyiram Bunga Logam
       ctx.fillStyle = "#78909c";
       ctx.fillRect(cx + 9, cy + 2, 8, 8);
       ctx.fillRect(cx + 15, cy - 1, 4, 4);
 
-      // Wajah
       ctx.fillStyle = "#fed0bb";
       ctx.fillRect(cx - 9, cy - 20, 18, 16);
 
-      // Senyum Hangat
       ctx.fillStyle = "#e07a5f";
       ctx.fillRect(cx - 2, cy - 8, 4, 2);
 
-      // Topi Jerami Lebar & Bunga
       ctx.fillStyle = "#ddb892";
       ctx.fillRect(cx - 16, cy - 24, 32, 6);
       ctx.fillRect(cx - 10, cy - 30, 20, 8);
-      ctx.fillStyle = "#e63946"; // Pita merah
+      ctx.fillStyle = "#e63946";
       ctx.fillRect(cx - 10, cy - 24, 20, 3);
     });
     return this.cache.npcRina;
@@ -539,7 +590,6 @@ class TextureGenerator {
     this.cache.npcDito = this.createCanvasTexture(64, 64, (ctx, w, h) => {
       const cx = 32, cy = 32;
 
-      // Celana Kargo
       ctx.fillStyle = "#4a4e69";
       ctx.fillRect(cx - 8, cy + 12, 6, 12);
       ctx.fillRect(cx + 2, cy + 12, 6, 12);
@@ -547,22 +597,18 @@ class TextureGenerator {
       ctx.fillRect(cx - 9, cy + 22, 8, 4);
       ctx.fillRect(cx + 2, cy + 22, 8, 4);
 
-      // Hoodie Hijau Toska
       ctx.fillStyle = "#2a9d8f";
       ctx.fillRect(cx - 11, cy - 4, 22, 18);
 
-      // Headphone di Leher
       ctx.fillStyle = "#e76f51";
       ctx.fillRect(cx - 12, cy - 6, 5, 5);
       ctx.fillRect(cx + 7, cy - 6, 5, 5);
       ctx.fillStyle = "#264653";
       ctx.fillRect(cx - 8, cy - 5, 16, 2);
 
-      // Wajah
       ctx.fillStyle = "#fed0bb";
       ctx.fillRect(cx - 9, cy - 20, 18, 16);
 
-      // Topi Snapback Terbalik
       ctx.fillStyle = "#22223b";
       ctx.fillRect(cx - 10, cy - 26, 20, 8);
       ctx.fillRect(cx - 13, cy - 22, 5, 3);
@@ -580,26 +626,21 @@ class TextureGenerator {
       const baseCol = colorType === "orange" ? "#f4a261" : "#f1faee";
       const stripCol = colorType === "orange" ? "#e76f51" : "#3d5a80";
 
-      // Kaki
       ctx.fillStyle = baseCol;
       ctx.fillRect(16, 32, 4, 8);
       ctx.fillRect(24, 32, 4, 8);
       ctx.fillRect(34, 32, 4, 8);
 
-      // Badan
       ctx.fillRect(14, 20, 26, 14);
 
-      // Garis loreng
       ctx.fillStyle = stripCol;
       ctx.fillRect(20, 20, 4, 8);
       ctx.fillRect(28, 20, 4, 8);
 
-      // Ekor melengkung
       ctx.fillStyle = baseCol;
       ctx.fillRect(10, 18, 4, 8);
       ctx.fillRect(8, 12, 4, 8);
 
-      // Kepala & Telinga
       ctx.fillRect(36, 16, 16, 14);
       ctx.fillRect(38, 10, 4, 6);
       ctx.fillRect(46, 10, 4, 6);
@@ -607,7 +648,6 @@ class TextureGenerator {
       ctx.fillRect(39, 12, 2, 4);
       ctx.fillRect(47, 12, 2, 4);
 
-      // Mata & Hidung
       ctx.fillStyle = "#2a9d8f";
       ctx.fillRect(45, 20, 4, 4);
       ctx.fillStyle = "#e63946";
@@ -619,33 +659,26 @@ class TextureGenerator {
   getChickenSprite() {
     if (this.cache.chicken) return this.cache.chicken;
     this.cache.chicken = this.createCanvasTexture(48, 48, (ctx, w, h) => {
-      // Kaki
       ctx.fillStyle = "#f4a261";
       ctx.fillRect(20, 32, 2, 8);
       ctx.fillRect(26, 32, 2, 8);
 
-      // Badan bulu putih
       ctx.fillStyle = "#ffffff";
       ctx.fillRect(12, 18, 20, 16);
 
-      // Sayap
       ctx.fillStyle = "#e2e8f0";
       ctx.fillRect(15, 22, 12, 8);
 
-      // Ekor
       ctx.fillStyle = "#cbd5e1";
       ctx.fillRect(8, 16, 6, 8);
 
-      // Kepala
       ctx.fillStyle = "#ffffff";
       ctx.fillRect(28, 12, 12, 14);
 
-      // Jengger merah
       ctx.fillStyle = "#e63946";
       ctx.fillRect(30, 8, 6, 4);
       ctx.fillRect(34, 22, 4, 4);
 
-      // Paruh kuning & mata
       ctx.fillStyle = "#ffb703";
       ctx.fillRect(38, 18, 6, 4);
       ctx.fillStyle = "#1e1e24";
@@ -654,7 +687,7 @@ class TextureGenerator {
     return this.cache.chicken;
   }
 
-  // --- ITEM KENANGAN & IKON ---
+  // --- ITEM KENANGAN & KUNCI RUMAH ---
 
   getCollectItemTexture(type) {
     const key = `item_${type}`;
@@ -668,7 +701,24 @@ class TextureGenerator {
       ctx.fillStyle = grad;
       ctx.fillRect(0, 0, w, h);
 
-      if (type === "ticket") {
+      if (type === "key") {
+        // Kunci Kuningan Berkilau
+        ctx.fillStyle = "#ffb703";
+        // Kepala kunci berukir bundar
+        ctx.beginPath();
+        ctx.arc(18, 18, 8, 0, Math.PI * 2);
+        ctx.fill();
+        ctx.fillStyle = "#1a1005";
+        ctx.beginPath();
+        ctx.arc(18, 18, 4, 0, Math.PI * 2);
+        ctx.fill();
+
+        // Batang kunci miring ke kanan bawah
+        ctx.fillStyle = "#f6c445";
+        ctx.fillRect(23, 22, 14, 4);
+        ctx.fillRect(33, 26, 4, 5);
+        ctx.fillRect(29, 26, 3, 3);
+      } else if (type === "ticket") {
         ctx.fillStyle = "#f6c445";
         ctx.fillRect(10, 16, 28, 16);
         ctx.fillStyle = "#d4971c";
