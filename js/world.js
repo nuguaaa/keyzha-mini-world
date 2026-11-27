@@ -1344,38 +1344,27 @@ class DioramaWorld {
   // --- 6. PEPONAN TINGGI, CEMARA & SEMAK BUNGA ---
   buildTreesAndFoliage() {
     // A. Calon Pepohonan Menjulang Tinggi (Volumetrik & Cemara)
-    // Diposisikan rapi di sekeliling perimeter map membingkai kebun & pelataran
+    // Diposisikan rapi HANYA di batas perimeter terluar dengan jarak lega (tidak padat & tidak menutupi sumur/jalan)
     const candidateTrees = [
-      // Sisi Barat (Hutan Lebat Membingkai Tepian Barat)
-      { x: -19.0, z: 10.0, type: "volumetric", scale: 1.25 },
-      { x: -17.0, z: 5.0, type: "pine", scale: 1.2 },
-      { x: -19.0, z: 0.0, type: "volumetric", scale: 1.3 },
-      { x: -16.5, z: -5.0, type: "pine", scale: 1.2 },
-      { x: -18.5, z: -10.5, type: "volumetric", scale: 1.3 },
-      { x: -18.0, z: -16.5, type: "pine", scale: 1.35 },
+      // Sisi Barat Terluar (Memberi ruang lapang di sekitar sumur & kebun barat)
+      { x: -20.5, z: 9.0, type: "pine", scale: 1.15 },
+      { x: -20.5, z: -8.5, type: "volumetric", scale: 1.15 },
+      { x: -20.5, z: -16.5, type: "pine", scale: 1.25 },
 
-      // Sisi Belakang / Utara (Membingkai Belakang Teras & Dinding Belakang)
-      { x: -6.5, z: -17.5, type: "volumetric", scale: 1.35 },
-      { x: 0.0, z: -18.2, type: "pine", scale: 1.35 },
-      { x: 6.5, z: -17.5, type: "volumetric", scale: 1.35 },
+      // Sisi Belakang / Utara (Membingkai Belakang Teras Rumah)
+      { x: -8.5, z: -18.5, type: "volumetric", scale: 1.25 },
+      { x: 8.5, z: -18.5, type: "volumetric", scale: 1.25 },
 
-      // Sisi Timur (Tepian Luar Timur di Balik Pelataran & Api Unggun)
-      { x: 19.8, z: -16.5, type: "pine", scale: 1.3 },
-      { x: 19.5, z: -11.5, type: "volumetric", scale: 1.3 },
-      { x: 19.8, z: -5.5, type: "pine", scale: 1.25 },
-      { x: 19.5, z: 1.0, type: "volumetric", scale: 1.2 },
-      { x: 19.8, z: 7.5, type: "pine", scale: 1.25 },
-      { x: 17.5, z: 12.0, type: "volumetric", scale: 1.2 },
-
-      // Sisi Depan / Selatan (Sudut Alami Taman Depan)
-      { x: -6.5, z: 11.5, type: "volumetric", scale: 1.15 },
-      { x: 6.5, z: 11.5, type: "pine", scale: 1.15 }
+      // Sisi Timur Terluar (Di balik pelataran arcade & api unggun)
+      { x: 20.5, z: -16.0, type: "pine", scale: 1.25 },
+      { x: 20.5, z: -4.0, type: "volumetric", scale: 1.15 },
+      { x: 20.5, z: 8.5, type: "pine", scale: 1.15 }
     ];
 
-    // Penanaman pohon dengan validasi jarak minimum (minimal 4.2 unit antar pohon)
-    // Menjamin tidak ada pohon yang saling bertumpuk, menempel terlalu dekat, atau memotong satu sama lain
+    // Penanaman pohon dengan validasi jarak minimum (minimal 5.5 unit antar pohon)
+    // Menjamin pohon tertata rapi, lapang, dan sama sekali tidak ada kanopi yang memotong sumur atau bangunan
     const placedTrees = [];
-    const MIN_TREE_DIST = 4.2;
+    const MIN_TREE_DIST = 5.5;
 
     candidateTrees.forEach(t => {
       const hasConflict = placedTrees.some(p => Math.hypot(p.x - t.x, p.z - t.z) < MIN_TREE_DIST);

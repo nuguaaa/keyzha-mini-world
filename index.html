@@ -75,6 +75,17 @@
       </div>
     </div>
 
+    <!-- 4-Slot Quick Inventory Bar (Kotak Inventori 4 Slot) -->
+    <div class="hud-inventory-box" id="hud-inventory-box" title="Kotak Inventori (4 Slot) · Klik untuk memeriksa barang">
+      <div class="hud-inv-title">🎒 INVENTORI (4 SLOT)</div>
+      <div class="hud-inv-slots">
+        <div class="hud-slot" id="hud-slot-0" data-slot="0"><span class="slot-num">1</span><span class="slot-icon"></span></div>
+        <div class="hud-slot" id="hud-slot-1" data-slot="1"><span class="slot-num">2</span><span class="slot-icon"></span></div>
+        <div class="hud-slot" id="hud-slot-2" data-slot="2"><span class="slot-num">3</span><span class="slot-icon"></span></div>
+        <div class="hud-slot" id="hud-slot-3" data-slot="3"><span class="slot-num">4</span><span class="slot-icon"></span></div>
+      </div>
+    </div>
+
     <!-- Top-Right: Quick Action Buttons (Square Cream with Dark Border) -->
     <div class="top-controls">
       <button class="hud-btn-retro" id="btn-inventory" title="Buka Koleksi Kenangan & Kupon">
@@ -161,7 +172,7 @@
       <div id="letter-coupons">
         <!-- Kupon kenangan diisi di surat penutup -->
       </div>
-      <div class="letter-signature" id="letter-signature">- Dimas</div>
+      <div class="letter-signature" id="letter-signature">- Nugua</div>
       <div class="letter-bottom-action">
         <button class="btn-retro-gold" id="btn-save-hint">Simpan petunjuk ▶</button>
       </div>
@@ -169,20 +180,20 @@
   </div>
 
   <!-- ======================================================================
-       MODAL: INVENTORY / KOLEKSI KENANGAN & KUPON
+       MODAL: INVENTORY / KOTAK PENYIMPANAN 4 SLOT
        ====================================================================== -->
   <div class="modal-overlay" id="modal-inventory">
     <div class="modal-window inventory-window">
       <button class="modal-close" title="Tutup">✕</button>
       <div class="inventory-container">
-        <div class="inventory-header">📖 Koleksi Kenangan & Kupon</div>
-        <div class="inventory-grid" id="inventory-list">
-          <!-- Item kenangan yang dikumpulkan -->
+        <div class="inventory-header">🎒 Kotak Inventori (4 Slot)</div>
+        <div class="inventory-4slots-grid" id="inventory-slots-grid">
+          <!-- 4 slot kotak inventori yang dirender dinamis -->
         </div>
         <div class="inventory-detail-box">
-          <div class="inv-detail-title" id="inv-detail-title">Pilih Item</div>
+          <div class="inv-detail-title" id="inv-detail-title">Pilih Slot Inventori</div>
           <div class="inv-detail-summary" id="inv-detail-summary"></div>
-          <div class="inv-detail-story" id="inv-detail-story">Klik salah satu item kenangan untuk membaca catatan di baliknya.</div>
+          <div class="inv-detail-story" id="inv-detail-story">Klik salah satu dari 4 slot inventori di atas untuk memeriksa barang atau membaca catatan kenangan dari Nugua.</div>
         </div>
       </div>
     </div>

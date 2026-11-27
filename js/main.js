@@ -28,6 +28,7 @@ class GameApp {
 
     // State Progres Misi
     this.currentQuestIndex = 1;
+    this.inventorySlots = [null, null, null, null]; // Maksimal 4 Slot Inventori
     this.collectedItems = [];
     this.arcadeCompleted = false;
     this.photoTaken = false;
@@ -82,12 +83,14 @@ class GameApp {
     // A. NPC Ramah Sesuai Video Referensi & Karakter Baru
     // 1. Paman Berkumis di Atas Jembatan Kayu (Frame 00:20 - Berdiri di Jembatan Lebar)
     const paman = new NPC(this.world, "paman", cfg.npcs.paman, -11.75, 1.5, 0.22);
-    paman.promptText = "[A] Bicara";
+    paman.promptText = "[A] Bicara dengan Paman";
     paman.onInteract = () => {
       window.soundSystem.playClick();
-      this.ui.openDialog(cfg.npcs.paman.name, cfg.npcs.paman.role, cfg.npcs.paman.avatarColor, paman.getNextDialogue());
-      if (this.currentQuestIndex === 3) {
-        this.advanceQuest(4);
+      if (this.currentQuestIndex === 2) {
+        this.ui.openDialog(cfg.npcs.paman.name, cfg.npcs.paman.role, cfg.npcs.paman.avatarColor, cfg.npcs.paman.questDialogue);
+        this.advanceQuest(3);
+      } else {
+        this.ui.openDialog(cfg.npcs.paman.name, cfg.npcs.paman.role, cfg.npcs.paman.avatarColor, cfg.npcs.paman.casualDialogue);
       }
     };
     this.npcs.push(paman);
@@ -95,7 +98,7 @@ class GameApp {
 
     // 2. Kakek Bijak di Kebun Barat Dekat Pohon Rindang (Frame 00:26)
     const kakek = new NPC(this.world, "kakek", cfg.npcs.kakek, -16.5, -7.0, 0);
-    kakek.promptText = "[A] Bicara";
+    kakek.promptText = "[A] Bicara dengan Kakek";
     kakek.onInteract = () => {
       window.soundSystem.playClick();
       this.ui.openDialog(cfg.npcs.kakek.name, cfg.npcs.kakek.role, cfg.npcs.kakek.avatarColor, kakek.getNextDialogue());
@@ -105,41 +108,65 @@ class GameApp {
 
     // 3. Dito di Pelataran Main & Foto (Dekat Mesin Arcade)
     const dito = new NPC(this.world, "dito", cfg.npcs.dito, 8.2, -0.5, 0.06);
-    dito.promptText = "[A] Bicara";
+    dito.promptText = "[A] Bicara dengan Dito";
     dito.onInteract = () => {
       window.soundSystem.playClick();
-      this.ui.openDialog(cfg.npcs.dito.name, cfg.npcs.dito.role, cfg.npcs.dito.avatarColor, dito.getNextDialogue());
+      if (this.currentQuestIndex === 3) {
+        this.ui.openDialog(cfg.npcs.dito.name, cfg.npcs.dito.role, cfg.npcs.dito.avatarColor, cfg.npcs.dito.questDialogue);
+        this.advanceQuest(4);
+      } else {
+        this.ui.openDialog(cfg.npcs.dito.name, cfg.npcs.dito.role, cfg.npcs.dito.avatarColor, cfg.npcs.dito.casualDialogue);
+      }
     };
     this.npcs.push(dito);
     this.interactionManager.register(dito);
 
     // 4. Bibi Rina di Teras Rumah (Perawat Bunga & Penjaga Rumah)
     const rina = new NPC(this.world, "rina", cfg.npcs.rina, 4.2, -8.8, 1.2);
-    rina.promptText = "[A] Bicara";
+    rina.promptText = "[A] Bicara dengan Bibi Rina";
     rina.onInteract = () => {
       window.soundSystem.playClick();
-      this.ui.openDialog(cfg.npcs.rina.name, cfg.npcs.rina.role, cfg.npcs.rina.avatarColor, rina.getNextDialogue());
+      if (this.hasHouseKey || this.houseUnlocked) {
+        this.ui.openDialog(cfg.npcs.rina.name, cfg.npcs.rina.role, cfg.npcs.rina.avatarColor, cfg.npcs.rina.questDialogue);
+      } else {
+        this.ui.openDialog(cfg.npcs.rina.name, cfg.npcs.rina.role, cfg.npcs.rina.avatarColor, cfg.npcs.rina.casualDialogue);
+      }
     };
     this.npcs.push(rina);
     this.interactionManager.register(rina);
 
-    // 5. Kumpul Warga di Area Api Unggun (Membicarakan Dimas & Menjawab Pencarian Keyzha)
+    // 5. Kumpul Warga di Area Api Unggun (Membicarakan Nugua & Menjawab Pencarian Keyzha)
     // Bu RT di dekat bangku selatan api unggun
     const buRt = new NPC(this.world, "bu_rt", cfg.npcs.bu_rt, 13.2, -9.2, 0);
     buRt.promptText = "[A] Bicara dengan Bu RT";
     buRt.onInteract = () => {
       window.soundSystem.playClick();
-      this.ui.openDialog(cfg.npcs.bu_rt.name, cfg.npcs.bu_rt.role, cfg.npcs.bu_rt.avatarColor, buRt.getNextDialogue());
+      let text = cfg.npcs.bu_rt.casualDialogue;
+      if (this.hasHouseKey) {
+        text = cfg.npcs.bu_rt.postKeyDialogue;
+      } else if (this.currentQuestIndex === 4) {
+        text = cfg.npcs.bu_rt.questDialogue;
+      }
+      this.ui.openDialog(cfg.npcs.bu_rt.name, cfg.npcs.bu_rt.role, cfg.npcs.bu_rt.avatarColor, text);
     };
     this.npcs.push(buRt);
     this.interactionManager.register(buRt);
 
-    // Pak RT Broto di dekat bangku timur api unggun
+    // Pak RT Broto di dekat bangku timur api unggun (Pemegang Kunci Rumah Titipan Nugua)
     const pakRt = new NPC(this.world, "pak_rt", cfg.npcs.pak_rt, 16.5, -11.5, 0);
-    pakRt.promptText = "[A] Bicara dengan Pak RT";
+    pakRt.promptText = "[A] Bicara dengan Pak RT Broto";
     pakRt.onInteract = () => {
       window.soundSystem.playClick();
-      this.ui.openDialog(cfg.npcs.pak_rt.name, cfg.npcs.pak_rt.role, cfg.npcs.pak_rt.avatarColor, pakRt.getNextDialogue());
+      if (this.currentQuestIndex === 4) {
+        this.ui.openDialog(cfg.npcs.pak_rt.name, cfg.npcs.pak_rt.role, cfg.npcs.pak_rt.avatarColor, cfg.npcs.pak_rt.questDialogue);
+        this.receiveHouseKeyFromPakRt();
+        this.advanceQuest(5);
+      } else if (this.hasHouseKey) {
+        this.ui.openDialog(cfg.npcs.pak_rt.name, cfg.npcs.pak_rt.role, cfg.npcs.pak_rt.avatarColor, cfg.npcs.pak_rt.postKeyDialogue);
+      } else {
+        // Jika dilewati (belum Quest 4), ngobrol santai seolah tidak ada rahasia kejutan
+        this.ui.openDialog(cfg.npcs.pak_rt.name, cfg.npcs.pak_rt.role, cfg.npcs.pak_rt.avatarColor, cfg.npcs.pak_rt.casualDialogue);
+      }
     };
     this.npcs.push(pakRt);
     this.interactionManager.register(pakRt);
@@ -149,7 +176,13 @@ class GameApp {
     mbakTari.promptText = "[A] Bicara dengan Mbak Tari";
     mbakTari.onInteract = () => {
       window.soundSystem.playClick();
-      this.ui.openDialog(cfg.npcs.mbak_tari.name, cfg.npcs.mbak_tari.role, cfg.npcs.mbak_tari.avatarColor, mbakTari.getNextDialogue());
+      let text = cfg.npcs.mbak_tari.casualDialogue;
+      if (this.hasHouseKey) {
+        text = cfg.npcs.mbak_tari.postKeyDialogue;
+      } else if (this.currentQuestIndex === 4) {
+        text = cfg.npcs.mbak_tari.questDialogue;
+      }
+      this.ui.openDialog(cfg.npcs.mbak_tari.name, cfg.npcs.mbak_tari.role, cfg.npcs.mbak_tari.avatarColor, text);
     };
     this.npcs.push(mbakTari);
     this.interactionManager.register(mbakTari);
@@ -261,7 +294,7 @@ class GameApp {
           "Kotak Surat Kayu",
           "Secarik Kartu Pos Manis",
           "#b08968",
-          "Ada secarik kartu pos bertuliskan tulisan tangan yang rapi:\n\n'Untuk Keyzha... Setiap sudut kecil di taman ini dibangun dengan penuh kehangatan. Semoga tempat ini selalu membuatmu tersenyum kapan pun kamu datang.'\n\n- Dimas"
+          "Ada secarik kartu pos bertuliskan tulisan tangan yang rapi:\n\n'Untuk Keyzha... Setiap sudut kecil di taman ini dibangun dengan penuh kehangatan. Semoga tempat ini selalu membuatmu tersenyum kapan pun kamu datang.'\n\n- Nugua"
         );
       }
     };
@@ -281,7 +314,7 @@ class GameApp {
           "Mading Informasi Desa",
           "Pengumuman Warga",
           "#4a6b82",
-          "📌 PENGUMUMAN WARGA TAMAN KECIL:\n\n• Suasana desa hari ini sangat tenang dan bersahabat.\n• Para warga sedang berkumpul santai di area api unggun timur laut.\n• Bagi siapa pun yang mencari Mas Dimas, beliau menitipkan salam hangat dan kenangan manis untuk Keyzha di dalam rumah kayu teras atas."
+          "📌 PENGUMUMAN WARGA TAMAN KECIL:\n\n• Suasana desa hari ini sangat tenang dan bersahabat.\n• Para warga sedang berkumpul santai di area api unggun timur laut.\n• Bagi siapa pun yang mencari Nugua, seluruh warga desa sebenarnya kompak menjaga rahasia kejutan manis untuk Keyzha di dalam rumah kayu teras atas!"
         );
       }
     };
@@ -400,18 +433,7 @@ class GameApp {
     this.studyTableEntity = studyTable;
     this.interactionManager.register(studyTable);
 
-    // 7. Kunci Rumah Kuningan Tersembunyi di Kebun Barat Dekat Aliran Sungai (Quest 2)
-    const keyData = cfg.houseKeyItem;
-    const houseKeyObj = new CollectibleItem(this.world, keyData, -16.0, -10.5, 0.4);
-    houseKeyObj.zone = "exterior";
-    houseKeyObj.badgeHeight = 1.6;
-    houseKeyObj.promptText = `[A] Ambil ${keyData.name}`;
-    houseKeyObj.onInteract = () => {
-      this.collectHouseKey(houseKeyObj);
-    };
-    this.houseKeyEntity = houseKeyObj;
-    this.collectibles.push(houseKeyObj);
-    this.interactionManager.register(houseKeyObj);
+    // 7. Kunci Rumah Kuningan dipegang oleh Pak RT Broto (Quest 4 - tidak ada kunci tercecer di tanah)
 
     // 8. Benda Kenangan Tambahan di Sekitar Taman
     const itemPositions = [
@@ -483,7 +505,7 @@ class GameApp {
     this.interactionManager.trigger();
   }
 
-  // --- SISTEM QUEST BERURUTAN (PERSIS VIDEO REFERENSI) ---
+  // --- SISTEM QUEST BERURUTAN (ALUR DESA & KEJUTAN NUGUA) ---
 
   updateQuestUI() {
     const qIndex = this.currentQuestIndex;
@@ -491,62 +513,63 @@ class GameApp {
 
     if (qIndex === 1) {
       questInfo = {
-        chapter: "BAB 1 : PAKET 1",
+        chapter: "BAB 1 : TAMAN KECIL",
         progress: "16%",
         step: "0 / 6",
         title: "Sebuah Undangan",
         subTitle: "01 · SEBUAH UNDANGAN",
-        desc: "Baca surat di atas peti pelataran."
+        desc: "Buka dan baca surat sambutan di peti taman depan."
       };
     } else if (qIndex === 2) {
       questInfo = {
-        chapter: "BAB 1 : PAKET 1",
+        chapter: "BAB 1 : TAMAN KECIL",
         progress: "33%",
         step: "1 / 6",
-        title: "Kunci Rumah Rahasia",
-        subTitle: "02 · KUNCI RUMAH",
-        desc: "Cari kunci kuningan tersembunyi dekat aliran air sungai."
+        title: "Tanyakan Paman",
+        subTitle: "02 · TANYAKAN PAMAN",
+        desc: "Sapa Paman di jembatan kayu barat untuk mencari petunjuk kunci."
       };
     } else if (qIndex === 3) {
       questInfo = {
-        chapter: "BAB 1 : PAKET 1",
+        chapter: "BAB 1 : TAMAN KECIL",
         progress: "50%",
         step: "2 / 6",
-        title: "Sapa Sahabat Jembatan",
-        subTitle: "03 · SAPA SAHABAT",
-        desc: "Bicara dengan Paman di atas jembatan kayu."
+        title: "Temui Dito di Arcade",
+        subTitle: "03 · TEMUI DITO",
+        desc: "Bicara dengan Dito di pelataran Main & Foto sebelah timur."
       };
     } else if (qIndex === 4) {
       questInfo = {
-        chapter: "BAB 1 : PAKET 1",
+        chapter: "BAB 1 : TAMAN KECIL",
         progress: "66%",
         step: "3 / 6",
-        title: "Tantangan Tetris Retro",
-        subTitle: "04 · MAIN ARCADE",
-        desc: "Mainkan mesin Tetris di pelataran Main & Foto."
+        title: "Kunci dari Pak RT",
+        subTitle: "04 · KUNCI DARI PAK RT",
+        desc: "Bicara dengan Pak RT Broto di area Api Unggun timur laut."
       };
     } else if (qIndex === 5) {
       questInfo = {
-        chapter: "BAB 1 : PAKET 1",
+        chapter: "BAB 1 : TAMAN KECIL",
         progress: "83%",
         step: "4 / 6",
-        title: "Potret di Photobooth",
-        subTitle: "05 · ABADIKAN KENANGAN",
-        desc: "Abadikan momen diorama di bilik Photobooth studio."
+        title: "Buka Pintu Rumah",
+        subTitle: "05 · BUKA PINTU RUMAH",
+        desc: "Naik ke teras rumah kayu dan buka pintunya dengan kunci kuningan."
       };
     } else if (qIndex === 6) {
       questInfo = {
         chapter: "BAB 1 : TAMAN KECIL",
         progress: "100%",
         step: "Selesai",
-        title: "Masuk ke Dalam Rumah",
-        subTitle: "06 · KADO SPESIAL",
-        desc: "Buka pintu rumah dan temukan kado spesial di ruang tamu."
+        title: "Kado Spesial Nugua",
+        subTitle: "06 · KADO DARI NUGUA",
+        desc: "Buka kado dan surat penutup di meja belajar dalam rumah."
       };
     }
 
     this.ui.updateQuestTracker(questInfo);
     this.ui.updateInventoryBadge(this.collectedItems.length);
+    this.ui.updateInventoryHUD(this.inventorySlots);
   }
 
   advanceQuest(toIndex) {
@@ -559,37 +582,54 @@ class GameApp {
     }
   }
 
-  collectItem(itemObj) {
-    if (itemObj.collected) return;
-    itemObj.collect();
-
-    this.collectedItems.push(itemObj.data);
-    window.soundSystem.playItemCollect();
-    this.ui.showToast(`Ditemukan: "${itemObj.data.name}" ✨`);
-    this.updateQuestUI();
-    this.saveProgress();
+  // Menambahkan item ke dalam 4 slot inventori
+  addItemToInventory(item) {
+    if (!item) return false;
+    // Cek apakah item sudah ada di dalam salah satu slot
+    const existingIndex = this.inventorySlots.findIndex(slot => slot && slot.id === item.id);
+    if (existingIndex !== -1) {
+      return true;
+    }
+    // Cari slot kosong pertama (maksimal 4 slot)
+    const emptyIndex = this.inventorySlots.findIndex(slot => slot === null);
+    if (emptyIndex !== -1) {
+      this.inventorySlots[emptyIndex] = item;
+      this.collectedItems = this.inventorySlots.filter(Boolean);
+      this.ui.updateInventoryHUD(this.inventorySlots);
+      this.ui.updateInventoryBadge(this.collectedItems.length);
+      this.saveProgress();
+      return true;
+    } else {
+      this.ui.showToast("⚠️ Kotak inventori penuh (maks 4 slot)!");
+      return false;
+    }
   }
 
-  // Mengambil Kunci Rumah Kuningan
-  collectHouseKey(itemObj) {
-    if (itemObj.collected) return;
-    itemObj.collect();
-
+  // Menerima Kunci Rumah dari Pak RT (Quest 4)
+  receiveHouseKeyFromPakRt() {
+    if (this.hasHouseKey) return;
     this.hasHouseKey = true;
     this.houseUnlocked = true;
     if (this.frontDoorEntity) {
       this.frontDoorEntity.promptText = "[A] Masuk ke Dalam Rumah";
     }
 
-    this.collectedItems.push(itemObj.data);
+    const keyData = window.GAME_CONFIG.houseKeyItem;
+    this.addItemToInventory(keyData);
     window.soundSystem.playItemCollect();
-    this.ui.showToast(`🗝️ Ditemukan: "${itemObj.data.name}"! Pintu rumah kini bisa dibuka.`);
-    this.ui.updateInventoryBadge(this.collectedItems.length);
-
-    if (this.currentQuestIndex === 2) {
-      this.advanceQuest(3);
-    }
+    this.ui.showToast(`🗝️ Pak RT memberikan "${keyData.name}"! Pintu rumah kini bisa dibuka.`);
     this.saveProgress();
+  }
+
+  collectItem(itemObj) {
+    if (itemObj.collected) return;
+    const added = this.addItemToInventory(itemObj.data);
+    if (added) {
+      itemObj.collect();
+      window.soundSystem.playItemCollect();
+      this.ui.showToast(`Ditemukan: "${itemObj.data.name}" ✨`);
+      this.updateQuestUI();
+    }
   }
 
   // Masuk ke dalam rumah dengan fade transisi halus
@@ -632,16 +672,17 @@ class GameApp {
     const rewardItem = {
       id: "coupon_arcade",
       name: window.GAME_CONFIG.arcadeConfig.rewardName,
+      iconType: "coupon",
       summary: "Kupon hadiah spesial dari mesin arcade retro.",
-      story: window.GAME_CONFIG.arcadeConfig.rewardDesc
+      story: window.GAME_CONFIG.arcadeConfig.rewardDesc,
+      color: "#e76f51"
     };
-    this.collectedItems.push(rewardItem);
+    this.addItemToInventory(rewardItem);
     this.saveProgress();
 
     setTimeout(() => {
       this.ui.arcadeModal.classList.remove("active");
       this.ui.updateModalState();
-      this.advanceQuest(5);
     }, 1200);
   }
 
@@ -651,15 +692,13 @@ class GameApp {
       const photoItem = {
         id: "photo_polaroid",
         name: "Foto Polaroid Kenangan",
+        iconType: "polaroid",
         summary: "Potret diorama hangat bersama stiker pilihan.",
-        story: "Foto ini diabadikan di Photobooth taman sebagai penanda momen yang damai."
+        story: "Foto ini diabadikan di Photobooth taman sebagai penanda momen yang damai.",
+        color: "#68d8d6"
       };
-      this.collectedItems.push(photoItem);
+      this.addItemToInventory(photoItem);
       this.saveProgress();
-
-      setTimeout(() => {
-        this.advanceQuest(6);
-      }, 1000);
     }
   }
 
@@ -673,13 +712,14 @@ class GameApp {
   saveProgress() {
     const data = {
       quest: this.currentQuestIndex,
+      inventorySlots: this.inventorySlots ? this.inventorySlots.map(s => s ? s.id : null) : [],
       items: this.collectedItems.map(i => i.id),
       hasHouseKey: this.hasHouseKey,
       houseUnlocked: this.houseUnlocked,
       arcadeCompleted: this.arcadeCompleted,
       photoTaken: this.photoTaken,
       closingLetterOpened: this.closingLetterOpened,
-      timeOfDay: this.world.timeOfDay
+      timeOfDay: this.world ? this.world.timeOfDay : "afternoon"
     };
     try {
       localStorage.setItem("taman_kecil_progress", JSON.stringify(data));
@@ -704,41 +744,68 @@ class GameApp {
           this.frontDoorEntity.promptText = "[A] Masuk ke Dalam Rumah";
         }
 
-        if (Array.isArray(data.items)) {
+        const cfg = window.GAME_CONFIG;
+        const findItemDef = (id) => {
+          if (id === "item_house_key") return cfg.houseKeyItem;
+          const qItem = cfg.questItems.find(it => it.id === id);
+          if (qItem) return qItem;
+          if (id === "coupon_arcade") {
+            return {
+              id: "coupon_arcade",
+              name: cfg.arcadeConfig.rewardName,
+              iconType: "coupon",
+              summary: "Kupon hadiah spesial dari mesin arcade retro.",
+              story: cfg.arcadeConfig.rewardDesc,
+              color: "#e76f51"
+            };
+          }
+          if (id === "photo_polaroid") {
+            return {
+              id: "photo_polaroid",
+              name: "Foto Polaroid Kenangan",
+              iconType: "polaroid",
+              summary: "Potret diorama hangat bersama stiker pilihan.",
+              story: "Foto ini diabadikan di Photobooth taman sebagai penanda momen yang damai.",
+              color: "#68d8d6"
+            };
+          }
+          return null;
+        };
+
+        // Restore inventorySlots (4 slots)
+        if (Array.isArray(data.inventorySlots)) {
+          this.inventorySlots = [null, null, null, null];
+          data.inventorySlots.slice(0, 4).forEach((itemId, idx) => {
+            if (itemId) {
+              const def = findItemDef(itemId);
+              if (def) this.inventorySlots[idx] = def;
+            }
+          });
+        } else if (Array.isArray(data.items)) {
+          // Fallback backward compatibility
+          this.inventorySlots = [null, null, null, null];
+          let slotIdx = 0;
           data.items.forEach(itemId => {
-            const cObj = this.collectibles.find(c => c.data && c.data.id === itemId);
-            if (itemId === "item_house_key") {
-              this.hasHouseKey = true;
-              this.houseUnlocked = true;
-              if (this.houseKeyEntity) this.houseKeyEntity.collect();
-              if (this.frontDoorEntity) this.frontDoorEntity.promptText = "[A] Masuk ke Dalam Rumah";
-              if (!this.collectedItems.some(it => it.id === itemId)) {
-                this.collectedItems.push(window.GAME_CONFIG.houseKeyItem);
+            if (slotIdx < 4) {
+              const def = findItemDef(itemId);
+              if (def) {
+                this.inventorySlots[slotIdx] = def;
+                slotIdx++;
               }
-            } else if (cObj) {
-              cObj.collect();
-              if (!this.collectedItems.some(it => it.id === itemId)) {
-                this.collectedItems.push(cObj.data);
-              }
-            } else if (itemId === "coupon_arcade") {
-              this.collectedItems.push({
-                id: "coupon_arcade",
-                name: window.GAME_CONFIG.arcadeConfig.rewardName,
-                summary: "Kupon hadiah spesial dari mesin arcade retro.",
-                story: window.GAME_CONFIG.arcadeConfig.rewardDesc
-              });
-            } else if (itemId === "photo_polaroid") {
-              this.collectedItems.push({
-                id: "photo_polaroid",
-                name: "Foto Polaroid Kenangan",
-                summary: "Potret diorama hangat bersama stiker pilihan.",
-                story: "Foto ini diabadikan di Photobooth taman sebagai penanda momen yang damai."
-              });
             }
           });
         }
 
-        if (data.timeOfDay) {
+        this.collectedItems = this.inventorySlots.filter(Boolean);
+
+        // Mark world collectibles as collected if held
+        this.collectibles.forEach(c => {
+          if (c.data && this.collectedItems.some(it => it.id === c.data.id)) {
+            c.collect();
+          }
+        });
+
+        if (data.timeOfDay && this.world) {
           this.world.setTimeOfDay(data.timeOfDay);
         }
       }

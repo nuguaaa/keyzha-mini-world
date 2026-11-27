@@ -45,7 +45,7 @@ Buka file `js/config.js` di editor teks. Di bagian paling atas terdapat konfigur
 ```javascript
 window.GAME_CONFIG = {
   recipientName: "Keyzha",      // Ganti dengan nama orang tersayang
-  senderName: "Dimas",          // Ganti dengan namamu
+  senderName: "Nugua",          // Nama pengirim kejutan (Nugua)
   occasionTitle: "Catatan Perjalanan & Sudut Kenangan",
   
   // Ubah isi surat pembuka di sini

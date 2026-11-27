@@ -34,7 +34,7 @@ window.ASSET_CONFIG = {
 // --- 2. KONFIGURASI GAME & CERITA ---
 window.GAME_CONFIG = {
   recipientName: "Keyzha",
-  senderName: "Dimas",
+  senderName: "Nugua",
   gameTitle: "Taman Kecil.",
   gameSubtitle: "HADIAH UNTUK KEYZHA",
   welcomeMessage: "Hai Keyzha, ada taman kecil yang aku siapin buat kamu. Jalan pelan-pelan aja, nggak usah buru-buru. Beberapa hal baik lagi nungguin kamu.",
@@ -42,7 +42,7 @@ window.GAME_CONFIG = {
   // Pesan Pintu Terkunci
   lockedDoorMessage: {
     title: "Pintu Depan Terkunci",
-    text: "Pintu rumah kayu ini terkunci rapat. Sepertinya kunci kuningan disimpan di sudut taman dekat aliran sungai... Coba tanyakan pada Paman di jembatan atau periksa tepian sungai!"
+    text: "Pintu rumah kayu ini terkunci rapat. Kunci kuningan dipegang oleh salah satu warga desa... Coba mulai perjalananmu dengan membaca Surat Sambutan di peti taman depan, lalu ikuti petunjuk warga!"
   },
 
   // Item Kunci Rumah Kuningan
@@ -50,8 +50,8 @@ window.GAME_CONFIG = {
     id: "item_house_key",
     name: "Kunci Rumah Kuningan",
     iconType: "key",
-    summary: "Kunci kuningan berukir halus untuk membuka pintu rumah pondok.",
-    story: "Kunci kuningan yang tersimpan tenang di dekat aliran air sungai. Dengan kunci ini, pintu rumah hangat di atas tangga bisa dibuka.",
+    summary: "Kunci kuningan berukir halus titipan Nugua melalui Pak RT.",
+    story: "Kunci kuningan yang dititipkan Nugua kepada Pak RT Broto untuk diserahkan langsung kepadamu. Dengan kunci ini, pintu rumah hangat di atas tangga kini bisa dibuka.",
     color: "#f6c445"
   },
 
@@ -60,15 +60,15 @@ window.GAME_CONFIG = {
     badge: "SEPUCUK SURAT UNTUKMU",
     title: "Selamat datang di Taman Kecil, Keyzha.",
     date: "Sebuah Hari yang Damai",
-    greeting: "Untuk Keyzha,",
+    greeting: "Untuk Keyzha tersayang,",
     paragraphs: [
-      "Selamat datang! Aku sengaja membuat sudut kecil ini seperti diorama yang hangat dan tenang—sebuah tempat rehat sejenak untukmu dari padatnya hari-hari yang sibuk.",
-      "Aku sudah menitipkan sesuatu yang spesial untukmu di dalam rumah kayu di atas tangga. Tapi pintunya terkunci rapat agar tidak sembarang dibuka.",
-      "Kunci kuningannya disimpan di tempat teduh dekat pepohonan di tepi aliran sungai. Sambil mencari kuncinya, jalan-jalanlah santai keliling taman ini: sapa Bibi Rina di teras, Paman di jembatan, mainkan game Tetris di arcade, dan abadikan foto di photobooth."
+      "Selamat datang di Taman Kecil! Aku sengaja membuat sudut diorama ini spesial untukmu—sebuah ruang yang tenang untuk rehat sejenak dari lelah dan padatnya hari-harimu.",
+      "Aku sudah menyiapkan sebuah kejutan manis untukmu di dalam rumah kayu di atas teras tangga. Tapi pintunya sengaja dikunci rapat agar menjadi rahasia.",
+      "Kuncinya tidak tergeletak di tanah, melainkan kutitipkan pada salah satu warga desa yang bisa kamu percaya. Untuk mencarinya, coba seberangi jalan dan sapa Paman Jembatan di sebelah barat—beliau punya petunjuk pertama untukmu!"
     ],
-    hint: "Petunjuk: Periksa peti sambutan di depanmu, lalu jelajahi taman ke arah teras rumah atau jembatan kayu di sebelah barat.",
-    signature: "Selamat menikmati harimu ya,",
-    closing: "- Dimas"
+    hint: "Petunjuk: Sapa Paman di jembatan kayu di sebelah barat untuk mencari tahu petunjuk kunci rumah.",
+    signature: "Dengan tulus dan penuh cinta,",
+    closing: "- Nugua"
   },
 
   // Item Kenangan Tambahan di Taman
@@ -77,9 +77,9 @@ window.GAME_CONFIG = {
       id: "item_ticket",
       name: "Tiket Jalan Santai",
       iconType: "ticket",
-      locationHint: "Di dekat bangku kayu bawah pohon rindang",
+      locationHint: "Di keranjang piknik bangku taman depan",
       summary: "Tiket simbolis untuk jalan santai tanpa perlu terburu-buru.",
-      story: "Mengingatkan kita bahwa tidak semua hal harus dikejar dengan tergesa-gesa. Terkadang, momen terbaik tercipta saat kita melangkah pelan sambil menikmati percakapan sederhana.",
+      story: "Mengingatkan kita bahwa tidak semua hal harus dikejar dengan tergesa-gesa. Terkadang, momen terbaik tercipta saat kita melangkah pelan sambil menikmati percakapan sederhana bersama Nugua.",
       color: "#f6c445"
     },
     {
@@ -102,80 +102,62 @@ window.GAME_CONFIG = {
     }
   ],
 
-  // Dialog NPC Ramah Sesuai Video Referensi
+  // Dialog NPC Ramah dengan Respon Dinamis (Quest Terstruktur & Obrolan Santai)
   npcs: {
     paman: {
       name: "Paman Jembatan",
       role: "Penjaga Aliran Sungai",
       avatarColor: "#b07d62",
-      dialogues: [
-        "Halo anak muda! Senang melihatmu berkunjung ke jembatan ini. Suara gemericik air di bawah sini sangat menenangkan ya.",
-        "Oh, kamu mencari kunci pintu rumah kayu di atas tangga? Tadi aku melihat kilauan kuning di balik pohon rindang dekat tepian sungai sebelah barat!",
-        "Hati-hati saat melangkah di tepi air ya. Nikmatilah suasana sejuk di taman ini!"
-      ]
+      casualDialogue: "Halo neng manis! Udara di atas jembatan kayu ini sejuk sekali ya. Suara gemericik air sungai di bawah selalu bikin hati tenang. Selamat jalan-jalan santai di desa ini ya!",
+      questDialogue: "Halo nak Keyzha! Nugua tadi sempat pesan ke paman... katanya dia lagi menyiapkan kejutan manis buat kamu di dalam rumah kayu. Tapi sebelum ke sana, coba seberangi jembatan dan temui anak muda bernama Dito di pelataran arcade timur. Dito punya petunjuk berikutnya!"
     },
     kakek: {
       name: "Kakek Bijak",
       role: "Tetua Taman",
       avatarColor: "#588157",
       dialogues: [
-        "Selamat pagi, nak. Setiap langkah yang kita ambil hari ini selalu membawa cerita baru yang berharga.",
-        "Rumah kayu di atas tangga itu punya perapian hangat dan teh yang harum. Begitu kamu menemukan kuncinya, beristirahatlah di sana.",
-        "Semoga harimu selalu dipenuhi ketenangan dan senyuman tulus."
+        "Selamat pagi, nak Keyzha. Senyumanmu mengingatkan kakek pada indahnya masa muda.",
+        "Nugua anak yang sangat baik dan tulus. Dia menaruh banyak harapan dan kasih sayang di setiap jengkal taman kecil ini untukmu.",
+        "Semoga langkahmu selalu dinaungi kedamaian dan kebahagiaan sejati."
       ]
     },
     dito: {
       name: "Dito",
       role: "Pemain Arcade Santai",
       avatarColor: "#457b9d",
-      dialogues: [
-        "Halo Keyzha! Lagi keliling taman ya? Kalau ingin tantangan seru, coba mainkan mesin Tetris di sebelahku!",
-        "Mesin Tetris ini klasik banget. Susun balok-baloknya, penuhi baris, dan ada pesan manis rahasia kalau kamu berhasil menyelesaikan tantangannya!",
-        "Jangan lupa juga berpose di Photobooth sebelah ya, pencahayaan fotonya bagus banget hari ini!"
-      ]
+      casualDialogue: "Halo! Selamat datang di pelataran bermain. Mesin Tetris di sebelahku ini klasik banget lho, asyik dimainkan kalau lagi senggang. Jangan lupa foto-foto juga di photobooth sebelah ya!",
+      questDialogue: "Aha, kamu Keyzha ya! Nugua sudah wanti-wanti ke aku dari tadi pagi. Dia cerita banyak banget tentang kamu dan bilang kalau hari ini satu desa mau bikin kamu bahagia. Nah, orang yang memegang kunci rumah itu adalah Pak RT Broto yang lagi kumpul santai di dekat api unggun timur laut! Temui beliau ya, kuncinya ada di sana!"
     },
     rina: {
       name: "Bibi Rina",
       role: "Perawat Bunga & Rumah",
       avatarColor: "#e07a5f",
-      dialogues: [
-        "Halo Keyzha! Senang sekali kamu berkunjung ke teras rumah. Aku baru saja menyiram mawar dan bunga aster di sini.",
-        "Rumah kayu di belakangku ini sudah disiapkan dengan sangat hangat oleh Dimas. Perapiannya sudah menyala dan suasananya damai sekali.",
-        "Kalau kamu mencari kunci kuningan untuk membukanya, sepertinya tersimpan di sudut teduh dekat tepian sungai sebelah barat. Coba periksa di balik pepohonan ya!"
-      ]
+      casualDialogue: "Halo Keyzha! Senang sekali kamu berkunjung ke teras rumah. Aku baru saja menyiram mawar dan bunga aster di sini. Rumah kayu ini terkunci rapat atas pesan Nugua. Coba ikuti petunjuk yang ada di taman ya!",
+      questDialogue: "Wah, kuncinya sudah ada di tanganmu ya nak Keyzha? Pintu rumahnya sudah bisa dibuka sekarang. Masuklah, Nugua sudah menyiapkan kado dan surat istimewa di atas meja belajar!"
     },
     bu_rt: {
       name: "Bu RT",
       role: "Warga Desa yang Ramah",
       avatarColor: "#c97b63",
-      dialogues: [
-        "Loh, neng manis... kamu Keyzha ya? Dari tadi kelihatan mondar-mandir keliling taman, lagi nyariin seseorang ya?",
-        "Tadi kami para warga di sini lagi ngobrolin kamu sama Dimas. Mas Dimas itu kemarin sempat nungguin lama sekali di sudut taman ini...",
-        "Tapi kata Pak RT, Mas Dimas sudah tidak tinggal di desa ini lagi. Dia pamit pergi demi masa depan... tapi sebelum berangkat, dia sibuk sekali menata taman indah ini khusus untuk kamu.",
-        "Coba tanyakan ke Pak RT di sebelahku, beliau sempat bicara panjang lebar dengan Dimas sebelum dia berangkat."
-      ]
+      casualDialogue: "Sore yang hangat ya neng manis. Api unggun ini enak sekali buat kumpul-kumpul santai sore begini.",
+      questDialogue: "Loh, neng Keyzha! Dari tadi kami para warga di sini lagi senyum-senyum nungguin kamu. Mas Nugua itu kemarin sibuk sekali menata rumah kayu di atas khusus buat kamu lho. Coba bicara dengan Pak RT di sebelahku, beliau pegang titipan penting dari Nugua!",
+      postKeyDialogue: "Aduh senangnya... kuncinya sudah kamu terima dari Pak RT ya nak? Mas Nugua itu kemarin sibuk sekali menata ruangan di atas. Lekas masuk ke rumah ya, perapiannya sudah menyala hangat."
     },
     pak_rt: {
       name: "Pak RT Broto",
       role: "Ketua RT Desa",
       avatarColor: "#4a6b82",
-      dialogues: [
-        "Betul nak Keyzha, Dimas memang sudah tidak tinggal di sini lagi. Waktu kemarin pamit ke bapak, wajahnya kelihatan berat sekali harus meninggalkan tempat ini.",
-        "Dia berpesan pada bapak: 'Pak RT, kalau nanti Keyzha datang ke taman mencari saya, tolong sampaikan kalau semua sudut taman ini sengaja saya buat agar dia bisa tersenyum dan rehat sejenak.'",
-        "Dia juga menitipkan kunci kuningan dan kado kenangan di dalam rumah kayu teras atas. Coba cari kuncinya di tepian sungai dekat pohon barat, lalu buka rumah itu ya nak.",
-        "Semoga kamu menyukai suasana damai di taman kecil ini ya nak Keyzha."
-      ]
+      casualDialogue: "Selamat sore nak. Senang rasanya melihat suasana desa kita selalu rukun dan damai. Silakan duduk-duduk di dekat api unggun ini kalau mau menghangatkan badan.",
+      questDialogue: "Haha! Akhirnya nak Keyzha sampai di sini! Sebenarnya satu warga desa ini sudah tahu rencana rahasia Nugua kalau dia mau kasih kejutan manis buat kamu di dalam rumah teras. Nugua menitipkan kunci rumah kuningan ini langsung ke tangan bapak untuk diserahkan kepadamu. Ini kuncinya nak... bawalah, dan bukalah rumah kayu itu. Nugua sudah menyiapkan segalanya dengan penuh cinta di dalam sana!",
+      postKeyDialogue: "Kuncinya sudah bapak serahkan ya nak Keyzha. Sekarang lekaslah naik ke teras dan buka pintu rumah kayu itu. Nugua sudah menyiapkan ruangan hangat khusus untukmu."
     },
     mbak_tari: {
       name: "Mbak Tari",
       role: "Sahabat Warga",
       avatarColor: "#9b5de5",
-      dialogues: [
-        "Hai Keyzha! Akhirnya kita ketemu langsung! Dari kemarin Dimas sering banget cerita soal kamu ke kami waktu lagi ngerawat taman ini.",
-        "Iya... Mas Dimas sudah pindah dan tidak tinggal di sini lagi. Tapi kamu jangan sedih ya, rasa sayangnya ke kamu masih terasa begitu hangat di setiap sudut tempat ini.",
-        "Dia ninggalin surat penuh cinta di meja belajar di dalam rumah teras. Masuklah ke sana, perapiannya hangat banget!",
-        "Kamu perempuan yang sangat beruntung dicintai setulus itu oleh Dimas."
-      ]
+      casualDialogue: "Halo! Bunga-bunga di taman ini lagi mekar wangi banget ya hari ini. Senang melihat pemandangan sejuk begini.",
+      questDialogue: "Hai Keyzha! Akhirnya kita ketemu langsung! Dari kemarin Nugua sering banget cerita soal kamu ke kami waktu lagi ngerawat taman ini. Satu desa kompak menjaga rahasia ini buat kamu lho! Bicara dengan Pak RT ya, kuncinya ada di beliau!",
+      postKeyDialogue: "Wah Keyzha! Nugua romantis banget ya, sampai-sampai satu warga desa diajak kompak merahasiakan ini buat kamu! Cepat buka pintunya, ada kado manis yang menunggumu di dalam!"
     }
   },
 
@@ -204,7 +186,7 @@ window.GAME_CONFIG = {
     subtitle: "Susun balok, penuhi baris, kejar rekor. Kalau papannya penuh, ada pesan manis yang menunggumu.",
     targetLines: 2, // 2 baris untuk memicu kemenangan santai
     targetScore: 200,
-    rewardName: "Kupon Arcade & Pesan Manis Dimas",
+    rewardName: "Kupon Arcade & Pesan Manis Nugua",
     rewardDesc: "Berhasil menyelesaikan permainan Tetris! Pesan kenangan terbuka untukmu."
   },
 
@@ -228,7 +210,7 @@ window.GAME_CONFIG = {
     date: "Hari yang Istimewa",
     greeting: "Untuk Keyzha tersayang,",
     paragraphs: [
-      "Terima kasih banyak sudah meluangkan waktu untuk berjalan keliling, menemukan kunci kuningan, dan sampai di ruangan hangat ini.",
+      "Terima kasih banyak sudah meluangkan waktu untuk berjalan keliling, menemukan kunci kuningan dari Pak RT, dan sampai di ruangan hangat ini.",
       "Diorama kecil ini mungkin hanya sebuah dunia piksel sederhana, tapi setiap sudut, tanaman, dan detail di dalamnya dibuat dengan tulus untuk menggambarkan betapa berharganya setiap obrolan, tawa, dan waktu yang kita lalui bersama.",
       "Hidup mungkin sering kali penuh dengan dinamika dan kesibukan, tapi kuharap kamu selalu ingat bahwa kamu selalu punya ruang aman untuk beristirahat, menjadi dirimu sendiri apa adanya, dan merasa dihargai.",
       "Semoga hari-harimu ke depan selalu dinaungi ketenangan, langkahmu dimudahkan, dan hal-hal baik selalu menemukan jalannya kepadamu."
@@ -252,6 +234,6 @@ window.GAME_CONFIG = {
       }
     ],
     signature: "Dengan tulus dan penuh kasih,",
-    closingSender: "Dimas"
+    closingSender: "Nugua"
   }
 };

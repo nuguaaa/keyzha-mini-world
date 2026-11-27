@@ -1110,3 +1110,154 @@ html, body {
     font-size: 28px;
   }
 }
+
+/* ==========================================================================
+   4-SLOT INVENTORY BAR HUD & MODAL
+   ========================================================================== */
+.hud-inventory-box {
+  position: absolute;
+  top: 130px;
+  left: 18px;
+  background: rgba(251, 246, 234, 0.94);
+  border: 2px solid #2b1d0c;
+  border-radius: 10px;
+  padding: 6px 10px;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.25);
+  cursor: pointer;
+  pointer-events: auto;
+  transition: transform 0.15s ease, box-shadow 0.15s ease;
+  z-index: 50;
+}
+
+.hud-inventory-box:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 6px 16px rgba(0, 0, 0, 0.3);
+}
+
+.hud-inv-title {
+  font-family: 'Pixelify Sans', monospace;
+  font-size: 10px;
+  font-weight: 700;
+  color: #7a6350;
+  letter-spacing: 0.5px;
+  margin-bottom: 4px;
+}
+
+.hud-inv-slots {
+  display: flex;
+  gap: 6px;
+}
+
+.hud-slot {
+  width: 38px;
+  height: 38px;
+  background: #f4ecdc;
+  border: 1.5px solid #8c735d;
+  border-radius: 6px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  position: relative;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.15) inset;
+}
+
+.hud-slot.filled {
+  border-color: #d4971c;
+  background: #fffdf8;
+  box-shadow: 0 0 0 1px #d4971c;
+}
+
+.hud-slot .slot-num {
+  position: absolute;
+  top: 2px;
+  left: 3px;
+  font-family: 'Pixelify Sans', monospace;
+  font-size: 8.5px;
+  color: #8c735d;
+  font-weight: 700;
+  line-height: 1;
+}
+
+.hud-slot .slot-item-ico {
+  font-size: 18px;
+  line-height: 1;
+  display: block;
+}
+
+/* Modal 4 Slots Grid */
+.inventory-4slots-grid {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 10px;
+  margin-bottom: 14px;
+}
+
+.inv-slot-card {
+  background: #fffdf8;
+  border: 2px solid #c2b5a1;
+  border-radius: 8px;
+  padding: 10px;
+  text-align: center;
+  cursor: pointer;
+  transition: all 0.15s ease;
+  position: relative;
+  min-height: 78px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+}
+
+.inv-slot-card:hover {
+  transform: translateY(-2px);
+  border-color: #d4971c;
+}
+
+.inv-slot-card.active {
+  border-color: #d4971c;
+  background: #fdf5e2;
+  box-shadow: 0 0 0 2px #d4971c inset;
+}
+
+.inv-slot-card.empty {
+  border-style: dashed;
+  background: #f7f1e3;
+  opacity: 0.8;
+}
+
+.slot-badge-num {
+  position: absolute;
+  top: 4px;
+  left: 6px;
+  font-family: 'Pixelify Sans', monospace;
+  font-size: 9px;
+  font-weight: 700;
+  color: #8c735d;
+}
+
+.slot-card-icon {
+  font-size: 26px;
+  line-height: 1;
+  margin-bottom: 4px;
+}
+
+.slot-card-name {
+  font-family: 'Pixelify Sans', monospace;
+  font-size: 11.5px;
+  font-weight: 700;
+  color: #2b1d0c;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  max-width: 130px;
+}
+
+.slot-card-empty-icon {
+  font-size: 18px;
+  color: #c2b5a1;
+}
+
+.slot-card-empty-name {
+  color: #8c735d;
+  font-size: 11px;
+}

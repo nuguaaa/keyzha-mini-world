@@ -51,10 +51,11 @@ class UIManager {
     this.letterSignature = document.getElementById("letter-signature");
 
     this.inventoryModal = document.getElementById("modal-inventory");
-    this.invListEl = document.getElementById("inventory-list");
+    this.invListEl = document.getElementById("inventory-slots-grid") || document.getElementById("inventory-list");
     this.invDetailTitle = document.getElementById("inv-detail-title");
     this.invDetailSummary = document.getElementById("inv-detail-summary");
     this.invDetailStory = document.getElementById("inv-detail-story");
+    this.hudInventoryBox = document.getElementById("hud-inventory-box");
 
     this.arcadeModal = document.getElementById("modal-arcade");
     this.photoboothModal = document.getElementById("modal-photobooth");
@@ -127,6 +128,13 @@ class UIManager {
     const invBtn = document.getElementById("btn-inventory");
     if (invBtn) {
       invBtn.addEventListener("click", () => {
+        window.soundSystem.playClick();
+        this.openInventory();
+      });
+    }
+
+    if (this.hudInventoryBox) {
+      this.hudInventoryBox.addEventListener("click", () => {
         window.soundSystem.playClick();
         this.openInventory();
       });
@@ -327,6 +335,27 @@ class UIManager {
     }
   }
 
+  // Update Tampilan 4 Kotak HUD Inventori di Layar
+  updateInventoryHUD(slots) {
+    for (let i = 0; i < 4; i++) {
+      const slotEl = document.getElementById(`hud-slot-${i}`);
+      if (slotEl) {
+        const item = slots && slots[i];
+        const iconSpan = slotEl.querySelector(".slot-icon");
+        if (item) {
+          const icon = item.icon || (item.id === "item_house_key" ? "🗝️" : item.id === "item_ticket" ? "🎟️" : item.id === "item_polaroid" ? "📸" : (item.id === "coupon_arcade" ? "🕹️" : "🌸"));
+          if (iconSpan) iconSpan.innerHTML = icon;
+          slotEl.classList.add("filled");
+        } else {
+          if (iconSpan) iconSpan.innerHTML = "";
+          slotEl.classList.remove("filled");
+        }
+      }
+    }
+    const count = slots ? slots.filter(Boolean).length : 0;
+    this.updateInventoryBadge(count);
+  }
+
   updateContextPrompt(promptText) {
     if (promptText && !this.game.isInputLocked) {
       this.promptBtnEl.innerText = promptText;
@@ -472,29 +501,58 @@ class UIManager {
     this.updateModalState();
   }
 
-  // --- MODAL INVENTORY ---
+  // --- MODAL INVENTORY (KOTAK INVENTORI 4 SLOT) ---
 
   openInventory() {
-    this.invListEl.innerHTML = "";
-    const items = this.game.collectedItems;
+    const slotsGrid = document.getElementById("inventory-slots-grid") || this.invListEl;
+    slotsGrid.innerHTML = "";
+    const slots = this.game.inventorySlots || [null, null, null, null];
 
-    if (items.length === 0) {
-      this.invListEl.innerHTML = `<div style="font-size: 13px; color: #7a6350; padding: 10px;">Belum ada item kenangan yang terkumpul. Jelajahi taman untuk menemukannya!</div>`;
-      this.invDetailTitle.innerText = "Pilih Item";
-      this.invDetailSummary.innerText = "";
-      this.invDetailStory.innerText = "Klik salah satu item kenangan untuk membaca catatan di baliknya.";
-    } else {
-      items.forEach((item, idx) => {
-        const btn = document.createElement("button");
-        btn.className = `btn-retro ${idx === 0 ? "active" : ""}`;
-        btn.style.cssText = "display: block; width: 100%; margin-bottom: 6px; text-align: left;";
-        btn.innerHTML = `<span style="color: #d4971c;">⭐</span> ${item.name}`;
-        btn.addEventListener("click", () => {
+    let firstFilledItem = null;
+
+    for (let i = 0; i < 4; i++) {
+      const item = slots[i];
+      const slotCard = document.createElement("div");
+      slotCard.className = `inv-slot-card ${item ? "filled" : "empty"}`;
+
+      if (item) {
+        if (!firstFilledItem) firstFilledItem = item;
+        const icon = item.icon || (item.id === "item_house_key" ? "🗝️" : item.id === "item_ticket" ? "🎟️" : item.id === "item_polaroid" ? "📸" : (item.id === "coupon_arcade" ? "🕹️" : "🌸"));
+        slotCard.innerHTML = `
+          <div class="slot-badge-num">SLOT ${i + 1}</div>
+          <div class="slot-card-icon">${icon}</div>
+          <div class="slot-card-name">${item.name}</div>
+        `;
+        slotCard.addEventListener("click", () => {
+          document.querySelectorAll(".inv-slot-card").forEach(c => c.classList.remove("active"));
+          slotCard.classList.add("active");
           this.showItemDetail(item);
         });
-        this.invListEl.appendChild(btn);
-      });
-      this.showItemDetail(items[0]);
+      } else {
+        slotCard.innerHTML = `
+          <div class="slot-badge-num">SLOT ${i + 1}</div>
+          <div class="slot-card-icon slot-card-empty-icon">◻</div>
+          <div class="slot-card-name slot-card-empty-name">(Slot Kosong)</div>
+        `;
+        slotCard.addEventListener("click", () => {
+          document.querySelectorAll(".inv-slot-card").forEach(c => c.classList.remove("active"));
+          slotCard.classList.add("active");
+          this.invDetailTitle.innerText = `Slot ${i + 1} (Kosong)`;
+          this.invDetailSummary.innerText = "Slot ini masih kosong.";
+          this.invDetailStory.innerText = "Jelajahi taman desa untuk mengumpulkan kenangan manis atau petunjuk dari Nugua dan warga desa.";
+        });
+      }
+      slotsGrid.appendChild(slotCard);
+    }
+
+    if (firstFilledItem) {
+      const firstCard = slotsGrid.querySelector(".inv-slot-card.filled");
+      if (firstCard) firstCard.classList.add("active");
+      this.showItemDetail(firstFilledItem);
+    } else {
+      this.invDetailTitle.innerText = "Kotak Inventori (4 Slot)";
+      this.invDetailSummary.innerText = "Semua 4 slot saat ini masih kosong.";
+      this.invDetailStory.innerText = "Buka surat sambutan di peti depan untuk memulai petualangan mencari kejutan dari Nugua!";
     }
 
     this.inventoryModal.classList.add("active");
