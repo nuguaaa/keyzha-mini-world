@@ -62,8 +62,9 @@ class DioramaWorld {
 
     // 2. Kamera Medium-Wide Isometric (Sudut Pandang Lebih Rendah / POV Nyaman)
     this.camera = new THREE.PerspectiveCamera(40, width / height, 0.1, 300);
-    this.camera.position.set(0, 12.7, 14.7);
-    this.camera.lookAt(0, 1.2, 5.0);
+    this.cameraFocus = new THREE.Vector3(0, 0, 6.5);
+    this.camera.position.set(0, 6.2, 6.5 + 8.2);
+    this.camera.lookAt(0, 1.2, 6.5 - 1.5);
 
     // 3. WebGL Renderer (Optimasi Smooth 60 FPS)
     this.renderer = new THREE.WebGLRenderer({
@@ -1948,6 +1949,14 @@ class DioramaWorld {
     player.y = 0;
     player.z = 103.5;
     player.direction = "up";
+    player.vx = 0;
+    player.vz = 0;
+
+    if (this.cameraFocus) {
+      this.cameraFocus.set(100, 0, 103.5);
+    }
+    this.camera.position.set(100 * 0.5 + 50, 6.8, 103.5 + 6.5);
+    this.camera.lookAt(100, 1.1, 103.5 - 0.6);
 
     const warmBg = new THREE.Color("#16101c");
     this.scene.background = warmBg;
@@ -1965,6 +1974,14 @@ class DioramaWorld {
     player.y = 1.2;
     player.z = -9.2;
     player.direction = "down";
+    player.vx = 0;
+    player.vz = 0;
+
+    if (this.cameraFocus) {
+      this.cameraFocus.set(0, 1.2, -9.2);
+    }
+    this.camera.position.set(0, 1.2 + 6.2, -9.2 + 8.2);
+    this.camera.lookAt(0, 1.2 + 1.2, -9.2 - 1.5);
 
     this.setTimeOfDay(this.timeOfDay);
   }
@@ -1997,31 +2014,56 @@ class DioramaWorld {
     }
   }
 
-  // --- FOLLOW CAMERA HD-2D DIORAMA (POV AGAK RENDAH / MENDATAR - PERSIS VIDEO) ---
-  updateCamera(playerX, playerY, playerZ) {
+  // --- FOLLOW CAMERA HD-2D DIORAMA (BUTTER-SMOOTH, ZERO JITTER / ZERO WOBBLE) ---
+  updateCamera(playerX, playerY, playerZ, delta = 0.016) {
+    if (!this.cameraFocus) {
+      this.cameraFocus = new THREE.Vector3(playerX, playerY, playerZ);
+    }
+
+    const dt = Math.min(Math.max(delta, 0.001), 0.1);
+
     if (this.currentZone === "interior") {
-      // Sudut pandang nyaman di dalam ruang tamu
-      const targetCamX = playerX * 0.5 + 50;
-      const targetCamY = playerY + 6.8;
-      const targetCamZ = playerZ + 6.5;
+      // Interpolasi eksponensial independen framerate untuk titik fokus
+      const t = 1 - Math.exp(-8.5 * dt);
+      this.cameraFocus.x += (playerX - this.cameraFocus.x) * t;
+      this.cameraFocus.y += (playerY - this.cameraFocus.y) * t;
+      this.cameraFocus.z += (playerZ - this.cameraFocus.z) * t;
 
-      this.camera.position.x += (targetCamX - this.camera.position.x) * 0.08;
-      this.camera.position.y += (targetCamY - this.camera.position.y) * 0.08;
-      this.camera.position.z += (targetCamZ - this.camera.position.z) * 0.08;
+      const camX = this.cameraFocus.x * 0.5 + 50;
+      const camY = this.cameraFocus.y + 6.8;
+      const camZ = this.cameraFocus.z + 6.5;
 
-      this.camera.lookAt(playerX, playerY + 1.1, playerZ - 0.6);
+      this.camera.position.set(camX, camY, camZ);
+      this.camera.lookAt(
+        this.cameraFocus.x,
+        this.cameraFocus.y + 1.1,
+        this.cameraFocus.z - 0.6
+      );
     } else {
-      // Sudut pandang Follow Camera HD-2D Diorama (POV agak lebih rendah / lebih mendatar ke depan-bawah)
-      // Jarak dan elevasi seimbang, pitch ~37 derajat, lerp halus 0.07, tanpa menampakkan void/layar biru
-      const targetCamX = playerX;
-      const targetCamY = playerY + 6.2;
-      const targetCamZ = playerZ + 8.2;
+      // Interpolasi eksponensial presisi untuk kamera diorama eksterior
+      // Orientasi & sudut pandang konstan matematis (rotasi tidak pernah bergoyang)
+      const t = 1 - Math.exp(-7.2 * dt);
+      this.cameraFocus.x += (playerX - this.cameraFocus.x) * t;
+      this.cameraFocus.y += (playerY - this.cameraFocus.y) * t;
+      this.cameraFocus.z += (playerZ - this.cameraFocus.z) * t;
 
-      this.camera.position.x += (targetCamX - this.camera.position.x) * 0.07;
-      this.camera.position.y += (targetCamY - this.camera.position.y) * 0.07;
-      this.camera.position.z += (targetCamZ - this.camera.position.z) * 0.07;
+      const offsetX = 0;
+      const offsetY = 6.2;
+      const offsetZ = 8.2;
 
-      this.camera.lookAt(playerX, playerY + 1.2, playerZ - 1.5);
+      this.camera.position.set(
+        this.cameraFocus.x + offsetX,
+        this.cameraFocus.y + offsetY,
+        this.cameraFocus.z + offsetZ
+      );
+
+      // Target lookAt terkunci presisi pada cameraFocus, sehingga sudut hadap kamera
+      // 100% stabil tanpa osilasi atau getaran saat karakter melangkah/berbelok
+      this.camera.lookAt(
+        this.cameraFocus.x,
+        this.cameraFocus.y + 1.2,
+        this.cameraFocus.z - 1.5
+      );
     }
   }
 

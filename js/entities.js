@@ -117,11 +117,12 @@ class Player {
       this.isMoving = false;
     }
 
-    // Akselerasi & Perlambatan Halus
+    // Akselerasi & Perlambatan Halus (Frame-rate independent)
     const targetVx = moveX * this.speed;
     const targetVz = moveZ * this.speed;
-    this.vx += (targetVx - this.vx) * 16 * delta;
-    this.vz += (targetVz - this.vz) * 16 * delta;
+    const accelT = 1 - Math.exp(-18 * delta);
+    this.vx += (targetVx - this.vx) * accelT;
+    this.vz += (targetVz - this.vz) * accelT;
 
     // --- SLIDING COLLISION MULTI-SUBSTEP (ANTI TEMBUS SECARA TOTAL) ---
     const subSteps = 2;
@@ -163,7 +164,8 @@ class Player {
       }
     }
 
-    this.y += (targetY - this.y) * 14 * delta;
+    const yT = 1 - Math.exp(-14 * delta);
+    this.y += (targetY - this.y) * yT;
 
     // Update Animasi Sprite
     if (this.isMoving) {
@@ -193,8 +195,8 @@ class Player {
     this.mesh.position.set(this.x, 1.15 + this.y + bob, this.z);
     this.shadowMesh.position.set(this.x, 0.03 + this.y, this.z);
 
-    // Update Kamera Isometric Medium-Wide
-    this.world.updateCamera(this.x, this.y, this.z);
+    // Update Kamera Isometric Medium-Wide (Butter-Smooth Follow)
+    this.world.updateCamera(this.x, this.y, this.z, delta);
   }
 
   checkCollisionAt(tx, tz) {
