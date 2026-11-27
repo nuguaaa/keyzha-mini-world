@@ -402,11 +402,13 @@ class UIManager {
   showToast(message) {
     if (!this.toastEl) return;
     this.toastEl.innerText = message;
+    this.toastEl.classList.remove("show");
+    void this.toastEl.offsetWidth; // Reflow untuk animasi spring halus
     this.toastEl.classList.add("show");
     clearTimeout(this.toastTimer);
     this.toastTimer = setTimeout(() => {
       this.toastEl.classList.remove("show");
-    }, 2800);
+    }, 3200);
   }
 
   // --- MODAL DIALOG BERKARAKTER ---

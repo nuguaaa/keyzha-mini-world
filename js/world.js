@@ -88,6 +88,7 @@ class DioramaWorld {
     this.buildCampfireZone();
     this.buildCourtyardAndProps();
     this.buildVillageInteractiveProps();
+    this.buildGardenGazebo();
     this.buildTreesAndFoliage();
     this.buildInteriorRoom();
 
@@ -1286,6 +1287,168 @@ class DioramaWorld {
     villagePropsGroup.add(basketGroup);
 
     this.exteriorGroup.add(villagePropsGroup);
+  }
+
+  // --- 5.8. GUBUK & GAZEBO KEBUN KAYU DI BELAKANG KAKEK BIJAK (X: -16.5, Z: -10.5) ---
+  buildGardenGazebo() {
+    const tg = window.textureGen;
+    const gazeboGroup = new THREE.Group();
+
+    const darkTimberMat = new THREE.MeshLambertMaterial({ color: "#3d2211" });
+    const woodPlankMat = new THREE.MeshLambertMaterial({
+      map: tg.getWoodDeckTexture(),
+      roughness: 0.8
+    });
+    const roofShingleMat = new THREE.MeshLambertMaterial({
+      map: tg.getRoofTileTexture(),
+      roughness: 0.7
+    });
+
+    const gx = -16.5;
+    const gz = -10.5;
+
+    // 1. Lantai Panggung Kayu Gazebo (Elevasi Y: 0.15)
+    const deck = new THREE.Mesh(new THREE.BoxGeometry(4.2, 0.28, 3.6), woodPlankMat);
+    deck.position.set(0, 0.14, 0);
+    deck.receiveShadow = true;
+    gazeboGroup.add(deck);
+
+    // Undakan anak tangga kayu depan
+    const step = new THREE.Mesh(new THREE.BoxGeometry(2.0, 0.12, 0.5), darkTimberMat);
+    step.position.set(0, 0.06, 2.0);
+    gazeboGroup.add(step);
+
+    // 2. 4 Tiang Balok Kayu Solid (Pillars)
+    const corners = [
+      [-1.85, -1.55],
+      [1.85, -1.55],
+      [-1.85, 1.55],
+      [1.85, 1.55]
+    ];
+    corners.forEach(([px, pz]) => {
+      const pillar = new THREE.Mesh(new THREE.CylinderGeometry(0.09, 0.11, 2.6, 6), darkTimberMat);
+      pillar.position.set(px, 1.45, pz);
+      gazeboGroup.add(pillar);
+    });
+
+    // Balok penyangga atap horizontal (Perimeter Beams)
+    const beamF = new THREE.Mesh(new THREE.BoxGeometry(3.9, 0.16, 0.16), darkTimberMat);
+    beamF.position.set(0, 2.7, 1.55);
+    gazeboGroup.add(beamF);
+    const beamB = new THREE.Mesh(new THREE.BoxGeometry(3.9, 0.16, 0.16), darkTimberMat);
+    beamB.position.set(0, 2.7, -1.55);
+    gazeboGroup.add(beamB);
+    const beamL = new THREE.Mesh(new THREE.BoxGeometry(0.16, 0.16, 3.2), darkTimberMat);
+    beamL.position.set(-1.85, 2.7, 0);
+    gazeboGroup.add(beamL);
+    const beamR = new THREE.Mesh(new THREE.BoxGeometry(0.16, 0.16, 3.2), darkTimberMat);
+    beamR.position.set(1.85, 2.7, 0);
+    gazeboGroup.add(beamR);
+
+    // 3. Atap Pelana / Limasan Kayu Rapi (Hipped / Gabled Roof)
+    const roofFront = new THREE.Mesh(new THREE.BoxGeometry(4.7, 0.1, 2.4), roofShingleMat);
+    roofFront.position.set(0, 3.4, 0.85);
+    roofFront.rotation.x = 0.52;
+    roofFront.castShadow = true;
+    gazeboGroup.add(roofFront);
+
+    const roofBack = new THREE.Mesh(new THREE.BoxGeometry(4.7, 0.1, 2.4), roofShingleMat);
+    roofBack.position.set(0, 3.4, -0.85);
+    roofBack.rotation.x = -0.52;
+    roofBack.castShadow = true;
+    gazeboGroup.add(roofBack);
+
+    // Bubungan Atap (Ridge Cap)
+    const ridgeCap = new THREE.Mesh(new THREE.BoxGeometry(4.8, 0.16, 0.28), darkTimberMat);
+    ridgeCap.position.set(0, 3.98, 0);
+    gazeboGroup.add(ridgeCap);
+
+    // Lisplang eave kayu depan & belakang
+    const eaveF = new THREE.Mesh(new THREE.BoxGeometry(4.8, 0.14, 0.08), darkTimberMat);
+    eaveF.position.set(0, 2.85, 1.95);
+    gazeboGroup.add(eaveF);
+    const eaveB = new THREE.Mesh(new THREE.BoxGeometry(4.8, 0.14, 0.08), darkTimberMat);
+    eaveB.position.set(0, 2.85, -1.95);
+    gazeboGroup.add(eaveB);
+
+    // Dinding sopi-sopi segitiga kayu (Gable Infill)
+    [-1.9, 1.9].forEach(sideX => {
+      const gable = new THREE.Mesh(new THREE.BufferGeometry(), darkTimberMat);
+      const vertices = new Float32Array([
+        sideX, 2.75, -1.6,
+        sideX, 2.75, 1.6,
+        sideX, 3.92, 0.0
+      ]);
+      gable.setAttribute("position", new THREE.BufferAttribute(vertices, 3));
+      gable.computeVertexNormals();
+      const gableMesh = new THREE.Mesh(gable, darkTimberMat);
+      gazeboGroup.add(gableMesh);
+    });
+
+    // 4. Dinding Belakang Kisi-kisi Kayu (Lattice Trellis & Tanaman Rambat)
+    const backWall = new THREE.Mesh(new THREE.BoxGeometry(3.5, 1.8, 0.08), darkTimberMat);
+    backWall.position.set(0, 1.6, -1.55);
+    gazeboGroup.add(backWall);
+
+    // Daun rambat hijau di kisi-kisi belakang
+    const vineMat = new THREE.MeshLambertMaterial({ color: "#2d6a4f" });
+    for (let i = 0; i < 9; i++) {
+      const vine = new THREE.Mesh(new THREE.SphereGeometry(0.22, 5, 5), vineMat);
+      vine.scale.set(1.1, 0.8, 0.6);
+      vine.position.set(-1.4 + i * 0.35, 1.2 + (i % 3) * 0.45, -1.48);
+      gazeboGroup.add(vine);
+    }
+
+    // Pagar pembatas separuh di sisi kiri & kanan (Half Railings)
+    [-1.85, 1.85].forEach(rx => {
+      const rail = new THREE.Mesh(new THREE.BoxGeometry(0.08, 0.12, 1.6), darkTimberMat);
+      rail.position.set(rx, 1.1, -0.6);
+      gazeboGroup.add(rail);
+      const railBaluster = new THREE.Mesh(new THREE.BoxGeometry(0.06, 0.7, 1.5), darkTimberMat);
+      railBaluster.position.set(rx, 0.65, -0.6);
+      gazeboGroup.add(railBaluster);
+    });
+
+    // 5. Bangku Panjang Santai & Teko Teh Tanah Liat di Dalam Gazebo
+    const benchMat = new THREE.MeshLambertMaterial({ color: "#6b4423" });
+    const bench = new THREE.Mesh(new THREE.BoxGeometry(2.6, 0.32, 0.55), benchMat);
+    bench.position.set(0, 0.44, -1.1);
+    gazeboGroup.add(bench);
+
+    // Teko teh tanah liat merah bata di atas bangku
+    const teapotMat = new THREE.MeshLambertMaterial({ color: "#c1440e" });
+    const teapot = new THREE.Mesh(new THREE.CylinderGeometry(0.09, 0.12, 0.18, 6), teapotMat);
+    teapot.position.set(-0.7, 0.7, -1.1);
+    gazeboGroup.add(teapot);
+
+    const cangkir = new THREE.Mesh(new THREE.CylinderGeometry(0.04, 0.04, 0.08, 6), new THREE.MeshLambertMaterial({ color: "#fefae0" }));
+    cangkir.position.set(-0.48, 0.64, -1.1);
+    gazeboGroup.add(cangkir);
+
+    // Lampion kertas gantung di langit-langit tengah atap
+    const lanternMat = new THREE.MeshLambertMaterial({
+      color: "#ffd166",
+      emissive: 0xffb703,
+      emissiveIntensity: 0.85
+    });
+    const lantern = new THREE.Mesh(new THREE.SphereGeometry(0.2, 6, 6), lanternMat);
+    lantern.scale.set(1.0, 1.3, 1.0);
+    lantern.position.set(0, 2.45, 0);
+    gazeboGroup.add(lantern);
+
+    // Set posisi keseluruhan gazebo di belakang Kakek
+    gazeboGroup.position.set(gx, 0, gz);
+    this.exteriorGroup.add(gazeboGroup);
+
+    // Collider Gazebo: membatasi dinding belakang dan samping agar tidak tembus
+    this.exteriorColliders.push({
+      minX: gx - 2.1,
+      maxX: gx + 2.1,
+      minZ: gz - 1.8,
+      maxZ: gz - 0.5
+    });
+    this.exteriorColliders.push({ minX: gx - 2.1, maxX: gx - 1.6, minZ: gz - 0.5, maxZ: gz + 1.6 });
+    this.exteriorColliders.push({ minX: gx + 1.6, maxX: gx + 2.1, minZ: gz - 0.5, maxZ: gz + 1.6 });
   }
 
   // Tiang Lampu Taman Klasik (Optimasi High Performance & Bebas Lag)

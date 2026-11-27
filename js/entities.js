@@ -275,12 +275,27 @@ class NPC {
     this.world.exteriorGroup.add(this.shadow);
 
     // Collider NPC
-    this.world.exteriorColliders.push({
+    this.collider = {
       minX: this.x - 0.65,
       maxX: this.x + 0.65,
       minZ: this.z - 0.65,
       maxZ: this.z + 0.65
-    });
+    };
+    this.world.exteriorColliders.push(this.collider);
+  }
+
+  setVisible(visible) {
+    this.isActive = !!visible;
+    if (this.mesh) this.mesh.visible = !!visible;
+    if (this.shadow) this.shadow.visible = !!visible;
+    if (this.world && this.world.exteriorColliders && this.collider) {
+      const idx = this.world.exteriorColliders.indexOf(this.collider);
+      if (visible && idx === -1) {
+        this.world.exteriorColliders.push(this.collider);
+      } else if (!visible && idx !== -1) {
+        this.world.exteriorColliders.splice(idx, 1);
+      }
+    }
   }
 
   getNextDialogue() {
@@ -448,6 +463,7 @@ class InteractionManager {
 
     for (let item of this.interactables) {
       if (item.collected) continue;
+      if (item.isActive === false) continue;
 
       // Filter berdasarkan zona (eksterior vs interior rumah)
       const itemZone = item.zone || (item.x > 50 ? "interior" : "exterior");

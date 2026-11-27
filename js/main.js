@@ -37,6 +37,14 @@ class GameApp {
     this.houseUnlocked = false;
     this.isTransitioning = false;
 
+    // Checkpoint Verifikasi Quest Alur Berurutan (Mencegah Skip & Memastikan Kakek Bijak Beri Kunci)
+    this.visitedWelcomeBox = false;
+    this.visitedPaman = false;
+    this.visitedDito = false;
+    this.visitedPakRt = false;
+    this.kakekSpawned = false;
+    this.kakekEntity = null;
+
     // Entitas di Dunia
     this.npcs = [];
     this.animals = [];
@@ -44,6 +52,19 @@ class GameApp {
 
     this.lastTime = 0;
     this.init();
+  }
+
+  setKakekVisible(visible) {
+    this.kakekSpawned = !!visible;
+    if (this.kakekEntity) {
+      if (typeof this.kakekEntity.setVisible === "function") {
+        this.kakekEntity.setVisible(visible);
+      } else {
+        this.kakekEntity.isActive = !!visible;
+        if (this.kakekEntity.mesh) this.kakekEntity.mesh.visible = !!visible;
+        if (this.kakekEntity.shadow) this.kakekEntity.shadow.visible = !!visible;
+      }
+    }
   }
 
   init() {
@@ -93,6 +114,7 @@ class GameApp {
       if (this.hasKeyInInventory()) {
         this.ui.openDialog(cfg.npcs.paman.name, cfg.npcs.paman.role, cfg.npcs.paman.avatarColor, cfg.npcs.paman.postKeyDialogue);
       } else if (this.currentQuestIndex === 2) {
+        this.visitedPaman = true;
         this.ui.openDialog(cfg.npcs.paman.name, cfg.npcs.paman.role, cfg.npcs.paman.avatarColor, cfg.npcs.paman.questDialogue);
         this.advanceQuest(3);
       } else {
@@ -103,13 +125,30 @@ class GameApp {
     this.npcs.push(paman);
     this.interactionManager.register(paman);
 
-    // 2. Kakek Bijak di Kebun Barat Dekat Pohon Rindang
+    // 2. Kakek Bijak di Kebun Barat Dekat Gubuk & Pohon Rindang (Pemegang Kunci Rumah Titipan Nugua)
     const kakek = new NPC(this.world, "kakek", cfg.npcs.kakek, -16.5, -7.0, 0);
+    this.kakekEntity = kakek;
+    // Kakek Bijak TIDAK MUNCUL di awal! Hanya muncul setelah Pak RT Broto di api unggun diinteraksi
+    this.setKakekVisible(this.kakekSpawned);
     kakek.promptText = "[A] Bicara dengan Kakek";
     kakek.onInteract = () => {
+      if (!this.kakekSpawned || !kakek.isActive) return;
       window.soundSystem.playClick();
-      const text = this.hasKeyInInventory() ? cfg.npcs.kakek.postKeyDialogue : cfg.npcs.kakek.casualDialogue;
-      this.ui.openDialog(cfg.npcs.kakek.name, cfg.npcs.kakek.role, cfg.npcs.kakek.avatarColor, text);
+
+      // STRICT CHECKLIST: Harus sudah membuka Box Sambutan, menyapa Paman, bicara dengan Dito, dan mendapat arahan Pak RT
+      const allChecked = this.visitedWelcomeBox && this.visitedPaman && this.visitedDito && this.visitedPakRt;
+
+      if (this.hasKeyInInventory()) {
+        this.ui.openDialog(cfg.npcs.kakek.name, cfg.npcs.kakek.role, cfg.npcs.kakek.avatarColor, cfg.npcs.kakek.postKeyDialogue);
+      } else if (allChecked) {
+        // Alur berurutan lengkap! Kakek menyerahkan kunci rumah kuningan dengan bangga
+        this.ui.openDialog(cfg.npcs.kakek.name, cfg.npcs.kakek.role, cfg.npcs.kakek.avatarColor, cfg.npcs.kakek.questDialogue);
+        this.receiveHouseKeyFromKakek();
+        this.advanceQuest(6);
+      } else {
+        // Jika pemain entah bagaimana sampai ke Kakek tanpa melalui alur lengkap: pura-pura tidak tahu dan hanya basa-basi santai hangat!
+        this.ui.openDialog(cfg.npcs.kakek.name, cfg.npcs.kakek.role, cfg.npcs.kakek.avatarColor, cfg.npcs.kakek.casualDialogue);
+      }
     };
     this.npcs.push(kakek);
     this.interactionManager.register(kakek);
@@ -144,6 +183,7 @@ class GameApp {
       if (this.hasKeyInInventory()) {
         this.ui.openDialog(cfg.npcs.dito.name, cfg.npcs.dito.role, cfg.npcs.dito.avatarColor, cfg.npcs.dito.postKeyDialogue);
       } else if (this.currentQuestIndex === 3) {
+        this.visitedDito = true;
         this.ui.openDialog(cfg.npcs.dito.name, cfg.npcs.dito.role, cfg.npcs.dito.avatarColor, cfg.npcs.dito.questDialogue);
         this.advanceQuest(4);
       } else {
@@ -202,7 +242,7 @@ class GameApp {
     this.npcs.push(buRt);
     this.interactionManager.register(buRt);
 
-    // 10. Pak RT Broto di dekat bangku timur api unggun (Pemegang Kunci Titipan Nugua)
+    // 10. Pak RT Broto di dekat bangku timur api unggun (Penghubung Quest 4 -> Memicu Munculnya Kakek)
     const pakRt = new NPC(this.world, "pak_rt", cfg.npcs.pak_rt, 16.5, -11.5, 0);
     pakRt.promptText = "[A] Bicara dengan Pak RT Broto";
     pakRt.onInteract = () => {
@@ -210,9 +250,12 @@ class GameApp {
       if (this.hasKeyInInventory()) {
         this.ui.openDialog(cfg.npcs.pak_rt.name, cfg.npcs.pak_rt.role, cfg.npcs.pak_rt.avatarColor, cfg.npcs.pak_rt.postKeyDialogue);
       } else if (this.currentQuestIndex === 4) {
+        this.visitedPakRt = true;
         this.ui.openDialog(cfg.npcs.pak_rt.name, cfg.npcs.pak_rt.role, cfg.npcs.pak_rt.avatarColor, cfg.npcs.pak_rt.questDialogue);
-        this.receiveHouseKeyFromPakRt();
+        // Memicu kemunculan Kakek Bijak di gubuk kebun barat!
+        this.setKakekVisible(true);
         this.advanceQuest(5);
+        this.ui.showToast("🌿 Kakek Bijak telah terlihat sedang bersantai di gubuk kebun barat!");
       } else {
         // Jika dilewati (belum Quest 4): pura-pura tidak tahu dan murni percakapan santai biasa
         this.ui.openDialog(cfg.npcs.pak_rt.name, cfg.npcs.pak_rt.role, cfg.npcs.pak_rt.avatarColor, cfg.npcs.pak_rt.casualDialogue);
@@ -283,6 +326,7 @@ class GameApp {
       promptText: "[A] Baca Surat Sambutan",
       onInteract: () => {
         window.soundSystem.playClick();
+        this.visitedWelcomeBox = true;
         this.ui.openLetter(cfg.openingLetter);
         if (this.currentQuestIndex === 1) {
           this.advanceQuest(2);
@@ -508,12 +552,13 @@ class GameApp {
         this.ui.openLetter(cfg.closingLetter, true);
         this.closingLetterOpened = true;
         this.saveProgress();
+        this.updateQuestUI();
       }
     };
     this.studyTableEntity = studyTable;
     this.interactionManager.register(studyTable);
 
-    // 7. Kunci Rumah Kuningan dipegang oleh Pak RT Broto (Quest 4 - tidak ada kunci tercecer di tanah)
+    // 7. Kunci Rumah Kuningan dipegang oleh Kakek Bijak di gubuk kebun barat (Quest 5 - tidak ada kunci tercecer di tanah)
 
     // 8. Benda Kenangan Tambahan di Sekitar Taman
     const itemPositions = [
@@ -623,27 +668,29 @@ class GameApp {
         chapter: "BAB 1 : TAMAN KECIL",
         progress: "66%",
         step: "3 / 6",
-        title: "Kunci dari Pak RT",
-        subTitle: "04 · KUNCI DARI PAK RT",
-        desc: "Bicara dengan Pak RT Broto di area Api Unggun timur laut."
+        title: "Arahan Pak RT",
+        subTitle: "04 · ARAHAN PAK RT",
+        desc: "Bicara dengan Pak RT Broto di area api unggun timur laut."
       };
     } else if (qIndex === 5) {
       questInfo = {
         chapter: "BAB 1 : TAMAN KECIL",
         progress: "83%",
         step: "4 / 6",
-        title: "Buka Pintu Rumah",
-        subTitle: "05 · BUKA PINTU RUMAH",
-        desc: "Naik ke teras rumah kayu dan buka pintunya dengan kunci kuningan."
+        title: "Kunci dari Kakek",
+        subTitle: "05 · KUNCI DARI KAKEK",
+        desc: "Temui Kakek Bijak di gubuk kebun barat untuk menerima kunci rumah."
       };
-    } else if (qIndex === 6) {
+    } else if (qIndex >= 6) {
       questInfo = {
         chapter: "BAB 1 : TAMAN KECIL",
-        progress: "100%",
-        step: "Selesai",
+        progress: this.closingLetterOpened ? "100%" : "95%",
+        step: this.closingLetterOpened ? "Selesai" : "5 / 6",
         title: "Kado Spesial Nugua",
-        subTitle: "06 · KADO DARI NUGUA",
-        desc: "Buka kado dan surat penutup di meja belajar dalam rumah."
+        subTitle: "06 · BUKA PINTU RUMAH",
+        desc: this.closingLetterOpened
+          ? "Semua pesan cinta dari Nugua telah terbuka dengan penuh kehangatan."
+          : "Naik ke teras rumah kayu, buka pintunya dengan kunci kuningan, dan periksa kado di meja belajar."
       };
     }
 
@@ -685,8 +732,8 @@ class GameApp {
     }
   }
 
-  // Menerima Kunci Rumah dari Pak RT (Quest 4)
-  receiveHouseKeyFromPakRt() {
+  // Menerima Kunci Rumah dari Kakek Bijak di Gubuk Kebun Barat (Quest 5)
+  receiveHouseKeyFromKakek() {
     if (this.hasHouseKey) return;
     this.hasHouseKey = true;
     this.houseUnlocked = true;
@@ -697,8 +744,13 @@ class GameApp {
     const keyData = window.GAME_CONFIG.houseKeyItem;
     this.addItemToInventory(keyData);
     window.soundSystem.playItemCollect();
-    this.ui.showToast(`🗝️ Pak RT memberikan "${keyData.name}"! Pintu rumah kini bisa dibuka.`);
+    this.ui.showToast(`🗝️ Kakek Bijak memberikan "${keyData.name}"! Pintu rumah kini bisa dibuka.`);
     this.saveProgress();
+  }
+
+  // Kompatibilitas alias jika dipanggil dari tempat lain
+  receiveHouseKeyFromPakRt() {
+    this.receiveHouseKeyFromKakek();
   }
 
   collectItem(itemObj) {
@@ -799,10 +851,15 @@ class GameApp {
       arcadeCompleted: this.arcadeCompleted,
       photoTaken: this.photoTaken,
       closingLetterOpened: this.closingLetterOpened,
-      timeOfDay: this.world ? this.world.timeOfDay : "afternoon"
+      timeOfDay: this.world ? this.world.timeOfDay : "afternoon",
+      visitedWelcomeBox: !!this.visitedWelcomeBox,
+      visitedPaman: !!this.visitedPaman,
+      visitedDito: !!this.visitedDito,
+      visitedPakRt: !!this.visitedPakRt,
+      kakekSpawned: !!this.kakekSpawned
     };
     try {
-      localStorage.setItem("taman_kecil_progress_v4", JSON.stringify(data));
+      localStorage.setItem("taman_kecil_progress_v5", JSON.stringify(data));
     } catch (e) {
       console.warn("Gagal menyimpan ke localStorage", e);
     }
@@ -814,16 +871,22 @@ class GameApp {
       localStorage.removeItem("taman_kecil_progress");
       localStorage.removeItem("taman_kecil_save_v2");
       localStorage.removeItem("taman_kecil_save_v3");
+      localStorage.removeItem("taman_kecil_progress_v4");
     } catch (e) {}
 
     try {
-      const raw = localStorage.getItem("taman_kecil_progress_v4");
+      const raw = localStorage.getItem("taman_kecil_progress_v5");
       if (raw) {
         const data = JSON.parse(raw);
         this.currentQuestIndex = data.quest || 1;
         this.arcadeCompleted = !!data.arcadeCompleted;
         this.photoTaken = !!data.photoTaken;
         this.closingLetterOpened = !!data.closingLetterOpened;
+        this.visitedWelcomeBox = !!data.visitedWelcomeBox;
+        this.visitedPaman = !!data.visitedPaman;
+        this.visitedDito = !!data.visitedDito;
+        this.visitedPakRt = !!data.visitedPakRt;
+        this.setKakekVisible(!!data.kakekSpawned);
 
         const cfg = window.GAME_CONFIG;
         const findItemDef = (id) => {
@@ -864,8 +927,10 @@ class GameApp {
           });
         }
 
-        // SANITASI KETAT: Kunci kuningan HANYA boleh ada jika alur sudah mencapai Quest 5 (setelah diberikan Pak RT)
-        if (this.currentQuestIndex < 5 || !this.inventorySlots.some(s => s && s.id === "item_house_key")) {
+        // SANITASI KETAT: Kunci kuningan HANYA boleh ada jika alur sudah mencapai Quest 6 (setelah diberikan Kakek)
+        // dan SEMUA checkpoint berurutan terpenuhi:
+        const allChecked = this.visitedWelcomeBox && this.visitedPaman && this.visitedDito && this.visitedPakRt;
+        if (this.currentQuestIndex < 6 || !allChecked || !this.inventorySlots.some(s => s && s.id === "item_house_key")) {
           this.hasHouseKey = false;
           this.houseUnlocked = false;
           this.inventorySlots = this.inventorySlots.map(s => (s && s.id === "item_house_key" ? null : s));
@@ -904,6 +969,7 @@ class GameApp {
       localStorage.removeItem("taman_kecil_save_v2");
       localStorage.removeItem("taman_kecil_save_v3");
       localStorage.removeItem("taman_kecil_progress_v4");
+      localStorage.removeItem("taman_kecil_progress_v5");
     } catch (e) {}
     window.location.reload();
   }
