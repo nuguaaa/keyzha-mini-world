@@ -60,10 +60,10 @@ class DioramaWorld {
     this.scene.add(this.exteriorGroup);
     this.scene.add(this.interiorGroup);
 
-    // 2. Kamera Medium-Wide Isometric (Persis Sudut Pandang Video)
+    // 2. Kamera Medium-Wide Isometric (Sudut Pandang Lebih Rendah / POV Nyaman)
     this.camera = new THREE.PerspectiveCamera(40, width / height, 0.1, 300);
-    this.camera.position.set(0, 9.8, 10.5);
-    this.camera.lookAt(0, 1.0, -1.0);
+    this.camera.position.set(0, 12.7, 14.7);
+    this.camera.lookAt(0, 1.2, 5.0);
 
     // 3. WebGL Renderer
     this.renderer = new THREE.WebGLRenderer({
@@ -159,100 +159,136 @@ class DioramaWorld {
   buildDioramaPlatform() {
     const tg = window.textureGen;
 
-    // A. Permukaan Rumput Utama Taman (X: -16 to 16, Z: -16 to 7.5, Y = 0)
+    // A. Permukaan Rumput Utama Taman (X: -22 to 22, Z: -20 to 14, Y = 0)
     const grassMat = new THREE.MeshLambertMaterial({ map: tg.getGrassTexture() });
-    grassMat.map.repeat.set(16, 12);
+    grassMat.map.repeat.set(22, 17);
 
-    const ground = new THREE.Mesh(new THREE.PlaneGeometry(32, 24), grassMat);
+    const ground = new THREE.Mesh(new THREE.PlaneGeometry(44, 34), grassMat);
     ground.rotation.x = -Math.PI / 2;
-    ground.position.set(0, 0, -4.25);
+    ground.position.set(0, 0, -3.0);
     ground.receiveShadow = true;
     this.exteriorGroup.add(ground);
 
     // B. Tebing Potongan Tanah Diorama (Cross-Section Soil Strata)
-    // Tepi Depan (South Cliff at Z = 7.75)
+    // Tepi Depan (South Cliff at Z = 14.0)
     const cutawayMat = new THREE.MeshLambertMaterial({ map: tg.getSoilCutawayTexture() });
-    cutawayMat.map.repeat.set(12, 1);
+    cutawayMat.map.repeat.set(16, 1);
 
-    const cliffFront = new THREE.Mesh(new THREE.PlaneGeometry(32, 5.0), cutawayMat);
-    cliffFront.position.set(0, -2.5, 7.75);
+    const cliffFront = new THREE.Mesh(new THREE.PlaneGeometry(44, 5.5), cutawayMat);
+    cliffFront.position.set(0, -2.75, 14.0);
     cliffFront.receiveShadow = true;
     this.exteriorGroup.add(cliffFront);
 
-    // Tepi Kiri (West Cliff at X = -16)
+    // Tepi Kiri (West Cliff at X = -22)
     const cutawaySideMat = new THREE.MeshLambertMaterial({ map: tg.getSoilCutawayTexture() });
-    cutawaySideMat.map.repeat.set(9, 1);
-    const cliffLeft = new THREE.Mesh(new THREE.PlaneGeometry(24, 5.0), cutawaySideMat);
+    cutawaySideMat.map.repeat.set(12, 1);
+    const cliffLeft = new THREE.Mesh(new THREE.PlaneGeometry(34, 5.5), cutawaySideMat);
     cliffLeft.rotation.y = Math.PI / 2;
-    cliffLeft.position.set(-16, -2.5, -4.25);
+    cliffLeft.position.set(-22.0, -2.75, -3.0);
     this.exteriorGroup.add(cliffLeft);
 
-    // Tepi Kanan (East Cliff at X = 16)
-    const cliffRight = new THREE.Mesh(new THREE.PlaneGeometry(24, 5.0), cutawaySideMat);
+    // Tepi Kanan (East Cliff at X = 22)
+    const cliffRight = new THREE.Mesh(new THREE.PlaneGeometry(34, 5.5), cutawaySideMat);
     cliffRight.rotation.y = -Math.PI / 2;
-    cliffRight.position.set(16, -2.5, -4.25);
+    cliffRight.position.set(22.0, -2.75, -3.0);
     this.exteriorGroup.add(cliffRight);
 
     // Collider Batas Dunia Diorama (Agar tidak jatuh keluar tebing)
-    this.exteriorColliders.push({ minX: -16.5, maxX: -15.2, minZ: -17, maxZ: 8.5 }); // Barat
-    this.exteriorColliders.push({ minX: 15.2, maxX: 16.5, minZ: -17, maxZ: 8.5 });  // Timur
-    this.exteriorColliders.push({ minX: -16.5, maxX: 16.5, minZ: 7.2, maxZ: 8.5 });  // Selatan (Depan)
-    this.exteriorColliders.push({ minX: -16.5, maxX: 16.5, minZ: -17.5, maxZ: -16.0 }); // Utara (Belakang)
+    this.exteriorColliders.push({ minX: -22.5, maxX: -21.2, minZ: -21.0, maxZ: 14.5 }); // Barat
+    this.exteriorColliders.push({ minX: 21.2, maxX: 22.5, minZ: -21.0, maxZ: 14.5 });  // Timur
+    this.exteriorColliders.push({ minX: -22.5, maxX: 22.5, minZ: 13.5, maxZ: 15.0 });  // Selatan (Depan)
+    this.exteriorColliders.push({ minX: -22.5, maxX: 22.5, minZ: -21.5, maxZ: -19.5 }); // Utara (Belakang)
   }
 
   // --- 2. RUMAH, TERAS & UNDAKAN TANGGA BATU (PERSIS VIDEO REFERENSI) ---
   buildHouseAndStairs() {
     const tg = window.textureGen;
 
-    // A. Teras Depan Rumah (Terangkat Y = 1.2, X: -7 to 7, Z: -15 to -5.8)
+    // A. Teras Depan Rumah (Terangkat Y = 1.2, X: -9 to 9, Z: -18.5 to -8.0)
     const terraceGroup = new THREE.Group();
 
     // Lantai Teras Batu
     const stoneMat = new THREE.MeshLambertMaterial({ map: tg.getStonePathTexture() });
-    stoneMat.map.repeat.set(4, 3);
-    const terraceFloor = new THREE.Mesh(new THREE.PlaneGeometry(14, 9.2), stoneMat);
+    stoneMat.map.repeat.set(6, 4);
+    const terraceFloor = new THREE.Mesh(new THREE.PlaneGeometry(18.0, 10.5), stoneMat);
     terraceFloor.rotation.x = -Math.PI / 2;
-    terraceFloor.position.set(0, 1.2, -10.4);
+    terraceFloor.position.set(0, 1.2, -13.25);
     terraceFloor.receiveShadow = true;
     terraceGroup.add(terraceFloor);
 
-    // Dinding Penahan Teras (Retaining Wall)
+    // Dinding Penahan Teras (Retaining Wall Batu & Tanah)
     const wallMat = new THREE.MeshLambertMaterial({ map: tg.getSoilCutawayTexture() });
-    wallMat.map.repeat.set(4, 1);
+    wallMat.map.repeat.set(5, 1);
 
     // Dinding depan teras (kiri & kanan tangga)
-    // Tangga berada di X: [-2.5, 2.5]
-    const wallFrontLeft = new THREE.Mesh(new THREE.PlaneGeometry(4.5, 1.25), wallMat);
-    wallFrontLeft.position.set(-4.75, 0.6, -5.8);
+    // Tangga berada di X: [-3.0, 3.0] pada Z = -8.0
+    const wallFrontLeft = new THREE.Mesh(new THREE.PlaneGeometry(6.0, 1.25), wallMat);
+    wallFrontLeft.position.set(-6.0, 0.6, -8.0);
     terraceGroup.add(wallFrontLeft);
 
-    const wallFrontRight = new THREE.Mesh(new THREE.PlaneGeometry(4.5, 1.25), wallMat);
-    wallFrontRight.position.set(4.75, 0.6, -5.8);
+    const wallFrontRight = new THREE.Mesh(new THREE.PlaneGeometry(6.0, 1.25), wallMat);
+    wallFrontRight.position.set(6.0, 0.6, -8.0);
     terraceGroup.add(wallFrontRight);
 
     // Dinding samping teras
-    const wallSideL = new THREE.Mesh(new THREE.PlaneGeometry(9.2, 1.25), wallMat);
+    const wallSideL = new THREE.Mesh(new THREE.PlaneGeometry(10.5, 1.25), wallMat);
     wallSideL.rotation.y = Math.PI / 2;
-    wallSideL.position.set(-7.0, 0.6, -10.4);
+    wallSideL.position.set(-9.0, 0.6, -13.25);
     terraceGroup.add(wallSideL);
 
-    const wallSideR = new THREE.Mesh(new THREE.PlaneGeometry(9.2, 1.25), wallMat);
+    const wallSideR = new THREE.Mesh(new THREE.PlaneGeometry(10.5, 1.25), wallMat);
     wallSideR.rotation.y = -Math.PI / 2;
-    wallSideR.position.set(7.0, 0.6, -10.4);
+    wallSideR.position.set(9.0, 0.6, -13.25);
     terraceGroup.add(wallSideR);
 
-    // B. Undakan Tangga Batu (Dari Y=0 ke Y=1.2, Z: -2.5 ke -5.8, Lebar X: 5)
-    // 5 anak tangga berundak rapi
+    // B. Kotak Bunga & Semak Rimbun di Tepi Teras & Tangga (Menghilangkan Tanah Kosong)
+    const planterMat = new THREE.MeshLambertMaterial({ color: "#543724" });
+    const foliageMat = new THREE.MeshLambertMaterial({ color: "#2d6a4f" });
+    const flowerColors = ["#e63946", "#ffb703", "#ffffff", "#f72585", "#70e000"];
+
+    // Planters di bibir teras atas kiri & kanan
+    [-6.0, 6.0].forEach(px => {
+      const box = new THREE.Mesh(new THREE.BoxGeometry(5.4, 0.45, 0.65), planterMat);
+      box.position.set(px, 1.4, -8.1);
+      box.castShadow = true;
+      terraceGroup.add(box);
+
+      // Bunga-bunga berwarna-warni di dalam kotak
+      for (let i = 0; i < 7; i++) {
+        const c = flowerColors[i % flowerColors.length];
+        const fl = new THREE.Mesh(new THREE.DodecahedronGeometry(0.22, 0), new THREE.MeshLambertMaterial({ color: c }));
+        fl.position.set(px - 2.2 + i * 0.72, 1.7, -8.1);
+        fl.castShadow = true;
+        terraceGroup.add(fl);
+      }
+    });
+
+    // Semak bunga di samping tangga bagian bawah (Y = 0)
+    [-3.8, 3.8].forEach(bx => {
+      for (let s = 0; s < 3; s++) {
+        const bush = new THREE.Mesh(new THREE.SphereGeometry(0.45, 6, 6), foliageMat);
+        bush.scale.set(1.1, 0.8, 1.1);
+        bush.position.set(bx, 0.35, -4.5 - s * 1.3);
+        bush.castShadow = true;
+        terraceGroup.add(bush);
+
+        const fl = new THREE.Mesh(new THREE.BoxGeometry(0.12, 0.12, 0.12), new THREE.MeshLambertMaterial({ color: "#ffffff" }));
+        fl.position.set(bx + (Math.random() - 0.5) * 0.3, 0.65, -4.5 - s * 1.3);
+        terraceGroup.add(fl);
+      }
+    });
+
+    // C. Undakan Tangga Batu (Dari Y=0 di Z = -4.0 ke Y=1.2 di Z = -8.0, Lebar X = 6.0)
     const stepMat = new THREE.MeshLambertMaterial({ map: tg.getStonePathTexture() });
-    const numSteps = 5;
-    const stepDepth = (5.8 - 2.5) / numSteps; // ~0.66
-    const stepHeight = 1.2 / numSteps; // ~0.24
+    const numSteps = 6;
+    const stepDepth = (8.0 - 4.0) / numSteps; // ~0.667
+    const stepHeight = 1.2 / numSteps; // 0.20
 
     for (let i = 0; i < numSteps; i++) {
       const sy = (i + 1) * stepHeight;
-      const sz = -2.5 - (i * stepDepth) - (stepDepth / 2);
+      const sz = -4.0 - (i * stepDepth) - (stepDepth / 2);
       const stepMesh = new THREE.Mesh(
-        new THREE.BoxGeometry(5.0, sy, stepDepth),
+        new THREE.BoxGeometry(6.0, sy, stepDepth),
         stepMat
       );
       stepMesh.position.set(0, sy / 2, sz);
@@ -261,83 +297,100 @@ class DioramaWorld {
       terraceGroup.add(stepMesh);
     }
 
+    // Pagar Pembatas Batu Samping Tangga (Balustrades)
+    const curbMat = new THREE.MeshLambertMaterial({ color: "#6c757d" });
+    [-3.15, 3.15].forEach(cx => {
+      const curb = new THREE.Mesh(new THREE.BoxGeometry(0.3, 0.55, 4.3), curbMat);
+      curb.position.set(cx, 0.7, -6.0);
+      curb.castShadow = true;
+      terraceGroup.add(curb);
+    });
+
     this.exteriorGroup.add(terraceGroup);
 
-    // C. Bangunan Rumah Kayu Putih Pedesaan (Sesuai Video)
+    // D. Bangunan Rumah Kayu Putih Pedesaan (Sesuai Video)
     const houseGroup = new THREE.Group();
-    houseGroup.position.set(0, 1.2, -11.0);
+    houseGroup.position.set(0, 1.2, -14.0);
 
     // Dinding Rumah Putih Stucco
     const wallWhiteMat = new THREE.MeshLambertMaterial({ color: "#f7f4ed" });
-    const houseBody = new THREE.Mesh(new THREE.BoxGeometry(11.0, 4.8, 6.5), wallWhiteMat);
-    houseBody.position.set(0, 2.4, 0);
+    const houseBody = new THREE.Mesh(new THREE.BoxGeometry(12.0, 5.0, 7.0), wallWhiteMat);
+    houseBody.position.set(0, 2.5, 0);
     houseBody.castShadow = true;
     houseBody.receiveShadow = true;
     houseGroup.add(houseBody);
 
-    // Tiang Penyangga & Balok Kayu Cokelat
+    // Tiang Penyangga Sudut & Balok Kayu Cokelat
     const timberMat = new THREE.MeshLambertMaterial({ color: "#543724" });
-    [-5.4, 5.4].forEach(tx => {
-      const post = new THREE.Mesh(new THREE.BoxGeometry(0.35, 4.8, 0.35), timberMat);
-      post.position.set(tx, 2.4, 3.2);
+    [-5.9, 5.9].forEach(tx => {
+      const post = new THREE.Mesh(new THREE.BoxGeometry(0.38, 5.0, 0.38), timberMat);
+      post.position.set(tx, 2.5, 3.45);
       houseGroup.add(post);
     });
 
     // Pintu Utama Kayu (Terkunci Awalnya)
     const doorMat = new THREE.MeshLambertMaterial({ color: "#6e472a" });
-    const door = new THREE.Mesh(new THREE.PlaneGeometry(1.6, 2.7), doorMat);
-    door.position.set(0, 1.35, 3.28);
+    const door = new THREE.Mesh(new THREE.PlaneGeometry(1.7, 2.8), doorMat);
+    door.position.set(0, 1.4, 3.53);
     houseGroup.add(door);
     this.doorMesh = door;
 
     // Handle Kunci Kuningan di Pintu
     const knobMat = new THREE.MeshLambertMaterial({ color: "#f6c445" });
     const knob = new THREE.Mesh(new THREE.SphereGeometry(0.08, 8, 8), knobMat);
-    knob.position.set(0.6, 1.3, 3.32);
+    knob.position.set(0.65, 1.35, 3.57);
     houseGroup.add(knob);
 
     // Jendela Kiri & Kanan dengan Kaca Hangat
     const winMat = new THREE.MeshLambertMaterial({ color: "#ffeaa7" });
     this.houseWindows.push(winMat);
-    [-3.2, 3.2].forEach(wx => {
-      const win = new THREE.Mesh(new THREE.PlaneGeometry(1.8, 1.5), winMat);
-      win.position.set(wx, 2.3, 3.28);
+    [-3.8, 3.8].forEach(wx => {
+      const win = new THREE.Mesh(new THREE.PlaneGeometry(1.9, 1.6), winMat);
+      win.position.set(wx, 2.4, 3.53);
       houseGroup.add(win);
 
       // Bingkai jendela
-      const fH = new THREE.Mesh(new THREE.BoxGeometry(2.0, 0.1, 0.08), timberMat);
-      fH.position.set(wx, 2.3, 3.32);
+      const fH = new THREE.Mesh(new THREE.BoxGeometry(2.1, 0.1, 0.08), timberMat);
+      fH.position.set(wx, 2.4, 3.56);
       houseGroup.add(fH);
-      const fV = new THREE.Mesh(new THREE.BoxGeometry(0.1, 1.6, 0.08), timberMat);
-      fV.position.set(wx, 2.3, 3.32);
+      const fV = new THREE.Mesh(new THREE.BoxGeometry(0.1, 1.7, 0.08), timberMat);
+      fV.position.set(wx, 2.4, 3.56);
       houseGroup.add(fV);
     });
 
-    // Atap Genteng Gelap Tradisional
+    // Atap Pelana Tradisional dengan Overhanging Eaves (Genteng Gelap)
     const roofMat = new THREE.MeshLambertMaterial({ color: "#2d3436" });
-    const roof = new THREE.Mesh(new THREE.ConeGeometry(8.5, 3.2, 4), roofMat);
+    const roof = new THREE.Mesh(new THREE.ConeGeometry(9.6, 3.6, 4), roofMat);
     roof.rotation.y = Math.PI / 4;
-    roof.scale.set(1.15, 1, 0.82);
-    roof.position.set(0, 5.8, 0);
+    roof.scale.set(1.22, 1, 0.88);
+    roof.position.set(0, 6.2, 0);
     roof.castShadow = true;
     houseGroup.add(roof);
 
-    // Lampu Teras di Samping Pintu
-    this.createLampPost(-1.5, -7.6, 1.2, true);
+    // Cerobong Asap Batu
+    const chimneyMat = new THREE.MeshLambertMaterial({ color: "#5c5042" });
+    const chimney = new THREE.Mesh(new THREE.BoxGeometry(0.9, 2.4, 0.9), chimneyMat);
+    chimney.position.set(4.5, 6.6, -1.0);
+    chimney.castShadow = true;
+    houseGroup.add(chimney);
+
+    // Lampu Teras di Samping Kiri & Kanan Pintu
+    this.createLampPost(-1.6, -10.35, 1.2, true);
+    this.createLampPost(1.6, -10.35, 1.2, true);
 
     this.exteriorGroup.add(houseGroup);
 
     // Collider Rumah & Dinding Teras (Hanya tangga yang bisa dilewati)
     // Tembok Rumah Utama
-    this.exteriorColliders.push({ minX: -6.0, maxX: 6.0, minZ: -14.5, maxZ: -7.5 });
+    this.exteriorColliders.push({ minX: -6.5, maxX: 6.5, minZ: -18.0, maxZ: -10.2 });
 
     // Dinding Samping Teras
-    this.exteriorColliders.push({ minX: -7.5, maxX: -6.6, minZ: -15.0, maxZ: -5.8 });
-    this.exteriorColliders.push({ minX: 6.6, maxX: 7.5, minZ: -15.0, maxZ: -5.8 });
+    this.exteriorColliders.push({ minX: -9.5, maxX: -8.7, minZ: -18.5, maxZ: -8.0 });
+    this.exteriorColliders.push({ minX: 8.7, maxX: 9.5, minZ: -18.5, maxZ: -8.0 });
 
     // Dinding Depan Teras (Kiri & Kanan Tangga)
-    this.exteriorColliders.push({ minX: -7.0, maxX: -2.5, minZ: -6.2, maxZ: -5.5 });
-    this.exteriorColliders.push({ minX: 2.5, maxX: 7.0, minZ: -6.2, maxZ: -5.5 });
+    this.exteriorColliders.push({ minX: -9.2, maxX: -3.0, minZ: -8.4, maxZ: -7.6 });
+    this.exteriorColliders.push({ minX: 3.0, maxX: 9.2, minZ: -8.4, maxZ: -7.6 });
   }
 
   // --- 3. ALIRAN SUNGAI & JEMBATAN KAYU (SEBELAH KIRI - PERSIS VIDEO) ---
@@ -345,70 +398,105 @@ class DioramaWorld {
     const tg = window.textureGen;
     const riverGroup = new THREE.Group();
 
-    // A. Badan Air Sungai (X: -11.5 ke -8.0, Z: -16 ke 7.5, Y = -0.15)
+    // A. Badan Air Sungai Mengalir Jernih (X: -14.0 ke -9.5, Z: -20 ke 14, Y = -0.42)
+    // Permukaan air diturunkan agar terdapat celah udara nyata (0.64 unit) di bawah jembatan
     const waterMat = new THREE.MeshLambertMaterial({
       map: tg.getRiverWaterTexture(),
       transparent: true,
       opacity: 0.88
     });
-    waterMat.map.repeat.set(1, 6);
+    waterMat.map.repeat.set(1, 8);
 
-    const water = new THREE.Mesh(new THREE.PlaneGeometry(3.5, 24), waterMat);
+    const water = new THREE.Mesh(new THREE.PlaneGeometry(4.5, 34), waterMat);
     water.rotation.x = -Math.PI / 2;
-    water.position.set(-9.75, -0.15, -4.25);
+    water.position.set(-11.75, -0.42, -3.0);
     water.receiveShadow = true;
     riverGroup.add(water);
     this.waterMesh = water;
 
-    // Tanggul Bebatuan di Tepi Sungai
+    // Dasar Palung Sungai (Riverbed)
+    const bedMat = new THREE.MeshLambertMaterial({ color: "#2b261f" });
+    const riverBed = new THREE.Mesh(new THREE.PlaneGeometry(4.5, 34), bedMat);
+    riverBed.rotation.x = -Math.PI / 2;
+    riverBed.position.set(-11.75, -0.85, -3.0);
+    riverBed.receiveShadow = true;
+    riverGroup.add(riverBed);
+
+    // Dinding Tanggul Tanah & Bebatuan di Sepanjang Tepi Sungai
+    const embankmentMat = new THREE.MeshLambertMaterial({ map: tg.getSoilCutawayTexture() });
+    embankmentMat.map.repeat.set(12, 1);
+
+    // Tanggul Kiri (X = -14.0)
+    const embLeft = new THREE.Mesh(new THREE.PlaneGeometry(34, 0.85), embankmentMat);
+    embLeft.rotation.y = Math.PI / 2;
+    embLeft.position.set(-14.0, -0.42, -3.0);
+    riverGroup.add(embLeft);
+
+    // Tanggul Kanan (X = -9.5)
+    const embRight = new THREE.Mesh(new THREE.PlaneGeometry(34, 0.85), embankmentMat);
+    embRight.rotation.y = -Math.PI / 2;
+    embRight.position.set(-9.5, -0.42, -3.0);
+    riverGroup.add(embRight);
+
+    // Bebatuan Alami yang Rapi di Tepi Sungai
     const rockMat = new THREE.MeshLambertMaterial({ color: "#7a7265" });
-    for (let z = -14; z < 7; z += 2.2) {
-      [-11.6, -7.8].forEach((rx, idx) => {
-        const rk = new THREE.Mesh(new THREE.DodecahedronGeometry(0.35 + (Math.abs(z) % 3) * 0.1, 0), rockMat);
-        rk.position.set(rx, -0.05, z + (idx * 0.3));
+    for (let z = -18; z <= 12; z += 2.5) {
+      [-14.2, -9.3].forEach((rx, idx) => {
+        const rk = new THREE.Mesh(new THREE.DodecahedronGeometry(0.32 + (Math.abs(z) % 3) * 0.08, 0), rockMat);
+        rk.position.set(rx, -0.1, z + (idx * 0.4));
         rk.castShadow = true;
         riverGroup.add(rk);
       });
     }
 
-    // B. Jembatan Kayu Melintang (Z: -0.8 ke 1.8, X: -12.0 ke -7.5, Y = 0.12)
+    // B. Jembatan Kayu Kokoh & Lebih Lebar (Z: -0.5 ke 3.5, Lebar = 4.0 Unit, Y = 0.22)
     const bridgeGroup = new THREE.Group();
 
-    // Lantai Papan Jembatan Kayu
+    // Lantai Papan Jembatan Kayu (X: -14.6 ke -8.8, Lebar Z = 4.0)
     const bridgeWoodMat = new THREE.MeshLambertMaterial({ map: tg.getBridgeWoodTexture() });
-    bridgeWoodMat.map.repeat.set(3, 1);
-    const bridgeFloor = new THREE.Mesh(new THREE.PlaneGeometry(4.5, 2.6), bridgeWoodMat);
+    bridgeWoodMat.map.repeat.set(4, 2);
+    const bridgeFloor = new THREE.Mesh(new THREE.PlaneGeometry(5.8, 4.0), bridgeWoodMat);
     bridgeFloor.rotation.x = -Math.PI / 2;
-    bridgeFloor.position.set(-9.75, 0.12, 0.5);
+    bridgeFloor.position.set(-11.7, 0.22, 1.5);
     bridgeFloor.receiveShadow = true;
     bridgeFloor.castShadow = true;
     bridgeGroup.add(bridgeFloor);
 
-    // Balok Penyangga Bawah
+    // Balok Penyangga Kayu Kokoh di Bawah Jembatan (Air gap terlihat jelas di atas air)
     const beamMat = new THREE.MeshLambertMaterial({ color: "#4a2e1b" });
-    [-0.7, 1.7].forEach(bz => {
-      const beam = new THREE.Mesh(new THREE.BoxGeometry(4.7, 0.25, 0.2), beamMat);
-      beam.position.set(-9.75, 0.0, bz);
+    [-0.4, 3.4].forEach(bz => {
+      const beam = new THREE.Mesh(new THREE.BoxGeometry(6.0, 0.28, 0.22), beamMat);
+      beam.position.set(-11.7, 0.05, bz);
+      beam.castShadow = true;
       bridgeGroup.add(beam);
     });
 
-    // Pagar Pembatas Jembatan (Railing Kayu di Sisi Utara & Selatan)
-    [-0.7, 1.7].forEach(rz => {
-      // Tiang-tiang pagar
-      [-11.8, -10.5, -9.0, -7.7].forEach(px => {
-        const post = new THREE.Mesh(new THREE.BoxGeometry(0.18, 0.95, 0.18), beamMat);
-        post.position.set(px, 0.55, rz);
+    // Tiang Pancang Penyangga ke Dasar Sungai
+    [-13.5, -9.9].forEach(px => {
+      [-0.4, 3.4].forEach(pz => {
+        const pylon = new THREE.Mesh(new THREE.CylinderGeometry(0.12, 0.14, 1.0), beamMat);
+        pylon.position.set(px, -0.35, pz);
+        bridgeGroup.add(pylon);
+      });
+    });
+
+    // Pagar Pembatas Kayu Jembatan (Railing di Sisi Utara Z = -0.5 & Selatan Z = 3.5)
+    [-0.5, 3.5].forEach(rz => {
+      // 4 Tiang pagar tegak
+      [-14.5, -12.6, -10.8, -8.9].forEach(px => {
+        const post = new THREE.Mesh(new THREE.BoxGeometry(0.18, 1.0, 0.18), beamMat);
+        post.position.set(px, 0.72, rz);
         post.castShadow = true;
         bridgeGroup.add(post);
       });
 
-      // Palang horizontal
-      const railTop = new THREE.Mesh(new THREE.BoxGeometry(4.3, 0.12, 0.1), beamMat);
-      railTop.position.set(-9.75, 0.95, rz);
+      // Palang horizontal atas & tengah
+      const railTop = new THREE.Mesh(new THREE.BoxGeometry(5.8, 0.12, 0.1), beamMat);
+      railTop.position.set(-11.7, 1.05, rz);
       bridgeGroup.add(railTop);
 
-      const railMid = new THREE.Mesh(new THREE.BoxGeometry(4.3, 0.08, 0.08), beamMat);
-      railMid.position.set(-9.75, 0.55, rz);
+      const railMid = new THREE.Mesh(new THREE.BoxGeometry(5.8, 0.08, 0.08), beamMat);
+      railMid.position.set(-11.7, 0.65, rz);
       bridgeGroup.add(railMid);
     });
 
@@ -416,17 +504,17 @@ class DioramaWorld {
     this.exteriorGroup.add(riverGroup);
 
     // COLLIDER SUNGAI & PAGAR JEMBATAN (Anti Tembus Air & Anti Jatuh)
-    // 1. Sungai Bagian Utara (Z: -16 ke -0.8) - Impassable
-    this.exteriorColliders.push({ minX: -11.6, maxX: -7.8, minZ: -16.0, maxZ: -0.8 });
+    // 1. Sungai Bagian Utara (Z: -20.5 ke -0.5) - Impassable
+    this.exteriorColliders.push({ minX: -14.2, maxX: -9.3, minZ: -20.5, maxZ: -0.5 });
 
-    // 2. Sungai Bagian Selatan (Z: 1.8 ke 7.5) - Impassable
-    this.exteriorColliders.push({ minX: -11.6, maxX: -7.8, minZ: 1.8, maxZ: 7.5 });
+    // 2. Sungai Bagian Selatan (Z: 3.5 ke 14.5) - Impassable
+    this.exteriorColliders.push({ minX: -14.2, maxX: -9.3, minZ: 3.5, maxZ: 14.5 });
 
-    // 3. Pagar Sisi Utara Jembatan (Z: -1.0 ke -0.6, X: -11.8 ke -7.7)
-    this.exteriorColliders.push({ minX: -11.8, maxX: -7.7, minZ: -0.95, maxZ: -0.55 });
+    // 3. Pagar Sisi Utara Jembatan (Z: -0.7 ke -0.3, X: -14.6 ke -8.8)
+    this.exteriorColliders.push({ minX: -14.6, maxX: -8.8, minZ: -0.7, maxZ: -0.3 });
 
-    // 4. Pagar Sisi Selatan Jembatan (Z: 1.55 ke 1.95, X: -11.8 ke -7.7)
-    this.exteriorColliders.push({ minX: -11.8, maxX: -7.7, minZ: 1.55, maxZ: 1.95 });
+    // 4. Pagar Sisi Selatan Jembatan (Z: 3.3 ke 3.7, X: -14.6 ke -8.8)
+    this.exteriorColliders.push({ minX: -14.6, maxX: -8.8, minZ: 3.3, maxZ: 3.7 });
   }
 
   // --- 4. PELATARAN KAYU MAIN & FOTO (ARCADE & PHOTOBOOTH - SEBELAH KANAN) ---
@@ -434,39 +522,39 @@ class DioramaWorld {
     const tg = window.textureGen;
     const deckGroup = new THREE.Group();
 
-    // A. Lantai Papan Kayu Deck (X: 5.2 ke 12.8, Z: -2.6 ke 3.6, Y = 0.06)
+    // A. Lantai Papan Kayu Deck Lebih Luas (X: 7.5 ke 17.5, Z: -3.5 ke 4.5, Y = 0.06)
     const deckMat = new THREE.MeshLambertMaterial({ map: tg.getWoodDeckTexture() });
-    deckMat.map.repeat.set(2, 2);
+    deckMat.map.repeat.set(3, 2);
 
-    const deckFloor = new THREE.Mesh(new THREE.PlaneGeometry(7.6, 6.2), deckMat);
+    const deckFloor = new THREE.Mesh(new THREE.PlaneGeometry(10.0, 8.0), deckMat);
     deckFloor.rotation.x = -Math.PI / 2;
-    deckFloor.position.set(9.0, 0.06, 0.5);
+    deckFloor.position.set(12.5, 0.06, 0.5);
     deckFloor.receiveShadow = true;
     deckGroup.add(deckFloor);
 
-    // List Pinggir Kayu
+    // List Pinggir Kayu Deck
     const trimMat = new THREE.MeshLambertMaterial({ color: "#543724" });
-    const trimFront = new THREE.Mesh(new THREE.BoxGeometry(7.8, 0.15, 0.15), trimMat);
-    trimFront.position.set(9.0, 0.08, 3.6);
+    const trimFront = new THREE.Mesh(new THREE.BoxGeometry(10.2, 0.15, 0.15), trimMat);
+    trimFront.position.set(12.5, 0.08, 4.5);
     deckGroup.add(trimFront);
 
-    // B. Papan Petunjuk Kayu "MAIN & FOTO" di Depan Pelataran
+    // B. Papan Petunjuk Kayu "MAIN & FOTO" di Depan Pintu Masuk Pelataran
     const signGroup = new THREE.Group();
     const signPost = new THREE.Mesh(new THREE.CylinderGeometry(0.06, 0.06, 1.4), trimMat);
-    signPost.position.set(5.8, 0.7, 2.8);
+    signPost.position.set(7.8, 0.7, 3.8);
     signPost.castShadow = true;
     signGroup.add(signPost);
 
     const signBoardMat = new THREE.MeshLambertMaterial({ map: tg.getSignboardTexture("MAIN & FOTO") });
     const signBoard = new THREE.Mesh(new THREE.PlaneGeometry(1.6, 0.6), signBoardMat);
-    signBoard.position.set(5.8, 1.15, 2.8);
+    signBoard.position.set(7.8, 1.15, 3.8);
     signBoard.castShadow = true;
     signGroup.add(signBoard);
     deckGroup.add(signGroup);
 
-    // C. Mesin Arcade Retro dengan Tenda Kanopi Belang Hijau-Putih (Persis Video)
+    // C. Mesin Arcade Retro dengan Tenda Kanopi Belang Hijau-Putih (Di Sisi Kiri Deck: X = 9.5, Z = -1.5)
     const arcadeGroup = new THREE.Group();
-    arcadeGroup.position.set(6.8, 0, -1.0);
+    arcadeGroup.position.set(9.5, 0, -1.5);
 
     // Kabinet Mesin Warna Maroon Tua
     const cabMat = new THREE.MeshLambertMaterial({ color: "#6b2d35" });
@@ -493,7 +581,7 @@ class DioramaWorld {
     ctrlPanel.position.set(0, 0.85, 0.7);
     arcadeGroup.add(ctrlPanel);
 
-    // Tenda Kanopi Belang Hijau-Putih di Atas Arcade (Sesuai Video)
+    // Tenda Kanopi Belang Hijau-Putih di Atas Arcade
     const awningMat = new THREE.MeshLambertMaterial({ map: tg.getAwningTexture() });
     awningMat.map.repeat.set(4, 1);
     const awning = new THREE.Mesh(new THREE.PlaneGeometry(2.0, 1.2), awningMat);
@@ -513,9 +601,9 @@ class DioramaWorld {
     deckGroup.add(arcadeGroup);
     this.arcadeMesh = arcadeGroup;
 
-    // D. Bilik Photobooth Studio (Backdrop Putih, Stand Lampu & Kamera Tripod)
+    // D. Bilik Photobooth Studio Terpisah Rapi (Di Sisi Kanan Deck: X = 14.5, Z = -1.2)
     const photoGroup = new THREE.Group();
-    photoGroup.position.set(10.2, 0, -0.6);
+    photoGroup.position.set(14.5, 0, -1.2);
 
     // Backdrop Kanvas Putih Studio
     const bdMat = new THREE.MeshLambertMaterial({ color: "#f8f9fa" });
@@ -536,34 +624,34 @@ class DioramaWorld {
     topBar.position.set(0, 2.7, -0.4);
     photoGroup.add(topBar);
 
-    // Lampu Softbox Studio di Samping
-    [-1.7, 1.7].forEach(lx => {
+    // Lampu Softbox Studio di Samping (Tidak menghalangi pandangan)
+    [-1.8, 1.8].forEach(lx => {
       const lampStand = new THREE.Mesh(new THREE.CylinderGeometry(0.03, 0.03, 2.0), metalMat);
-      lampStand.position.set(lx, 1.0, 0.5);
+      lampStand.position.set(lx, 1.0, 0.4);
       photoGroup.add(lampStand);
 
       const softbox = new THREE.Mesh(new THREE.BoxGeometry(0.5, 0.6, 0.25), metalMat);
-      softbox.position.set(lx, 1.9, 0.5);
+      softbox.position.set(lx, 1.9, 0.4);
       photoGroup.add(softbox);
 
       const lightFace = new THREE.Mesh(new THREE.PlaneGeometry(0.46, 0.56), new THREE.MeshBasicMaterial({ color: "#fffbe6" }));
       lightFace.rotation.y = lx > 0 ? -Math.PI / 4 : Math.PI / 4;
-      lightFace.position.set(lx > 0 ? lx - 0.1 : lx + 0.1, 1.9, 0.6);
+      lightFace.position.set(lx > 0 ? lx - 0.1 : lx + 0.1, 1.9, 0.5);
       photoGroup.add(lightFace);
     });
 
-    // Kamera Vintage di Atas Tripod di Depan Backdrop
+    // Kamera Vintage di Atas Tripod di Depan Backdrop (X = 14.5, Z = 1.8)
     const tripod = new THREE.Mesh(new THREE.ConeGeometry(0.35, 1.1, 3), metalMat);
-    tripod.position.set(0, 0.55, 1.2);
+    tripod.position.set(0, 0.55, 3.0);
     photoGroup.add(tripod);
 
     const cameraBody = new THREE.Mesh(new THREE.BoxGeometry(0.35, 0.25, 0.3), metalMat);
-    cameraBody.position.set(0, 1.15, 1.2);
+    cameraBody.position.set(0, 1.15, 3.0);
     photoGroup.add(cameraBody);
 
     const lens = new THREE.Mesh(new THREE.CylinderGeometry(0.08, 0.08, 0.15), metalMat);
     lens.rotation.x = Math.PI / 2;
-    lens.position.set(0, 1.15, 1.0);
+    lens.position.set(0, 1.15, 2.8);
     photoGroup.add(lens);
 
     deckGroup.add(photoGroup);
@@ -571,14 +659,14 @@ class DioramaWorld {
 
     this.exteriorGroup.add(deckGroup);
 
-    // Collider Pelataran Main & Foto
+    // Collider Pelataran Main & Foto (Clearance luas untuk jalan dan foto)
     // Arcade Machine Box Collider
-    this.exteriorColliders.push({ minX: 5.8, maxX: 7.8, minZ: -1.7, maxZ: -0.3 });
+    this.exteriorColliders.push({ minX: 8.6, maxX: 10.4, minZ: -2.2, maxZ: -0.8 });
 
     // Photobooth Backdrop & Lights Collider
-    this.exteriorColliders.push({ minX: 8.5, maxX: 12.0, minZ: -1.0, maxZ: -0.1 });
-    this.exteriorColliders.push({ minX: 9.6, maxX: 10.8, minZ: 0.9, maxZ: 1.5 }); // Tripod Kamera
-    this.exteriorColliders.push({ minX: 5.5, maxX: 6.2, minZ: 2.5, maxZ: 3.1 });   // Papan Nama
+    this.exteriorColliders.push({ minX: 12.4, maxX: 16.6, minZ: -1.8, maxZ: -0.5 });
+    this.exteriorColliders.push({ minX: 14.1, maxX: 14.9, minZ: 1.5, maxZ: 2.1 }); // Tripod Kamera
+    this.exteriorColliders.push({ minX: 7.5, maxX: 8.2, minZ: 3.5, maxZ: 4.1 });   // Papan Nama
   }
 
   // --- 5. PELATARAN DEPAN, PETI SURAT & LAMPU JALAN (PERSIS VIDEO) ---
@@ -586,52 +674,95 @@ class DioramaWorld {
     const tg = window.textureGen;
     const courtGroup = new THREE.Group();
 
-    // A. Pelataran Paving Batu di Bawah Tangga (X: -3.5 ke 3.5, Z: -2.5 ke 1.8, Y = 0.04)
+    // A. Pelataran & Jalur Setapak Paving Batu (Membentang dari Tangga ke Taman Depan & Cabang)
     const stoneMat = new THREE.MeshLambertMaterial({ map: tg.getStonePathTexture() });
-    stoneMat.map.repeat.set(2, 2);
+    stoneMat.map.repeat.set(3, 4);
 
-    const courtPaving = new THREE.Mesh(new THREE.PlaneGeometry(7.0, 4.3), stoneMat);
+    // 1. Jalur Utama Tengah (Z: -4.0 ke 7.5, Lebar X: 7.0)
+    const courtPaving = new THREE.Mesh(new THREE.PlaneGeometry(7.0, 11.5), stoneMat);
     courtPaving.rotation.x = -Math.PI / 2;
-    courtPaving.position.set(0, 0.04, -0.35);
+    courtPaving.position.set(0, 0.04, 1.75);
     courtPaving.receiveShadow = true;
     courtGroup.add(courtPaving);
 
-    // B. Peti Kayu Pelataran dengan Surat Sambutan di Atasnya (Persis Video)
+    // 2. Jalur Cabang ke Arah Jembatan Kayu di Sebelah Barat (X: -8.8 ke -3.5, Z: 0.0 ke 3.0)
+    const bridgePathMat = new THREE.MeshLambertMaterial({ map: tg.getStonePathTexture() });
+    bridgePathMat.map.repeat.set(2, 1);
+    const bridgePath = new THREE.Mesh(new THREE.PlaneGeometry(5.5, 3.0), bridgePathMat);
+    bridgePath.rotation.x = -Math.PI / 2;
+    bridgePath.position.set(-6.25, 0.04, 1.5);
+    bridgePath.receiveShadow = true;
+    courtGroup.add(bridgePath);
+
+    // 3. Jalur Cabang ke Arah Pelataran Kayu Deck di Sebelah Timur (X: 3.5 ke 7.5, Z: 0.0 ke 3.0)
+    const deckPath = new THREE.Mesh(new THREE.PlaneGeometry(4.0, 3.0), bridgePathMat);
+    deckPath.rotation.x = -Math.PI / 2;
+    deckPath.position.set(5.5, 0.04, 1.5);
+    deckPath.receiveShadow = true;
+    courtGroup.add(deckPath);
+
+    // B. Peti Kayu Pelataran dengan Surat Sambutan (Box Sambutan di Taman Depan Bawah: X = 0.5, Z = 5.2)
     const crateMat = new THREE.MeshLambertMaterial({ map: tg.getCrateLetterTexture() });
     const crate = new THREE.Mesh(new THREE.BoxGeometry(1.2, 0.9, 1.0), crateMat);
-    crate.position.set(0.6, 0.45, 0.2);
+    crate.position.set(0.5, 0.45, 5.2);
     crate.castShadow = true;
     crate.receiveShadow = true;
     courtGroup.add(crate);
     this.crateMesh = crate;
 
-    // C. Papan Kayu Petunjuk di Samping Peti
+    // C. Papan Kayu Petunjuk di Samping Peti Sambutan
     const postMat = new THREE.MeshLambertMaterial({ color: "#4a2e1b" });
     const post = new THREE.Mesh(new THREE.CylinderGeometry(0.05, 0.05, 1.2), postMat);
-    post.position.set(1.6, 0.6, 0.2);
+    post.position.set(1.6, 0.6, 5.2);
     post.castShadow = true;
     courtGroup.add(post);
 
     const signMat = new THREE.MeshLambertMaterial({ map: tg.getSignboardTexture("PETUNJUK") });
     const board = new THREE.Mesh(new THREE.PlaneGeometry(1.1, 0.5), signMat);
-    board.position.set(1.6, 1.0, 0.2);
+    board.position.set(1.6, 1.0, 5.2);
     board.castShadow = true;
     courtGroup.add(board);
 
-    // D. Lampu Taman Besi Hitam Klasik (Sesuai Posisi di Video)
-    this.createLampPost(-2.6, 1.2, 0);   // Kiri pelataran depan
-    this.createLampPost(2.6, 1.2, 0);    // Kanan pelataran depan
-    this.createLampPost(-7.0, 1.5, 0);   // Ujung jembatan kanan
-    this.createLampPost(-12.2, 1.5, 0);  // Ujung jembatan kiri
-    this.createLampPost(-8.5, -4.5, 0);  // Jalur atas dekat kakek
-    this.createLampPost(4.8, 1.8, 0);    // Dekat pintu masuk pelataran arcade
-    this.createLampPost(12.5, 3.2, 0);   // Sudut kanan depan
+    // D. Bangku Kayu Taman Santai (Di Sudut Barat Daya Lapang)
+    const benchGroup = new THREE.Group();
+    benchGroup.position.set(-4.8, 0, 4.5);
+
+    const benchMat = new THREE.MeshLambertMaterial({ color: "#543724" });
+    const benchSeat = new THREE.Mesh(new THREE.BoxGeometry(1.8, 0.1, 0.5), benchMat);
+    benchSeat.position.set(0, 0.45, 0);
+    benchSeat.castShadow = true;
+    benchGroup.add(benchSeat);
+
+    const benchBack = new THREE.Mesh(new THREE.BoxGeometry(1.8, 0.5, 0.08), benchMat);
+    benchBack.position.set(0, 0.75, -0.22);
+    benchBack.castShadow = true;
+    benchGroup.add(benchBack);
+
+    [-0.75, 0.75].forEach(lx => {
+      const leg = new THREE.Mesh(new THREE.BoxGeometry(0.1, 0.45, 0.45), benchMat);
+      leg.position.set(lx, 0.22, 0);
+      leg.castShadow = true;
+      benchGroup.add(leg);
+    });
+    courtGroup.add(benchGroup);
+    this.exteriorColliders.push({ minX: -5.8, maxX: -3.8, minZ: 4.1, maxZ: 4.9 });
+
+    // E. Lampu Taman Besi Hitam Klasik Berdiri (Sesuai Posisi di Video)
+    this.createLampPost(-3.6, 5.5, 0);   // Kiri taman depan
+    this.createLampPost(3.6, 5.5, 0);    // Kanan taman depan
+    this.createLampPost(-3.6, -3.5, 0);  // Bawah tangga kiri
+    this.createLampPost(3.6, -3.5, 0);   // Bawah tangga kanan
+    this.createLampPost(-8.5, 1.5, 0);   // Ujung jembatan timur
+    this.createLampPost(-14.8, 1.5, 0);  // Ujung jembatan barat
+    this.createLampPost(-16.0, -6.5, 0); // Kebun barat dekat kakek
+    this.createLampPost(7.2, 4.2, 0);    // Pintu masuk pelataran arcade
+    this.createLampPost(17.8, 4.2, 0);   // Sudut tenggara pelataran foto
 
     this.exteriorGroup.add(courtGroup);
 
-    // Collider Peti & Papan Petunjuk
-    this.exteriorColliders.push({ minX: -0.1, maxX: 1.3, minZ: -0.4, maxZ: 0.8 });  // Peti
-    this.exteriorColliders.push({ minX: 1.3, maxX: 2.2, minZ: -0.2, maxZ: 0.6 });   // Papan Petunjuk
+    // Collider Peti Sambutan & Papan Petunjuk
+    this.exteriorColliders.push({ minX: -0.2, maxX: 1.2, minZ: 4.6, maxZ: 5.8 });  // Peti Sambutan
+    this.exteriorColliders.push({ minX: 1.3, maxX: 2.0, minZ: 4.8, maxZ: 5.6 });   // Papan Petunjuk
   }
 
   // Tiang Lampu Taman Klasik
@@ -704,44 +835,73 @@ class DioramaWorld {
   // --- 6. PEPONAN TINGGI, CEMARA & SEMAK BUNGA ---
   buildTreesAndFoliage() {
     // A. Pohon Daun Rimbun Menjulang Tinggi (9-12 Unit)
+    // Diposisikan rapi di tepi perimeter dan luar pelataran agar tidak menghalangi photobooth & arcade
     const treePositions = [
-      [-13.5, 4.0, 1.2],    // Kiri depan
-      [-14.0, -11.0, 1.25], // Kiri belakang
-      [-12.5, -4.0, 1.15],  // Kiri jembatan
-      [-4.5, -13.5, 1.3],   // Belakang rumah kiri
-      [4.5, -13.5, 1.3],    // Belakang rumah kanan
-      [14.0, -11.5, 1.2],   // Kanan belakang
-      [13.5, 5.0, 1.15]     // Kanan depan
+      [-17.5, 6.0, 1.25],   // Kiri depan kebun barat
+      [-18.0, -13.0, 1.3],  // Kiri belakang kebun barat
+      [-15.5, -3.0, 1.15],  // Kiri sungai barat
+      [-5.5, -16.5, 1.35],  // Belakang rumah kiri
+      [5.5, -16.5, 1.35],   // Belakang rumah kanan
+      [19.5, -8.0, 1.25],   // Kanan belakang luar deck
+      [19.5, 6.0, 1.2],     // Kanan depan luar deck
+      [19.5, -0.5, 1.2]     // Sebelah timur di luar pelataran deck (tidak menutupi photobooth)
     ];
 
     treePositions.forEach(([tx, tz, sc]) => {
       this.createVolumetricTree(tx, tz, sc);
     });
 
-    // B. Pohon Cemara Menjulang di Samping Pelataran Arcade (Persis Video)
-    this.createPineTree(5.0, -2.5, 1.3);
-    this.createPineTree(12.8, -2.2, 1.25);
-    this.createPineTree(13.2, 0.8, 1.15);
+    // B. Pohon Cemara Menjulang di Area Alami Sekitar Halaman (Persis Video)
+    this.createPineTree(6.0, -5.0, 1.25);   // Utara pelataran arcade
+    this.createPineTree(18.5, -3.5, 1.25);  // Di luar sisi timur pelataran
+    this.createPineTree(-17.0, 1.0, 1.15);  // Kebun barat dekat jembatan
 
-    // C. Semak Bunga Putih (Daisies) di Sepanjang Jalan
+    // C. Batu Pijakan Taman (Stepping Stones) di Halaman Rumput
+    const stoneMat = new THREE.MeshLambertMaterial({ color: "#8d99ae" });
+    const steppingStones = [
+      [-1.8, 6.2], [-2.6, 7.5], [-3.8, 8.2],
+      [1.8, 6.2], [2.6, 7.5], [3.8, 8.2],
+      [-5.5, 3.2], [-6.2, 4.0], [-7.0, 4.8],
+      [4.8, 3.2], [5.8, 4.0], [6.5, 5.0]
+    ];
+    steppingStones.forEach(([sx, sz]) => {
+      const stone = new THREE.Mesh(new THREE.CylinderGeometry(0.35, 0.4, 0.08, 7), stoneMat);
+      stone.position.set(sx, 0.04, sz);
+      stone.receiveShadow = true;
+      this.exteriorGroup.add(stone);
+    });
+
+    // D. Rumpun Semak & Bunga Warna-Warni (Daisies & Lavender) Mengisi Area Lapang
     const bushMat = new THREE.MeshLambertMaterial({ color: "#3a6829" });
-    const flowerMat = new THREE.MeshLambertMaterial({ color: "#ffffff" });
+    const flowerMatWhite = new THREE.MeshLambertMaterial({ color: "#ffffff" });
+    const flowerMatYellow = new THREE.MeshLambertMaterial({ color: "#ffb703" });
+    const flowerMatPurple = new THREE.MeshLambertMaterial({ color: "#b5179e" });
 
     const flowerSpots = [
-      [-2.8, -1.5], [-2.6, 0.2], [-5.2, -1.8], [-6.2, 0.8],
-      [2.8, -1.5], [4.5, 0.2], [5.0, 2.2], [7.8, 3.2]
+      // Sepanjang jalan tangga teras
+      [-3.2, -2.5], [-3.2, 0.5], [-3.2, 3.5],
+      [3.2, -2.5], [3.2, 0.5], [3.2, 3.5],
+      // Sekitar peti sambutan dan taman depan
+      [-1.5, 5.0], [2.4, 5.0], [-0.5, 6.8], [1.2, 6.8],
+      // Menuju jembatan
+      [-5.2, 0.2], [-6.8, 0.2], [-5.2, 2.8], [-7.5, 2.8],
+      // Tepi kebun barat
+      [-15.0, 4.0], [-17.0, 4.0], [-15.0, -1.0], [-17.0, -8.0],
+      // Tepi pelataran arcade & photobooth
+      [6.8, -1.5], [6.8, 2.0], [8.0, 5.0], [10.5, 5.0], [14.0, 5.0], [17.0, 5.0]
     ];
 
-    flowerSpots.forEach(([bx, bz]) => {
+    flowerSpots.forEach(([bx, bz], idx) => {
       const bush = new THREE.Mesh(new THREE.SphereGeometry(0.35, 6, 6), bushMat);
-      bush.scale.set(1.2, 0.6, 1.0);
+      bush.scale.set(1.2, 0.65, 1.0);
       bush.position.set(bx, 0.2, bz);
+      bush.castShadow = true;
       this.exteriorGroup.add(bush);
 
-      // Titik bunga daisy putih di atas semak
+      const fMat = (idx % 3 === 0) ? flowerMatWhite : ((idx % 3 === 1) ? flowerMatYellow : flowerMatPurple);
       for (let i = 0; i < 4; i++) {
-        const fl = new THREE.Mesh(new THREE.BoxGeometry(0.1, 0.1, 0.1), flowerMat);
-        fl.position.set(bx + (Math.random() - 0.5) * 0.4, 0.42, bz + (Math.random() - 0.5) * 0.4);
+        const fl = new THREE.Mesh(new THREE.BoxGeometry(0.12, 0.12, 0.12), fMat);
+        fl.position.set(bx + (Math.random() - 0.5) * 0.45, 0.42, bz + (Math.random() - 0.5) * 0.45);
         this.exteriorGroup.add(fl);
       }
     });
@@ -1026,7 +1186,7 @@ class DioramaWorld {
     // Posisi pemain di depan pintu rumah luar di atas teras
     player.x = 0;
     player.y = 1.2;
-    player.z = -5.0;
+    player.z = -9.2;
     player.direction = "down";
 
     this.setTimeOfDay(this.timeOfDay);
@@ -1050,7 +1210,7 @@ class DioramaWorld {
     }
   }
 
-  // --- ISOMETRIC MEDIUM-WIDE FOLLOW CAMERA (PERSIS VIDEO REFERENSI) ---
+  // --- FOLLOW CAMERA HD-2D DIORAMA (POV AGAK RENDAH / MENDATAR - PERSIS VIDEO) ---
   updateCamera(playerX, playerY, playerZ) {
     if (this.currentZone === "interior") {
       // Sudut pandang nyaman di dalam ruang tamu
@@ -1064,17 +1224,17 @@ class DioramaWorld {
 
       this.camera.lookAt(playerX, playerY + 1.1, playerZ - 0.6);
     } else {
-      // Sudut pandang High Isometric Medium-Wide (Persis Video)
-      // Pitch ~48 derajat, jarak cukup lebar sehingga seluruh halaman, jembatan & arcade terlihat
+      // Sudut pandang Follow Camera HD-2D Diorama (POV agak lebih rendah / lebih mendatar ke depan-bawah)
+      // Jarak dan elevasi seimbang, pitch ~37 derajat, lerp halus 0.07, tanpa menampakkan void/layar biru
       const targetCamX = playerX;
-      const targetCamY = playerY + 9.2;
-      const targetCamZ = playerZ + 8.8;
+      const targetCamY = playerY + 6.2;
+      const targetCamZ = playerZ + 8.2;
 
       this.camera.position.x += (targetCamX - this.camera.position.x) * 0.07;
       this.camera.position.y += (targetCamY - this.camera.position.y) * 0.07;
       this.camera.position.z += (targetCamZ - this.camera.position.z) * 0.07;
 
-      this.camera.lookAt(playerX, playerY + 0.8, playerZ - 1.2);
+      this.camera.lookAt(playerX, playerY + 1.2, playerZ - 1.5);
     }
   }
 

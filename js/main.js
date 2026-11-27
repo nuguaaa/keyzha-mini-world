@@ -49,8 +49,8 @@ class GameApp {
     // 1. Inisialisasi Dunia 3D Diorama
     this.world = new DioramaWorld(this.container);
 
-    // 2. Inisialisasi Pemain di Pelataran Depan Tangga (Sesuai Video)
-    this.player = new Player(this.world, 0, 2.2);
+    // 2. Inisialisasi Pemain di Halaman Depan Terbuka (Spawn di Area Lapang Menghadap ke Utara)
+    this.player = new Player(this.world, 0, 6.5);
 
     // 3. Inisialisasi Pengelola Interaksi Tunggal
     this.interactionManager = new InteractionManager(this.world, this.player);
@@ -79,9 +79,9 @@ class GameApp {
   spawnEntities() {
     const cfg = window.GAME_CONFIG;
 
-    // A. NPC Ramah Sesuai Video Referensi
-    // 1. Paman Berkumis di Atas Jembatan Kayu (Frame 00:20)
-    const paman = new NPC(this.world, "paman", cfg.npcs.paman, -9.75, 0.5, 0.12);
+    // A. NPC Ramah Sesuai Video Referensi & Karakter Baru
+    // 1. Paman Berkumis di Atas Jembatan Kayu (Frame 00:20 - Berdiri di Jembatan Lebar)
+    const paman = new NPC(this.world, "paman", cfg.npcs.paman, -11.75, 1.5, 0.22);
     paman.promptText = "[A] Bicara";
     paman.onInteract = () => {
       window.soundSystem.playClick();
@@ -93,8 +93,8 @@ class GameApp {
     this.npcs.push(paman);
     this.interactionManager.register(paman);
 
-    // 2. Kakek Bijak di Jalur Atas Kiri (Frame 00:26)
-    const kakek = new NPC(this.world, "kakek", cfg.npcs.kakek, -10.0, -7.0, 0);
+    // 2. Kakek Bijak di Kebun Barat Dekat Pohon Rindang (Frame 00:26)
+    const kakek = new NPC(this.world, "kakek", cfg.npcs.kakek, -16.5, -7.0, 0);
     kakek.promptText = "[A] Bicara";
     kakek.onInteract = () => {
       window.soundSystem.playClick();
@@ -103,8 +103,8 @@ class GameApp {
     this.npcs.push(kakek);
     this.interactionManager.register(kakek);
 
-    // 3. Dito di Pelataran Main & Foto
-    const dito = new NPC(this.world, "dito", cfg.npcs.dito, 6.0, 0.5, 0.06);
+    // 3. Dito di Pelataran Main & Foto (Dekat Mesin Arcade)
+    const dito = new NPC(this.world, "dito", cfg.npcs.dito, 8.2, -0.5, 0.06);
     dito.promptText = "[A] Bicara";
     dito.onInteract = () => {
       window.soundSystem.playClick();
@@ -113,8 +113,18 @@ class GameApp {
     this.npcs.push(dito);
     this.interactionManager.register(dito);
 
+    // 4. Bibi Rina di Teras Rumah (Perawat Bunga & Penjaga Rumah)
+    const rina = new NPC(this.world, "rina", cfg.npcs.rina, 4.2, -8.8, 1.2);
+    rina.promptText = "[A] Bicara";
+    rina.onInteract = () => {
+      window.soundSystem.playClick();
+      this.ui.openDialog(cfg.npcs.rina.name, cfg.npcs.rina.role, cfg.npcs.rina.avatarColor, rina.getNextDialogue());
+    };
+    this.npcs.push(rina);
+    this.interactionManager.register(rina);
+
     // B. Ayam Putih Riang Berkeliaran Bebas di Halaman (Sesuai Video)
-    const chicken1 = new RoamingAnimal(this.world, "chicken", "chicken1", cfg.animals.chicken1, 1.8, 2.0);
+    const chicken1 = new RoamingAnimal(this.world, "chicken", "chicken1", cfg.animals.chicken1, 1.5, 4.5);
     chicken1.promptText = "[A] Elus Ayam";
     chicken1.onInteract = () => {
       window.soundSystem.playChicken();
@@ -123,7 +133,7 @@ class GameApp {
     this.animals.push(chicken1);
     this.interactionManager.register(chicken1);
 
-    const chicken2 = new RoamingAnimal(this.world, "chicken", "chicken2", cfg.animals.chicken2, -4.5, 1.0);
+    const chicken2 = new RoamingAnimal(this.world, "chicken", "chicken2", cfg.animals.chicken2, -4.5, 2.5);
     chicken2.promptText = "[A] Elus Ayam";
     chicken2.onInteract = () => {
       window.soundSystem.playChicken();
@@ -133,10 +143,10 @@ class GameApp {
     this.interactionManager.register(chicken2);
 
     // C. Objek Interaktif Khusus
-    // 1. Peti Kayu Pelataran dengan Surat Sambutan (Quest 1 - Frame 00:09)
+    // 1. Peti Kayu Pelataran dengan Surat Sambutan (Box Sambutan di Taman Depan Bawah: X = 0.5, Z = 5.2)
     const crateWithLetter = {
-      x: 0.6,
-      z: 0.2,
+      x: 0.5,
+      z: 5.2,
       y: 0.45,
       zone: "exterior",
       badgeHeight: 1.4,
@@ -151,10 +161,10 @@ class GameApp {
     };
     this.interactionManager.register(crateWithLetter);
 
-    // 2. Mesin Arcade HEYTML PLAY (Quest 4 - Frame 00:38)
+    // 2. Mesin Arcade HEYTML PLAY (Quest 4 - Sisi Kiri Pelataran Deck: X = 9.5, Z = -1.5)
     const arcade = {
-      x: 6.8,
-      z: -0.3,
+      x: 9.5,
+      z: -0.5,
       y: 0.06,
       zone: "exterior",
       badgeHeight: 2.5,
@@ -166,9 +176,9 @@ class GameApp {
     };
     this.interactionManager.register(arcade);
 
-    // 3. Bilik Photobooth Studio (Quest 5 - Frame 00:32)
+    // 3. Bilik Photobooth Studio (Quest 5 - Sisi Kanan Pelataran Deck: X = 14.5, Z = 0.2)
     const photobooth = {
-      x: 10.2,
+      x: 14.5,
       z: 0.2,
       y: 0.06,
       zone: "exterior",
@@ -181,10 +191,10 @@ class GameApp {
     };
     this.interactionManager.register(photobooth);
 
-    // 4. Pintu Depan Rumah Kayu (Awalnya Terkunci)
+    // 4. Pintu Depan Rumah Kayu di Atas Teras (Z = -10.4, Y = 1.2)
     const frontDoor = {
       x: 0,
-      z: -6.2,
+      z: -10.4,
       y: 1.2,
       zone: "exterior",
       badgeHeight: 2.4,
@@ -234,9 +244,9 @@ class GameApp {
     this.studyTableEntity = studyTable;
     this.interactionManager.register(studyTable);
 
-    // 7. Kunci Rumah Kuningan Tersembunyi di Dekat Aliran Sungai (Quest 2)
+    // 7. Kunci Rumah Kuningan Tersembunyi di Kebun Barat Dekat Aliran Sungai (Quest 2)
     const keyData = cfg.houseKeyItem;
-    const houseKeyObj = new CollectibleItem(this.world, keyData, -11.5, -8.0, 0.4);
+    const houseKeyObj = new CollectibleItem(this.world, keyData, -16.0, -10.5, 0.4);
     houseKeyObj.zone = "exterior";
     houseKeyObj.badgeHeight = 1.6;
     houseKeyObj.promptText = `[A] Ambil ${keyData.name}`;
@@ -249,9 +259,9 @@ class GameApp {
 
     // 8. Benda Kenangan Tambahan di Sekitar Taman
     const itemPositions = [
-      { id: "item_ticket", x: -4.5, z: 4.5, y: 0.5 },
-      { id: "item_polaroid", x: 8.5, z: 2.2, y: 0.5 },
-      { id: "item_flower", x: -2.8, z: -1.0, y: 0.5 }
+      { id: "item_ticket", x: -4.8, z: 4.5, y: 0.5 },
+      { id: "item_polaroid", x: 15.5, z: 2.2, y: 0.5 },
+      { id: "item_flower", x: 3.5, z: -4.5, y: 0.5 }
     ];
 
     itemPositions.forEach(pos => {

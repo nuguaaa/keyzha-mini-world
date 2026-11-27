@@ -22,7 +22,8 @@ window.ASSET_CONFIG = {
   npcs: {
     paman: { path: "assets/npcs/paman.png", cols: 1, rows: 1 },
     kakek: { path: "assets/npcs/kakek.png", cols: 1, rows: 1 },
-    dito: { path: "assets/npcs/dito.png", cols: 1, rows: 1 }
+    dito: { path: "assets/npcs/dito.png", cols: 1, rows: 1 },
+    rina: { path: "assets/npcs/rina.png", cols: 1, rows: 1 }
   },
   pets: {
     chicken: { path: "assets/pets/chicken.png", cols: 1, rows: 1 },
@@ -63,9 +64,9 @@ window.GAME_CONFIG = {
     paragraphs: [
       "Selamat datang! Aku sengaja membuat sudut kecil ini seperti diorama yang hangat dan tenang—sebuah tempat rehat sejenak untukmu dari padatnya hari-hari yang sibuk.",
       "Aku sudah menitipkan sesuatu yang spesial untukmu di dalam rumah kayu di atas tangga. Tapi pintunya terkunci rapat agar tidak sembarang dibuka.",
-      "Kunci kuningannya disimpan di tempat teduh dekat aliran sungai. Sambil mencari kuncinya, jalan-jalanlah santai keliling taman ini: sapa Paman di jembatan, mainkan game Tetris di arcade, dan abadikan foto di photobooth."
+      "Kunci kuningannya disimpan di tempat teduh dekat pepohonan di tepi aliran sungai. Sambil mencari kuncinya, jalan-jalanlah santai keliling taman ini: sapa Bibi Rina di teras, Paman di jembatan, mainkan game Tetris di arcade, dan abadikan foto di photobooth."
     ],
-    hint: "Petunjuk: Ikuti jalan setapak batu ke arah jembatan kayu di sebelah kiri.",
+    hint: "Petunjuk: Periksa peti sambutan di depanmu, lalu jelajahi taman ke arah teras rumah atau jembatan kayu di sebelah barat.",
     signature: "Selamat menikmati harimu ya,",
     closing: "- Dimas"
   },
@@ -131,6 +132,16 @@ window.GAME_CONFIG = {
         "Halo Keyzha! Lagi keliling taman ya? Kalau ingin tantangan seru, coba mainkan mesin Tetris di sebelahku!",
         "Mesin Tetris ini klasik banget. Susun balok-baloknya, penuhi baris, dan ada pesan manis rahasia kalau kamu berhasil menyelesaikan tantangannya!",
         "Jangan lupa juga berpose di Photobooth sebelah ya, pencahayaan fotonya bagus banget hari ini!"
+      ]
+    },
+    rina: {
+      name: "Bibi Rina",
+      role: "Perawat Bunga & Rumah",
+      avatarColor: "#e07a5f",
+      dialogues: [
+        "Halo Keyzha! Senang sekali kamu berkunjung ke teras rumah. Aku baru saja menyiram mawar dan bunga aster di sini.",
+        "Rumah kayu di belakangku ini sudah disiapkan dengan sangat hangat oleh Dimas. Perapiannya sudah menyala dan suasananya damai sekali.",
+        "Kalau kamu mencari kunci kuningan untuk membukanya, sepertinya tersimpan di sudut teduh dekat tepian sungai sebelah barat. Coba periksa di balik pepohonan ya!"
       ]
     }
   },
