@@ -40,6 +40,17 @@ class UIManager {
     this.dialogSpeaker = document.getElementById("dialog-speaker");
     this.dialogRole = document.getElementById("dialog-role");
     this.dialogText = document.getElementById("dialog-text");
+    this.dialogOptionsEl = document.getElementById("dialog-options");
+    this.dialogActionsEl = document.getElementById("dialog-actions");
+    this.dialogNextBtn = document.getElementById("dialog-next");
+    this.dialogCloseBtn = document.getElementById("dialog-close-btn");
+
+    this.fullDialogText = "";
+    this.dialogPages = [];
+    this.dialogPageIndex = 0;
+    this.currentDialogOptions = null;
+    this.isTyping = false;
+    this.typewriterTimer = null;
 
     this.letterModal = document.getElementById("modal-letter");
     this.letterSealText = document.getElementById("letter-seal-text");
@@ -51,14 +62,20 @@ class UIManager {
     this.letterSignature = document.getElementById("letter-signature");
 
     this.inventoryModal = document.getElementById("modal-inventory");
-    this.invListEl = document.getElementById("inventory-list");
+    this.invListEl = document.getElementById("inventory-slots-grid") || document.getElementById("inventory-list");
     this.invDetailTitle = document.getElementById("inv-detail-title");
     this.invDetailSummary = document.getElementById("inv-detail-summary");
     this.invDetailStory = document.getElementById("inv-detail-story");
+    this.hudInventoryBox = document.getElementById("hud-inventory-box");
 
     this.arcadeModal = document.getElementById("modal-arcade");
     this.photoboothModal = document.getElementById("modal-photobooth");
     this.settingsModal = document.getElementById("modal-settings");
+    this.photoModal = document.getElementById("modal-photo");
+    this.photoViewerTitle = document.getElementById("photo-viewer-title");
+    this.photoViewerSubtitle = document.getElementById("photo-viewer-subtitle");
+    this.photoViewerImg = document.getElementById("photo-viewer-img");
+    this.photoViewerCaption = document.getElementById("photo-viewer-caption");
 
     // State Dialog Typewriter
     this.typewriterTimer = null;
@@ -132,6 +149,13 @@ class UIManager {
       });
     }
 
+    if (this.hudInventoryBox) {
+      this.hudInventoryBox.addEventListener("click", () => {
+        window.soundSystem.playClick();
+        this.openInventory();
+      });
+    }
+
     const audioBtn = document.getElementById("btn-audio");
     if (audioBtn) {
       audioBtn.addEventListener("click", () => {
@@ -179,15 +203,18 @@ class UIManager {
       });
     }
 
-    // 4. Tombol Lanjut Dialog
-    const dialogNextBtn = document.getElementById("dialog-next");
-    if (dialogNextBtn) {
-      dialogNextBtn.addEventListener("click", () => {
-        if (this.isTyping) {
-          this.skipTypewriter();
-        } else {
-          this.closeDialog();
-        }
+    // 4. Tombol Lanjut Dialog & Tutup Dialog
+    if (this.dialogNextBtn) {
+      this.dialogNextBtn.addEventListener("click", () => {
+        window.soundSystem.playClick();
+        this.advanceOrSkipDialog();
+      });
+    }
+
+    if (this.dialogCloseBtn) {
+      this.dialogCloseBtn.addEventListener("click", () => {
+        window.soundSystem.playClick();
+        this.closeDialog();
       });
     }
 
@@ -327,6 +354,27 @@ class UIManager {
     }
   }
 
+  // Update Tampilan 4 Kotak HUD Inventori di Layar
+  updateInventoryHUD(slots) {
+    for (let i = 0; i < 4; i++) {
+      const slotEl = document.getElementById(`hud-slot-${i}`);
+      if (slotEl) {
+        const item = slots && slots[i];
+        const iconSpan = slotEl.querySelector(".slot-icon");
+        if (item) {
+          const icon = item.icon || (item.id === "item_house_key" ? "🗝️" : item.id === "item_ticket" ? "🎟️" : item.id === "item_polaroid" ? "📸" : (item.id === "coupon_arcade" ? "🕹️" : "🌸"));
+          if (iconSpan) iconSpan.innerHTML = icon;
+          slotEl.classList.add("filled");
+        } else {
+          if (iconSpan) iconSpan.innerHTML = "";
+          slotEl.classList.remove("filled");
+        }
+      }
+    }
+    const count = slots ? slots.filter(Boolean).length : 0;
+    this.updateInventoryBadge(count);
+  }
+
   updateContextPrompt(promptText) {
     if (promptText && !this.game.isInputLocked) {
       this.promptBtnEl.innerText = promptText;
@@ -373,48 +421,165 @@ class UIManager {
   showToast(message) {
     if (!this.toastEl) return;
     this.toastEl.innerText = message;
+    this.toastEl.classList.remove("show");
+    void this.toastEl.offsetWidth; // Reflow untuk animasi spring halus
     this.toastEl.classList.add("show");
     clearTimeout(this.toastTimer);
     this.toastTimer = setTimeout(() => {
       this.toastEl.classList.remove("show");
-    }, 2800);
+    }, 3200);
   }
 
   // --- MODAL DIALOG BERKARAKTER ---
 
-  openDialog(speakerName, role, color, text) {
-    this.dialogSpeaker.innerText = speakerName;
-    this.dialogRole.innerText = role;
-    this.dialogAvatar.style.backgroundColor = color;
-    this.fullDialogText = text;
-    this.dialogText.innerHTML = "";
-    this.dialogModal.classList.add("active");
+  openDialog(speakerName, role, colorOrIcon, content, options = null) {
+    if (this.dialogSpeaker) this.dialogSpeaker.innerText = speakerName || "";
+    if (this.dialogRole) this.dialogRole.innerText = role || "";
+
+    // Handle avatar icon/emoji or background color
+    if (this.dialogAvatar) {
+      if (colorOrIcon && (colorOrIcon.startsWith("#") || colorOrIcon.startsWith("rgb"))) {
+        this.dialogAvatar.style.backgroundColor = colorOrIcon;
+        this.dialogAvatar.innerText = speakerName ? speakerName.charAt(0) : "💬";
+      } else if (colorOrIcon) {
+        this.dialogAvatar.style.backgroundColor = "#ffd166";
+        this.dialogAvatar.innerText = colorOrIcon;
+      } else {
+        this.dialogAvatar.style.backgroundColor = "#ffd166";
+        this.dialogAvatar.innerText = speakerName ? speakerName.charAt(0) : "💬";
+      }
+    }
+
+    // Handle single or multi-page content
+    if (Array.isArray(content)) {
+      this.dialogPages = content.filter(p => p !== undefined && p !== null);
+    } else if (typeof content === "string") {
+      this.dialogPages = [content];
+    } else {
+      this.dialogPages = [""];
+    }
+
+    this.dialogPageIndex = 0;
+    this.currentDialogOptions = options;
+    if (this.dialogModal) this.dialogModal.classList.add("active");
     this.updateModalState();
 
-    this.isTyping = true;
-    let idx = 0;
+    this.renderCurrentDialogPage();
+  }
+
+  renderCurrentDialogPage() {
     clearInterval(this.typewriterTimer);
+    if (this.dialogOptionsEl) {
+      this.dialogOptionsEl.innerHTML = "";
+      this.dialogOptionsEl.style.display = "none";
+    }
+
+    const pageText = this.dialogPages[this.dialogPageIndex] || "";
+    this.fullDialogText = pageText;
+    if (this.dialogText) this.dialogText.innerHTML = "";
+
+    // Jika halaman kosong tapi ada opsi, langsung tampilkan menu opsi
+    if (!pageText.trim()) {
+      this.isTyping = false;
+      this.onPageTypewriterComplete();
+      return;
+    }
+
+    this.isTyping = true;
+    if (this.dialogNextBtn) {
+      this.dialogNextBtn.style.display = "inline-block";
+      this.dialogNextBtn.innerText = "Lewati ⏩";
+    }
+
+    let idx = 0;
     this.typewriterTimer = setInterval(() => {
       if (idx < this.fullDialogText.length) {
-        this.dialogText.innerHTML += this.fullDialogText[idx];
+        if (this.dialogText) this.dialogText.innerHTML += this.fullDialogText[idx];
         if (idx % 2 === 0) window.soundSystem.playDialogueBlip(1.0);
         idx++;
       } else {
         this.isTyping = false;
         clearInterval(this.typewriterTimer);
+        this.onPageTypewriterComplete();
       }
-    }, 25);
+    }, 20);
   }
 
   skipTypewriter() {
     clearInterval(this.typewriterTimer);
-    this.dialogText.innerHTML = this.fullDialogText;
+    if (this.dialogText) this.dialogText.innerHTML = this.fullDialogText;
     this.isTyping = false;
+    this.onPageTypewriterComplete();
+  }
+
+  onPageTypewriterComplete() {
+    const hasMorePages = this.dialogPageIndex < this.dialogPages.length - 1;
+    if (hasMorePages) {
+      if (this.dialogNextBtn) {
+        this.dialogNextBtn.style.display = "inline-block";
+        this.dialogNextBtn.innerText = "Lanjut ▶";
+      }
+      if (this.dialogOptionsEl) this.dialogOptionsEl.style.display = "none";
+    } else {
+      // Halaman terakhir: jika ada opsi cabang, tampilkan opsi dan sembunyikan tombol lanjut
+      if (this.currentDialogOptions && this.currentDialogOptions.length > 0) {
+        if (this.dialogNextBtn) this.dialogNextBtn.style.display = "none";
+        this.renderDialogOptions(this.currentDialogOptions);
+      } else {
+        if (this.dialogNextBtn) {
+          this.dialogNextBtn.style.display = "inline-block";
+          this.dialogNextBtn.innerText = "Selesai ✕";
+        }
+        if (this.dialogOptionsEl) this.dialogOptionsEl.style.display = "none";
+      }
+    }
+  }
+
+  renderDialogOptions(options) {
+    if (!this.dialogOptionsEl) return;
+    this.dialogOptionsEl.innerHTML = "";
+    this.dialogOptionsEl.style.display = "flex";
+
+    options.forEach(opt => {
+      const btn = document.createElement("button");
+      btn.type = "button";
+      btn.className = `dialog-option-btn ${opt.className || (opt.isQuest ? 'opt-quest' : '')}`;
+      btn.innerHTML = `<span class="opt-icon">${opt.icon || '💬'}</span><span class="opt-label">${opt.label}</span>`;
+      btn.addEventListener("click", () => {
+        window.soundSystem.playClick();
+        if (typeof opt.onSelect === "function") {
+          opt.onSelect();
+        }
+      });
+      this.dialogOptionsEl.appendChild(btn);
+    });
+  }
+
+  advanceOrSkipDialog() {
+    if (this.isTyping) {
+      this.skipTypewriter();
+    } else if (this.dialogPageIndex < this.dialogPages.length - 1) {
+      this.dialogPageIndex++;
+      this.renderCurrentDialogPage();
+    } else {
+      // Pada halaman terakhir: jika tidak ada opsi pilihan, tutup dialog
+      if (!this.currentDialogOptions || this.currentDialogOptions.length === 0) {
+        this.closeDialog();
+      }
+    }
   }
 
   closeDialog() {
     clearInterval(this.typewriterTimer);
-    this.dialogModal.classList.remove("active");
+    this.isTyping = false;
+    if (this.dialogModal) this.dialogModal.classList.remove("active");
+    if (this.dialogOptionsEl) {
+      this.dialogOptionsEl.innerHTML = "";
+      this.dialogOptionsEl.style.display = "none";
+    }
+    this.currentDialogOptions = null;
+    this.dialogPages = [];
+    this.dialogPageIndex = 0;
     this.updateModalState();
   }
 
@@ -472,29 +637,58 @@ class UIManager {
     this.updateModalState();
   }
 
-  // --- MODAL INVENTORY ---
+  // --- MODAL INVENTORY (KOTAK INVENTORI 4 SLOT) ---
 
   openInventory() {
-    this.invListEl.innerHTML = "";
-    const items = this.game.collectedItems;
+    const slotsGrid = document.getElementById("inventory-slots-grid") || this.invListEl;
+    slotsGrid.innerHTML = "";
+    const slots = this.game.inventorySlots || [null, null, null, null];
 
-    if (items.length === 0) {
-      this.invListEl.innerHTML = `<div style="font-size: 13px; color: #7a6350; padding: 10px;">Belum ada item kenangan yang terkumpul. Jelajahi taman untuk menemukannya!</div>`;
-      this.invDetailTitle.innerText = "Pilih Item";
-      this.invDetailSummary.innerText = "";
-      this.invDetailStory.innerText = "Klik salah satu item kenangan untuk membaca catatan di baliknya.";
-    } else {
-      items.forEach((item, idx) => {
-        const btn = document.createElement("button");
-        btn.className = `btn-retro ${idx === 0 ? "active" : ""}`;
-        btn.style.cssText = "display: block; width: 100%; margin-bottom: 6px; text-align: left;";
-        btn.innerHTML = `<span style="color: #d4971c;">⭐</span> ${item.name}`;
-        btn.addEventListener("click", () => {
+    let firstFilledItem = null;
+
+    for (let i = 0; i < 4; i++) {
+      const item = slots[i];
+      const slotCard = document.createElement("div");
+      slotCard.className = `inv-slot-card ${item ? "filled" : "empty"}`;
+
+      if (item) {
+        if (!firstFilledItem) firstFilledItem = item;
+        const icon = item.icon || (item.id === "item_house_key" ? "🗝️" : item.id === "item_ticket" ? "🎟️" : item.id === "item_polaroid" ? "📸" : (item.id === "coupon_arcade" ? "🕹️" : "🌸"));
+        slotCard.innerHTML = `
+          <div class="slot-badge-num">SLOT ${i + 1}</div>
+          <div class="slot-card-icon">${icon}</div>
+          <div class="slot-card-name">${item.name}</div>
+        `;
+        slotCard.addEventListener("click", () => {
+          document.querySelectorAll(".inv-slot-card").forEach(c => c.classList.remove("active"));
+          slotCard.classList.add("active");
           this.showItemDetail(item);
         });
-        this.invListEl.appendChild(btn);
-      });
-      this.showItemDetail(items[0]);
+      } else {
+        slotCard.innerHTML = `
+          <div class="slot-badge-num">SLOT ${i + 1}</div>
+          <div class="slot-card-icon slot-card-empty-icon">◻</div>
+          <div class="slot-card-name slot-card-empty-name">(Slot Kosong)</div>
+        `;
+        slotCard.addEventListener("click", () => {
+          document.querySelectorAll(".inv-slot-card").forEach(c => c.classList.remove("active"));
+          slotCard.classList.add("active");
+          this.invDetailTitle.innerText = `Slot ${i + 1} (Kosong)`;
+          this.invDetailSummary.innerText = "Slot ini masih kosong.";
+          this.invDetailStory.innerText = "Jelajahi taman desa untuk mengumpulkan kenangan manis atau petunjuk dari Nugua dan warga desa.";
+        });
+      }
+      slotsGrid.appendChild(slotCard);
+    }
+
+    if (firstFilledItem) {
+      const firstCard = slotsGrid.querySelector(".inv-slot-card.filled");
+      if (firstCard) firstCard.classList.add("active");
+      this.showItemDetail(firstFilledItem);
+    } else {
+      this.invDetailTitle.innerText = "Kotak Inventori (4 Slot)";
+      this.invDetailSummary.innerText = "Semua 4 slot saat ini masih kosong.";
+      this.invDetailStory.innerText = "Buka surat sambutan di peti depan untuk memulai petualangan mencari kejutan dari Nugua!";
     }
 
     this.inventoryModal.classList.add("active");
@@ -608,6 +802,24 @@ class UIManager {
 
   openSettings() {
     this.settingsModal.classList.add("active");
+    this.updateModalState();
+  }
+
+  // --- MODAL VIEWER FOTO DINDING KENANGAN ---
+
+  openPhotoViewer(photoData) {
+    if (!this.photoModal || !photoData) return;
+    if (this.photoViewerImg) this.photoViewerImg.src = photoData.image;
+    if (this.photoViewerTitle) this.photoViewerTitle.innerText = photoData.title;
+    if (this.photoViewerSubtitle) this.photoViewerSubtitle.innerText = photoData.subtitle || "Nugua & Keyzha";
+    if (this.photoViewerCaption) this.photoViewerCaption.innerText = photoData.caption || "";
+    this.photoModal.classList.add("active");
+    this.updateModalState();
+  }
+
+  closePhotoViewer() {
+    if (!this.photoModal) return;
+    this.photoModal.classList.remove("active");
     this.updateModalState();
   }
 }

@@ -428,7 +428,7 @@ class PhotoboothSystem {
     // Tanggal & Watermark
     ctx.fillStyle = "#8a7566";
     ctx.font = "11px -apple-system, sans-serif";
-    ctx.fillText(`Taman Kecil · Untuk Keyzha dari Dimas`, outCanvas.width / 2, 492);
+    ctx.fillText(`Taman Kecil · Untuk Keyzha dari Nugua`, outCanvas.width / 2, 492);
 
     return outCanvas.toDataURL("image/png");
   }

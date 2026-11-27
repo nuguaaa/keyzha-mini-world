@@ -563,29 +563,39 @@ html, body {
   margin-top: 1px;
 }
 
-/* Toast Notification Banner */
+/* Toast Notification Dynamic Island Capsule (Responsive di Semua Layar & HP) */
 .toast-banner {
-  position: absolute;
-  top: 18px;
+  position: fixed;
+  top: max(16px, env(safe-area-inset-top, 16px) + 6px);
   left: 50%;
-  transform: translate(-50%, -60px);
-  background: #2b1d0c;
-  color: #fbf6ea;
-  border: 1.5px solid #ffd166;
-  border-radius: 20px;
-  padding: 8px 18px;
+  transform: translate(-50%, -90px) scale(0.9);
+  opacity: 0;
+  background: rgba(26, 18, 12, 0.94);
+  color: #fffdf8;
+  border: 1.5px solid rgba(246, 196, 69, 0.75);
+  border-radius: 9999px;
+  padding: 8px 20px;
   font-family: 'Pixelify Sans', monospace;
-  font-size: 13px;
+  font-size: 13.5px;
   font-weight: 600;
-  box-shadow: 0 6px 18px rgba(0, 0, 0, 0.45);
-  z-index: 100;
-  transition: transform 0.3s cubic-bezier(0.18, 0.89, 0.32, 1.28);
+  line-height: 1.45;
+  text-align: center;
+  box-shadow: 0 8px 28px rgba(0, 0, 0, 0.55), 0 0 14px rgba(246, 196, 69, 0.25);
+  backdrop-filter: blur(10px);
+  -webkit-backdrop-filter: blur(10px);
+  z-index: 1000;
+  transition: transform 0.35s cubic-bezier(0.19, 1, 0.22, 1), opacity 0.25s ease;
   pointer-events: none;
-  white-space: nowrap;
+  max-width: min(92vw, 480px);
+  width: max-content;
+  white-space: normal;
+  word-wrap: break-word;
+  box-sizing: border-box;
 }
 
 .toast-banner.show {
-  transform: translate(-50%, 0);
+  transform: translate(-50%, 0) scale(1);
+  opacity: 1;
 }
 
 /* ==========================================================================
@@ -700,12 +710,104 @@ html, body {
   line-height: 1.6;
   color: #3d2b1d;
   min-height: 60px;
-  margin-bottom: 16px;
+  margin-bottom: 12px;
+  white-space: pre-wrap;
+}
+
+/* Pilihan Opsi Percakapan Interaktif RPG */
+.dialog-options-list {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  margin-top: 6px;
+  margin-bottom: 14px;
+  animation: fadeInOptions 0.25s ease-out;
+}
+
+@keyframes fadeInOptions {
+  from { opacity: 0; transform: translateY(6px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+.dialog-option-btn {
+  background: #ffffff;
+  border: 1.5px solid #2b1d0c;
+  border-radius: 8px;
+  padding: 10px 14px;
+  font-family: 'Pixelify Sans', monospace;
+  font-size: 13px;
+  font-weight: 600;
+  color: #2b1d0c;
+  text-align: left;
+  cursor: pointer;
+  box-shadow: 0 2.5px 0 #2b1d0c;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  transition: background 0.12s ease, transform 0.12s ease, box-shadow 0.12s ease;
+  line-height: 1.4;
+  outline: none;
+  width: 100%;
+}
+
+.dialog-option-btn:hover {
+  background: #fff8e7;
+  transform: translateY(-1px);
+  box-shadow: 0 3.5px 0 #2b1d0c;
+}
+
+.dialog-option-btn:active {
+  transform: translateY(2px);
+  box-shadow: 0 0.5px 0 #2b1d0c;
+}
+
+.dialog-option-btn .opt-icon {
+  font-size: 18px;
+  flex-shrink: 0;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.dialog-option-btn .opt-label {
+  flex: 1;
+}
+
+.dialog-option-btn.opt-quest {
+  background: #fff9db;
+  border-color: #925e00;
+  color: #5c3b00;
+  box-shadow: 0 2.5px 0 #925e00;
+}
+
+.dialog-option-btn.opt-quest:hover {
+  background: #ffec99;
+}
+
+.dialog-option-btn.opt-return {
+  background: #f1f3f5;
+  border-color: #495057;
+  color: #343a40;
+}
+
+.dialog-option-btn.opt-return:hover {
+  background: #e9ecef;
+}
+
+.dialog-option-btn.opt-close {
+  background: #fdf2f0;
+  border-color: #a83232;
+  color: #8c2525;
+}
+
+.dialog-option-btn.opt-close:hover {
+  background: #ffe3e3;
 }
 
 .dialog-actions {
   display: flex;
   justify-content: flex-end;
+  gap: 8px;
 }
 
 .btn-retro {
@@ -1108,5 +1210,248 @@ html, body {
 
   .start-title {
     font-size: 28px;
+  }
+
+  .toast-banner {
+    top: max(12px, env(safe-area-inset-top, 12px) + 4px);
+    font-size: 12px;
+    padding: 8px 15px;
+    border-radius: 20px;
+    max-width: calc(100vw - 28px);
+    width: auto;
+  }
+}
+
+/* ==========================================================================
+   4-SLOT INVENTORY BAR HUD & MODAL
+   ========================================================================== */
+.hud-inventory-box {
+  position: absolute;
+  top: 130px;
+  left: 18px;
+  background: rgba(251, 246, 234, 0.94);
+  border: 2px solid #2b1d0c;
+  border-radius: 10px;
+  padding: 6px 10px;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.25);
+  cursor: pointer;
+  pointer-events: auto;
+  transition: transform 0.15s ease, box-shadow 0.15s ease;
+  z-index: 50;
+}
+
+.hud-inventory-box:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 6px 16px rgba(0, 0, 0, 0.3);
+}
+
+.hud-inv-title {
+  font-family: 'Pixelify Sans', monospace;
+  font-size: 10px;
+  font-weight: 700;
+  color: #7a6350;
+  letter-spacing: 0.5px;
+  margin-bottom: 4px;
+}
+
+.hud-inv-slots {
+  display: flex;
+  gap: 6px;
+}
+
+.hud-slot {
+  width: 38px;
+  height: 38px;
+  background: #f4ecdc;
+  border: 1.5px solid #8c735d;
+  border-radius: 6px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  position: relative;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.15) inset;
+}
+
+.hud-slot.filled {
+  border-color: #d4971c;
+  background: #fffdf8;
+  box-shadow: 0 0 0 1px #d4971c;
+}
+
+.hud-slot .slot-num {
+  position: absolute;
+  top: 2px;
+  left: 3px;
+  font-family: 'Pixelify Sans', monospace;
+  font-size: 8.5px;
+  color: #8c735d;
+  font-weight: 700;
+  line-height: 1;
+}
+
+.hud-slot .slot-item-ico {
+  font-size: 18px;
+  line-height: 1;
+  display: block;
+}
+
+/* Modal 4 Slots Grid */
+.inventory-4slots-grid {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 10px;
+  margin-bottom: 14px;
+}
+
+.inv-slot-card {
+  background: #fffdf8;
+  border: 2px solid #c2b5a1;
+  border-radius: 8px;
+  padding: 10px;
+  text-align: center;
+  cursor: pointer;
+  transition: all 0.15s ease;
+  position: relative;
+  min-height: 78px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+}
+
+.inv-slot-card:hover {
+  transform: translateY(-2px);
+  border-color: #d4971c;
+}
+
+.inv-slot-card.active {
+  border-color: #d4971c;
+  background: #fdf5e2;
+  box-shadow: 0 0 0 2px #d4971c inset;
+}
+
+.inv-slot-card.empty {
+  border-style: dashed;
+  background: #f7f1e3;
+  opacity: 0.8;
+}
+
+.slot-badge-num {
+  position: absolute;
+  top: 4px;
+  left: 6px;
+  font-family: 'Pixelify Sans', monospace;
+  font-size: 9px;
+  font-weight: 700;
+  color: #8c735d;
+}
+
+.slot-card-icon {
+  font-size: 26px;
+  line-height: 1;
+  margin-bottom: 4px;
+}
+
+.slot-card-name {
+  font-family: 'Pixelify Sans', monospace;
+  font-size: 11.5px;
+  font-weight: 700;
+  color: #2b1d0c;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  max-width: 130px;
+}
+
+.slot-card-empty-icon {
+  font-size: 18px;
+  color: #c2b5a1;
+}
+
+.slot-card-empty-name {
+  color: #8c735d;
+  font-size: 11px;
+}
+
+/* ==========================================================================
+   MODAL GALERI FOTO KENANGAN DI DINDING RUMAH
+   ========================================================================== */
+.photo-window {
+  max-width: 540px;
+  background: #fdfaf3;
+  border: 3px solid #3e2723;
+  border-radius: 16px;
+  padding: 20px 22px 24px;
+  box-shadow: 0 16px 40px rgba(0, 0, 0, 0.55), 0 0 0 1.5px #ffd166 inset;
+}
+
+.photo-viewer-header {
+  text-align: center;
+  margin-bottom: 14px;
+  padding-bottom: 10px;
+  border-bottom: 1.5px dashed #d8c8b4;
+}
+
+.photo-viewer-header .modal-title {
+  font-family: 'Pixelify Sans', monospace;
+  font-size: 20px;
+  color: #3e2723;
+  font-weight: 700;
+  letter-spacing: 0.5px;
+}
+
+.photo-viewer-header .modal-subtitle {
+  font-size: 12px;
+  color: #8c6d53;
+  margin-top: 3px;
+  font-weight: 600;
+}
+
+.photo-frame-ornament {
+  background: #2b1b17;
+  border: 3.5px solid #d4af37;
+  border-radius: 12px;
+  padding: 8px;
+  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.35), 0 0 0 1px #fff3d1 inset;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  overflow: hidden;
+}
+
+.photo-frame-ornament img {
+  width: 100%;
+  height: auto;
+  max-height: 52vh;
+  object-fit: contain;
+  display: block;
+  border-radius: 6px;
+  image-rendering: auto;
+}
+
+.photo-viewer-caption {
+  margin-top: 14px;
+  font-size: 13.5px;
+  line-height: 1.6;
+  color: #4a3828;
+  text-align: center;
+  font-style: italic;
+  background: #f5ece0;
+  border: 1px solid #e0d0be;
+  border-radius: 10px;
+  padding: 10px 14px;
+}
+
+@media (max-width: 600px) {
+  .photo-window {
+    padding: 16px 14px 18px;
+    max-width: 95vw;
+  }
+  .photo-viewer-header .modal-title {
+    font-size: 17px;
+  }
+  .photo-viewer-caption {
+    font-size: 12px;
+    padding: 8px 10px;
   }
 }

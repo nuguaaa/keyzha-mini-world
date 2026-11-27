@@ -8,7 +8,7 @@
  */
 
 class Player {
-  constructor(world, startX = 0, startZ = 2.2) {
+  constructor(world, startX = 0, startZ = 6.5) {
     this.world = world;
     this.x = startX;
     this.y = 0;
@@ -117,11 +117,12 @@ class Player {
       this.isMoving = false;
     }
 
-    // Akselerasi & Perlambatan Halus
+    // Akselerasi & Perlambatan Halus (Frame-rate independent)
     const targetVx = moveX * this.speed;
     const targetVz = moveZ * this.speed;
-    this.vx += (targetVx - this.vx) * 16 * delta;
-    this.vz += (targetVz - this.vz) * 16 * delta;
+    const accelT = 1 - Math.exp(-18 * delta);
+    this.vx += (targetVx - this.vx) * accelT;
+    this.vz += (targetVz - this.vz) * accelT;
 
     // --- SLIDING COLLISION MULTI-SUBSTEP (ANTI TEMBUS SECARA TOTAL) ---
     const subSteps = 2;
@@ -151,19 +152,20 @@ class Player {
     if (isInterior) {
       targetY = 0;
     } else {
-      const onStairs = (this.x >= -2.6 && this.x <= 2.6 && this.z <= -2.5 && this.z >= -5.8);
-      const onTerrace = (this.x >= -7.0 && this.x <= 7.0 && this.z <= -5.8 && this.z >= -15.0);
+      const onStairs = (this.x >= -3.35 && this.x <= 3.35 && this.z <= -3.9 && this.z >= -8.1);
+      const onTerrace = (this.x >= -9.0 && this.x <= 9.0 && this.z <= -8.0 && this.z >= -18.5);
 
       if (onTerrace) {
         targetY = 1.2;
       } else if (onStairs) {
-        // Interpolasi ramp tangga batu dari Z = -2.5 (Y=0) ke Z = -5.8 (Y=1.2)
-        const progress = 1 - (this.z - (-5.8)) / ((-2.5) - (-5.8));
+        // Interpolasi ramp tangga batu dari Z = -3.9 (Y=0) ke Z = -8.0 (Y=1.2)
+        const progress = ((-3.9) - this.z) / ((-3.9) - (-8.0));
         targetY = Math.max(0, Math.min(1.2, progress * 1.2));
       }
     }
 
-    this.y += (targetY - this.y) * 14 * delta;
+    const yT = 1 - Math.exp(-14 * delta);
+    this.y += (targetY - this.y) * yT;
 
     // Update Animasi Sprite
     if (this.isMoving) {
@@ -176,8 +178,9 @@ class Player {
       if (this.stepTimer > 0.32) {
         this.stepTimer = 0;
         if (window.soundSystem) {
-          const onWood = (this.x >= 5.2 && this.x <= 12.8 && this.z >= -2.6 && this.z <= 3.6);
-          const onStone = (this.y > 0.2 || (this.x >= -3.5 && this.x <= 3.5 && this.z >= -2.5 && this.z <= 1.8));
+          const onWood = (this.x >= 7.5 && this.x <= 17.5 && this.z >= -3.5 && this.z <= 4.5) ||
+                         (this.x >= -14.6 && this.x <= -8.8 && this.z >= -0.5 && this.z <= 3.5);
+          const onStone = (this.y > 0.2 || (this.x >= -4.5 && this.x <= 4.5 && this.z >= -4.0 && this.z <= 7.5));
           const stepType = isInterior ? "stone" : (onWood ? "wood" : (onStone ? "stone" : "grass"));
           window.soundSystem.playFootstep(stepType);
         }
@@ -192,8 +195,8 @@ class Player {
     this.mesh.position.set(this.x, 1.15 + this.y + bob, this.z);
     this.shadowMesh.position.set(this.x, 0.03 + this.y, this.z);
 
-    // Update Kamera Isometric Medium-Wide
-    this.world.updateCamera(this.x, this.y, this.z);
+    // Update Kamera Isometric Medium-Wide (Butter-Smooth Follow)
+    this.world.updateCamera(this.x, this.y, this.z, delta);
   }
 
   checkCollisionAt(tx, tz) {
@@ -234,6 +237,16 @@ class NPC {
     let defaultTex;
     if (this.id === "paman") defaultTex = tg.getNpcPamanSprite();
     else if (this.id === "kakek") defaultTex = tg.getNpcKakekSprite();
+    else if (this.id === "rina") defaultTex = tg.getNpcRinaSprite();
+    else if (this.id === "dito") defaultTex = tg.getNpcDitoSprite();
+    else if (this.id === "bu_rt") defaultTex = tg.getNpcBuRtSprite();
+    else if (this.id === "pak_rt") defaultTex = tg.getNpcPakRtSprite();
+    else if (this.id === "mbak_tari") defaultTex = tg.getNpcMbakTariSprite();
+    else if (this.id === "nenek_minah") defaultTex = tg.getNpcNenekSprite();
+    else if (this.id === "mas_bayu") defaultTex = tg.getNpcBayuSprite();
+    else if (this.id === "mang_ujang") defaultTex = tg.getNpcMangUjangSprite();
+    else if (this.id === "teh_sarah") defaultTex = tg.getNpcTehSarahSprite();
+    else if (this.id === "adit") defaultTex = tg.getNpcAditSprite();
     else defaultTex = tg.getNpcPamanSprite();
 
     const mat = new THREE.MeshLambertMaterial({
@@ -264,12 +277,27 @@ class NPC {
     this.world.exteriorGroup.add(this.shadow);
 
     // Collider NPC
-    this.world.exteriorColliders.push({
+    this.collider = {
       minX: this.x - 0.65,
       maxX: this.x + 0.65,
       minZ: this.z - 0.65,
       maxZ: this.z + 0.65
-    });
+    };
+    this.world.exteriorColliders.push(this.collider);
+  }
+
+  setVisible(visible) {
+    this.isActive = !!visible;
+    if (this.mesh) this.mesh.visible = !!visible;
+    if (this.shadow) this.shadow.visible = !!visible;
+    if (this.world && this.world.exteriorColliders && this.collider) {
+      const idx = this.world.exteriorColliders.indexOf(this.collider);
+      if (visible && idx === -1) {
+        this.world.exteriorColliders.push(this.collider);
+      } else if (!visible && idx !== -1) {
+        this.world.exteriorColliders.splice(idx, 1);
+      }
+    }
   }
 
   getNextDialogue() {
@@ -305,7 +333,7 @@ class RoamingAnimal {
 
   initMesh() {
     const tg = window.textureGen;
-    const defaultTex = tg.getChickenSprite();
+    const defaultTex = (this.type === "cat") ? tg.getCatSprite() : tg.getChickenSprite();
 
     const mat = new THREE.MeshLambertMaterial({
       map: defaultTex.clone(),
@@ -349,8 +377,8 @@ class RoamingAnimal {
     const nz = this.z + this.vz * delta;
 
     // Batasan agar ayam tetap di dalam area halaman dan tidak masuk ke dalam sungai
-    const inRiver = (nx < -7.8 && nx > -11.6);
-    if (!inRiver && nx > -14 && nx < 14 && nz > -14 && nz < 6.5) {
+    const inRiver = (nx < -9.2 && nx > -14.2);
+    if (!inRiver && nx > -20 && nx < 20 && nz > -18 && nz < 12.5) {
       this.x = nx;
       this.z = nz;
     } else {
@@ -437,6 +465,7 @@ class InteractionManager {
 
     for (let item of this.interactables) {
       if (item.collected) continue;
+      if (item.isActive === false) continue;
 
       // Filter berdasarkan zona (eksterior vs interior rumah)
       const itemZone = item.zone || (item.x > 50 ? "interior" : "exterior");

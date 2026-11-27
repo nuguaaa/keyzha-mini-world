@@ -223,6 +223,78 @@ class TextureGenerator {
     return this.cache.stonePath;
   }
 
+  // Dinding Tembok Batu Penahan Teras (Ashlar Stone Wall)
+  getStoneWallTexture() {
+    if (this.cache.stoneWall) return this.cache.stoneWall;
+    this.cache.stoneWall = this.createCanvasTexture(64, 64, (ctx, w, h) => {
+      ctx.fillStyle = "#3e3731";
+      ctx.fillRect(0, 0, w, h);
+
+      // Balok-balok batu tersusun rapi berselang-seling
+      const blockH = 16;
+      const blockW = 32;
+      const colors = ["#827b72", "#918980", "#736b63", "#9b9389"];
+
+      for (let row = 0; row < 4; row++) {
+        const y = row * blockH;
+        const offset = (row % 2 === 0) ? 0 : blockW / 2;
+        for (let col = -1; col < 3; col++) {
+          const x = col * blockW + offset;
+          const c = colors[(row * 2 + col + 4) % colors.length];
+          ctx.fillStyle = c;
+          ctx.fillRect(x + 1, y + 1, blockW - 2, blockH - 2);
+
+          // Highlight tepi atas & kiri balok batu
+          ctx.fillStyle = "rgba(255, 255, 255, 0.25)";
+          ctx.fillRect(x + 1, y + 1, blockW - 2, 2);
+          ctx.fillRect(x + 1, y + 1, 2, blockH - 2);
+
+          // Bayangan tepi bawah & sambungan adukan semen
+          ctx.fillStyle = "rgba(0, 0, 0, 0.35)";
+          ctx.fillRect(x + 1, y + blockH - 3, blockW - 2, 2);
+          ctx.fillRect(x + blockW - 3, y + 1, 2, blockH - 2);
+        }
+      }
+    });
+    this.cache.stoneWall.wrapS = THREE.RepeatWrapping;
+    this.cache.stoneWall.wrapT = THREE.RepeatWrapping;
+    return this.cache.stoneWall;
+  }
+
+  // Genteng Atap Rumah Tradisional (Dark Slate Roof Tiles)
+  getRoofTileTexture() {
+    if (this.cache.roofTile) return this.cache.roofTile;
+    this.cache.roofTile = this.createCanvasTexture(64, 64, (ctx, w, h) => {
+      ctx.fillStyle = "#1e2226";
+      ctx.fillRect(0, 0, w, h);
+
+      const tileH = 16;
+      const tileW = 16;
+      for (let row = 0; row < 4; row++) {
+        const y = row * tileH;
+        const offset = (row % 2 === 0) ? 0 : 8;
+        for (let col = -1; col < 5; col++) {
+          const x = col * tileW + offset;
+          ctx.fillStyle = (col + row) % 2 === 0 ? "#2f353b" : "#384048";
+          ctx.beginPath();
+          ctx.rect(x + 1, y + 1, tileW - 2, tileH - 2);
+          ctx.fill();
+
+          // Bevel highlight genteng
+          ctx.fillStyle = "rgba(255, 255, 255, 0.18)";
+          ctx.fillRect(x + 1, y + 1, tileW - 2, 2);
+
+          // Bayangan tumpang tindih genteng
+          ctx.fillStyle = "rgba(0, 0, 0, 0.4)";
+          ctx.fillRect(x + 1, y + tileH - 3, tileW - 2, 2);
+        }
+      }
+    });
+    this.cache.roofTile.wrapS = THREE.RepeatWrapping;
+    this.cache.roofTile.wrapT = THREE.RepeatWrapping;
+    return this.cache.roofTile;
+  }
+
   // Papan Kayu Pelataran Main & Foto (Deck)
   getWoodDeckTexture() {
     if (this.cache.woodDeck) return this.cache.woodDeck;
@@ -281,21 +353,26 @@ class TextureGenerator {
     return this.cache.bridgeWood;
   }
 
-  // Air Sungai Mengalir HD-2D (Cyan Jernih dengan Gelombang)
+  // Air Sungai Mengalir HD-2D (Biru Jernih Berkilau dengan Gelombang & Busa Putih)
   getRiverWaterTexture() {
     if (this.cache.riverWater) return this.cache.riverWater;
     this.cache.riverWater = this.createCanvasTexture(64, 64, (ctx, w, h) => {
-      ctx.fillStyle = "#3d8ba6";
+      // Dasar biru jernih cerah
+      ctx.fillStyle = "#1e88e5";
       ctx.fillRect(0, 0, w, h);
 
-      const waterColors = ["#4ea3c2", "#5fb8d9", "#35778f", "#78cce6"];
+      const waterColors = ["#29b6f6", "#4fc3f7", "#0288d1", "#81d4fa"];
       for (let y = 0; y < h; y += 8) {
         for (let x = 0; x < w; x += 16) {
           const c = waterColors[((x / 16) + (y / 8)) % waterColors.length];
           ctx.fillStyle = c;
-          ctx.fillRect(x + (y % 16 === 0 ? 0 : 8), y, 12, 4);
-          ctx.fillStyle = "rgba(255, 255, 255, 0.4)";
-          ctx.fillRect(x + (y % 16 === 0 ? 2 : 10), y + 1, 6, 1);
+          ctx.fillRect(x + (y % 16 === 0 ? 0 : 8), y, 14, 5);
+
+          // Riak buih gelombang putih berkilau
+          ctx.fillStyle = "rgba(255, 255, 255, 0.65)";
+          ctx.fillRect(x + (y % 16 === 0 ? 2 : 10), y + 1, 8, 2);
+          ctx.fillStyle = "rgba(255, 255, 255, 0.9)";
+          ctx.fillRect(x + (y % 16 === 0 ? 4 : 12), y + 2, 4, 1);
         }
       }
     });
@@ -632,7 +709,7 @@ class TextureGenerator {
   // Sprite NPC Kakek Bijak (Jubah Hijau & Jenggot Putih Panjang - Frame 00:26)
   getNpcKakekSprite() {
     if (this.cache.npcKakek) return this.cache.npcKakek;
-    this.cache.npcKpcKakek = this.createCanvasTexture(64, 64, (ctx, w, h) => {
+    this.cache.npcKakek = this.createCanvasTexture(64, 64, (ctx, w, h) => {
       const cx = 32, cy = 32;
 
       // Jubah Hijau Panjang
@@ -680,7 +757,765 @@ class TextureGenerator {
       ctx.fillRect(cx + 10, cy - 12, 2, 38);
       ctx.fillRect(cx + 8, cy - 14, 4, 3);
     });
-    return this.cache.npcKpcKakek;
+    return this.cache.npcKakek;
+  }
+
+  // Sprite NPC Bibi Rina (Perawat Bunga & Rumah di Teras)
+  getNpcRinaSprite() {
+    if (this.cache.npcRina) return this.cache.npcRina;
+    this.cache.npcRina = this.createCanvasTexture(64, 64, (ctx, w, h) => {
+      const cx = 32, cy = 32;
+
+      // Sepatu cokelat
+      ctx.fillStyle = "#4a3525";
+      ctx.fillRect(cx - 6, cy + 24, 5, 4);
+      ctx.fillRect(cx + 1, cy + 24, 5, 4);
+
+      // Rok gaun krem panjang
+      ctx.fillStyle = "#e9d8a6";
+      ctx.beginPath();
+      ctx.moveTo(cx - 10, cy + 24);
+      ctx.lineTo(cx + 10, cy + 24);
+      ctx.lineTo(cx + 7, cy + 4);
+      ctx.lineTo(cx - 7, cy + 4);
+      ctx.closePath();
+      ctx.fill();
+
+      // Apron / Celemek Bunga Warna Terakota Lembut
+      ctx.fillStyle = "#e07a5f";
+      ctx.beginPath();
+      ctx.moveTo(cx - 8, cy + 22);
+      ctx.lineTo(cx + 8, cy + 22);
+      ctx.lineTo(cx + 6, cy - 1);
+      ctx.lineTo(cx - 6, cy - 1);
+      ctx.closePath();
+      ctx.fill();
+
+      // Tali apron silang
+      ctx.fillStyle = "#f4f1de";
+      ctx.fillRect(cx - 5, cy - 3, 2, 8);
+      ctx.fillRect(cx + 3, cy - 3, 2, 8);
+
+      // Kantong apron dengan bunga kecil
+      ctx.fillStyle = "#f4f1de";
+      ctx.fillRect(cx - 4, cy + 10, 8, 7);
+      ctx.fillStyle = "#f2cc8f";
+      ctx.fillRect(cx - 2, cy + 12, 4, 3);
+      ctx.fillStyle = "#81b29a";
+      ctx.fillRect(cx, cy + 8, 2, 4);
+
+      // Lengan baju hijau sage
+      ctx.fillStyle = "#81b29a";
+      ctx.fillRect(cx - 9, cy - 2, 3, 11);
+      ctx.fillRect(cx + 6, cy - 2, 3, 11);
+
+      // Tangan
+      ctx.fillStyle = "#f5d0b0";
+      ctx.fillRect(cx - 9, cy + 9, 3, 3);
+      ctx.fillRect(cx + 6, cy + 9, 3, 3);
+
+      // Keranjang bunga kecil di tangan kiri
+      ctx.fillStyle = "#9c6644";
+      ctx.fillRect(cx + 8, cy + 8, 5, 6);
+      ctx.fillStyle = "#e76f51";
+      ctx.fillRect(cx + 9, cy + 6, 2, 2);
+      ctx.fillStyle = "#f4a261";
+      ctx.fillRect(cx + 11, cy + 6, 2, 2);
+
+      // Wajah
+      ctx.fillStyle = "#f5d0b0";
+      ctx.fillRect(cx - 6, cy - 14, 12, 11);
+
+      // Mata ramah & rona pipi (blush)
+      ctx.fillStyle = "#264653";
+      ctx.fillRect(cx - 4, cy - 9, 2, 2);
+      ctx.fillRect(cx + 2, cy - 9, 2, 2);
+      ctx.fillStyle = "#e07a5f";
+      ctx.fillRect(cx - 6, cy - 6, 2, 2);
+      ctx.fillRect(cx + 4, cy - 6, 2, 2);
+
+      // Senyum
+      ctx.fillStyle = "#a34343";
+      ctx.fillRect(cx - 2, cy - 5, 4, 1);
+
+      // Bandana / Scarf Kepala Warna Terakota
+      ctx.fillStyle = "#e07a5f";
+      ctx.fillRect(cx - 7, cy - 16, 14, 4);
+      ctx.fillRect(cx - 8, cy - 14, 2, 6);
+      ctx.fillRect(cx + 6, cy - 14, 2, 6);
+
+      // Sanggul Rambut Cokelat di Atas
+      ctx.fillStyle = "#5c4033";
+      ctx.beginPath();
+      ctx.arc(cx, cy - 17, 5, 0, Math.PI * 2);
+      ctx.fill();
+    });
+    return this.cache.npcRina;
+  }
+
+  // Sprite NPC Dito (Jaket Biru, Celana Jeans, Topi Santai di Pelataran Arcade)
+  getNpcDitoSprite() {
+    if (this.cache.npcDito) return this.cache.npcDito;
+    this.cache.npcDito = this.createCanvasTexture(64, 64, (ctx, w, h) => {
+      const cx = 32, cy = 32;
+
+      // Sepatu sneakers putih
+      ctx.fillStyle = "#ffffff";
+      ctx.fillRect(cx - 6, cy + 24, 5, 4);
+      ctx.fillRect(cx + 1, cy + 24, 5, 4);
+
+      // Celana jeans biru gelap
+      ctx.fillStyle = "#1d3557";
+      ctx.fillRect(cx - 7, cy + 10, 6, 15);
+      ctx.fillRect(cx + 1, cy + 10, 6, 15);
+
+      // Kaos putih & Jaket kasual teal/biru
+      ctx.fillStyle = "#ffffff";
+      ctx.fillRect(cx - 4, cy - 2, 8, 12);
+      ctx.fillStyle = "#457b9d";
+      ctx.fillRect(cx - 9, cy - 3, 5, 14);
+      ctx.fillRect(cx + 4, cy - 3, 5, 14);
+
+      // Wajah
+      ctx.fillStyle = "#f5d0b0";
+      ctx.fillRect(cx - 6, cy - 13, 12, 11);
+
+      // Mata & Senyum ramah
+      ctx.fillStyle = "#1d3557";
+      ctx.fillRect(cx - 4, cy - 9, 2, 2);
+      ctx.fillRect(cx + 2, cy - 9, 2, 2);
+      ctx.fillStyle = "#e63946";
+      ctx.fillRect(cx - 2, cy - 5, 4, 1);
+
+      // Topi pet kasual terbalik / ke samping
+      ctx.fillStyle = "#e63946";
+      ctx.fillRect(cx - 7, cy - 17, 14, 5);
+      ctx.fillRect(cx - 9, cy - 15, 3, 3);
+    });
+    return this.cache.npcDito;
+  }
+
+  // Sprite NPC Bu RT (Ibu Warga Desa Berbaju Batik & Kacamata Ramah)
+  getNpcBuRtSprite() {
+    if (this.cache.npcBuRt) return this.cache.npcBuRt;
+    this.cache.npcBuRt = this.createCanvasTexture(64, 64, (ctx, w, h) => {
+      const cx = 32, cy = 32;
+
+      // Sandal selop hitam
+      ctx.fillStyle = "#2b2b2b";
+      ctx.fillRect(cx - 6, cy + 24, 5, 4);
+      ctx.fillRect(cx + 1, cy + 24, 5, 4);
+
+      // Kain jarik / rok panjang batik cokelat tanah
+      ctx.fillStyle = "#7f4f24";
+      ctx.beginPath();
+      ctx.moveTo(cx - 10, cy + 24);
+      ctx.lineTo(cx + 10, cy + 24);
+      ctx.lineTo(cx + 7, cy + 8);
+      ctx.lineTo(cx - 7, cy + 8);
+      ctx.closePath();
+      ctx.fill();
+
+      // Baju atasan kebaya terakota hangat
+      ctx.fillStyle = "#c97b63";
+      ctx.fillRect(cx - 8, cy - 3, 16, 12);
+      ctx.fillStyle = "#ddbea9";
+      ctx.fillRect(cx - 2, cy - 3, 4, 12);
+
+      // Selendang batik melintang di bahu
+      ctx.fillStyle = "#936639";
+      ctx.fillRect(cx - 8, cy - 3, 4, 14);
+
+      // Lengan baju & tangan
+      ctx.fillStyle = "#c97b63";
+      ctx.fillRect(cx - 10, cy - 2, 3, 11);
+      ctx.fillRect(cx + 7, cy - 2, 3, 11);
+      ctx.fillStyle = "#f5d0b0";
+      ctx.fillRect(cx - 10, cy + 9, 3, 3);
+      ctx.fillRect(cx + 7, cy + 9, 3, 3);
+
+      // Wajah
+      ctx.fillStyle = "#f5d0b0";
+      ctx.fillRect(cx - 6, cy - 14, 12, 11);
+
+      // Kacamata bulat khas Bu RT
+      ctx.strokeStyle = "#582f0e";
+      ctx.lineWidth = 1;
+      ctx.strokeRect(cx - 5, cy - 10, 4, 4);
+      ctx.strokeRect(cx + 1, cy - 10, 4, 4);
+      ctx.fillStyle = "#2b2b2b";
+      ctx.fillRect(cx - 4, cy - 9, 2, 2);
+      ctx.fillRect(cx + 2, cy - 9, 2, 2);
+
+      // Rona pipi & senyum ibu yang hangat
+      ctx.fillStyle = "#e07a5f";
+      ctx.fillRect(cx - 6, cy - 6, 2, 2);
+      ctx.fillRect(cx + 4, cy - 6, 2, 2);
+      ctx.fillStyle = "#b02a37";
+      ctx.fillRect(cx - 2, cy - 5, 4, 1);
+
+      // Rambut hitam bersanggul rapi di belakang
+      ctx.fillStyle = "#2b2b2b";
+      ctx.fillRect(cx - 7, cy - 17, 14, 5);
+      ctx.fillRect(cx - 8, cy - 15, 2, 7);
+      ctx.fillRect(cx + 6, cy - 15, 2, 7);
+      ctx.beginPath();
+      ctx.arc(cx + 6, cy - 16, 3, 0, Math.PI * 2);
+      ctx.fill();
+    });
+    return this.cache.npcBuRt;
+  }
+
+  // Sprite NPC Pak RT Broto (Ketua RT Berpeci Hitam & Kemeja Batik Kasual)
+  getNpcPakRtSprite() {
+    if (this.cache.npcPakRt) return this.cache.npcPakRt;
+    this.cache.npcPakRt = this.createCanvasTexture(64, 64, (ctx, w, h) => {
+      const cx = 32, cy = 32;
+
+      // Sepatu pantofel hitam
+      ctx.fillStyle = "#1a1a1a";
+      ctx.fillRect(cx - 6, cy + 24, 5, 4);
+      ctx.fillRect(cx + 1, cy + 24, 5, 4);
+
+      // Celana bahan abu-abu gelap
+      ctx.fillStyle = "#343a40";
+      ctx.fillRect(cx - 7, cy + 10, 6, 15);
+      ctx.fillRect(cx + 1, cy + 10, 6, 15);
+
+      // Kemeja batik biru tua / lurik
+      ctx.fillStyle = "#3d5a80";
+      ctx.fillRect(cx - 8, cy - 3, 16, 14);
+      ctx.fillStyle = "#98c1d9";
+      for (let y = cy - 2; y < cy + 10; y += 4) {
+        ctx.fillRect(cx - 6, y, 12, 1);
+      }
+
+      // Lengan baju
+      ctx.fillStyle = "#3d5a80";
+      ctx.fillRect(cx - 10, cy - 2, 3, 11);
+      ctx.fillRect(cx + 7, cy - 2, 3, 11);
+      ctx.fillStyle = "#e0a96d";
+      ctx.fillRect(cx - 10, cy + 9, 3, 3);
+      ctx.fillRect(cx + 7, cy + 9, 3, 3);
+
+      // Wajah berwibawa tapi ramah
+      ctx.fillStyle = "#e0a96d";
+      ctx.fillRect(cx - 6, cy - 13, 12, 11);
+
+      // Mata & Kumis tipis Pak RT
+      ctx.fillStyle = "#212529";
+      ctx.fillRect(cx - 4, cy - 9, 2, 2);
+      ctx.fillRect(cx + 2, cy - 9, 2, 2);
+      ctx.fillStyle = "#343a40";
+      ctx.fillRect(cx - 4, cy - 5, 8, 2);
+
+      // Peci hitam di kepala
+      ctx.fillStyle = "#111111";
+      ctx.fillRect(cx - 7, cy - 19, 14, 7);
+      ctx.fillStyle = "#222222";
+      ctx.fillRect(cx - 6, cy - 20, 12, 2);
+    });
+    return this.cache.npcPakRt;
+  }
+
+  // Sprite NPC Mbak Tari (Pemudi Desa Bergaun Lilac Ceria)
+  getNpcMbakTariSprite() {
+    if (this.cache.npcMbakTari) return this.cache.npcMbakTari;
+    this.cache.npcMbakTari = this.createCanvasTexture(64, 64, (ctx, w, h) => {
+      const cx = 32, cy = 32;
+
+      // Sepatu flat putih
+      ctx.fillStyle = "#ffffff";
+      ctx.fillRect(cx - 6, cy + 24, 5, 4);
+      ctx.fillRect(cx + 1, cy + 24, 5, 4);
+
+      // Rok gaun ungu lilac manis
+      ctx.fillStyle = "#c77dff";
+      ctx.beginPath();
+      ctx.moveTo(cx - 9, cy + 24);
+      ctx.lineTo(cx + 9, cy + 24);
+      ctx.lineTo(cx + 6, cy + 6);
+      ctx.lineTo(cx - 6, cy + 6);
+      ctx.closePath();
+      ctx.fill();
+
+      // Atasan cardigan pastel krem
+      ctx.fillStyle = "#f8f9fa";
+      ctx.fillRect(cx - 7, cy - 3, 14, 10);
+      ctx.fillStyle = "#e0aaff";
+      ctx.fillRect(cx - 2, cy - 3, 4, 10);
+
+      // Lengan & tangan
+      ctx.fillStyle = "#f8f9fa";
+      ctx.fillRect(cx - 9, cy - 2, 3, 10);
+      ctx.fillRect(cx + 6, cy - 2, 3, 10);
+      ctx.fillStyle = "#f5d0b0";
+      ctx.fillRect(cx - 9, cy + 8, 3, 3);
+      ctx.fillRect(cx + 6, cy + 8, 3, 3);
+
+      // Wajah manis & mata binar
+      ctx.fillStyle = "#f5d0b0";
+      ctx.fillRect(cx - 6, cy - 14, 12, 11);
+      ctx.fillStyle = "#240046";
+      ctx.fillRect(cx - 4, cy - 9, 2, 2);
+      ctx.fillRect(cx + 2, cy - 9, 2, 2);
+
+      // Senyum ramah & blush
+      ctx.fillStyle = "#ff70a6";
+      ctx.fillRect(cx - 6, cy - 6, 2, 2);
+      ctx.fillRect(cx + 4, cy - 6, 2, 2);
+      ctx.fillStyle = "#d90429";
+      ctx.fillRect(cx - 2, cy - 5, 4, 1);
+
+      // Rambut cokelat kuncir samping (ponytail)
+      ctx.fillStyle = "#6f4e37";
+      ctx.fillRect(cx - 7, cy - 17, 14, 5);
+      ctx.fillRect(cx - 8, cy - 14, 2, 7);
+      ctx.fillRect(cx + 6, cy - 14, 2, 7);
+      // Kuncir ekor kuda samping
+      ctx.fillRect(cx + 7, cy - 16, 4, 9);
+      ctx.fillStyle = "#ff70a6";
+      ctx.fillRect(cx + 6, cy - 17, 3, 3); // pita kuncir pink
+    });
+    return this.cache.npcMbakTari;
+  }
+
+  // 1. Sprite Nenek Minah di Sumur Tua (Kebaya Hijau Lumut, Jarik Batik & Sanggul Uban)
+  getNpcNenekSprite() {
+    if (this.cache.npcNenek) return this.cache.npcNenek;
+    this.cache.npcNenek = this.createCanvasTexture(32, 38, (ctx, w, h) => {
+      const cx = 16;
+      const cy = 20;
+
+      // Selop kayu tradisional
+      ctx.fillStyle = "#4a3525";
+      ctx.fillRect(cx - 5, cy + 14, 4, 3);
+      ctx.fillRect(cx + 1, cy + 14, 4, 3);
+
+      // Kain jarik batik cokelat tanah
+      ctx.fillStyle = "#6c584c";
+      ctx.fillRect(cx - 7, cy + 7, 14, 8);
+      // Motif batik titik emas
+      ctx.fillStyle = "#dda15e";
+      for (let bx = cx - 6; bx <= cx + 4; bx += 3) {
+        ctx.fillRect(bx, cy + 8, 1, 1);
+        ctx.fillRect(bx + 1, cy + 11, 1, 1);
+      }
+
+      // Kebaya panjang hijau lumut tua
+      ctx.fillStyle = "#556b2f";
+      ctx.fillRect(cx - 7, cy - 2, 14, 10);
+      // Stagen / selendang krem di pinggang
+      ctx.fillStyle = "#faedcd";
+      ctx.fillRect(cx - 7, cy + 4, 14, 3);
+
+      // Kerah kebaya krem
+      ctx.fillStyle = "#fefae0";
+      ctx.fillRect(cx - 2, cy - 2, 4, 7);
+
+      // Lengan kebaya
+      ctx.fillStyle = "#556b2f";
+      ctx.fillRect(cx - 9, cy - 1, 3, 9);
+      ctx.fillRect(cx + 6, cy - 1, 3, 9);
+      // Tangan sepuh
+      ctx.fillStyle = "#e2b896";
+      ctx.fillRect(cx - 9, cy + 8, 3, 3);
+      ctx.fillRect(cx + 6, cy + 8, 3, 3);
+
+      // Wajah nenek ramah
+      ctx.fillStyle = "#e2b896";
+      ctx.fillRect(cx - 6, cy - 13, 12, 11);
+
+      // Kacamata bulat vintage
+      ctx.strokeStyle = "#495057";
+      ctx.lineWidth = 1;
+      ctx.strokeRect(cx - 5, cy - 8, 3, 3);
+      ctx.strokeRect(cx + 2, cy - 8, 3, 3);
+      ctx.fillStyle = "#495057";
+      ctx.fillRect(cx - 2, cy - 7, 4, 1); // gagang kacamata
+
+      // Mata tersenyum hangat
+      ctx.fillStyle = "#2b2d42";
+      ctx.fillRect(cx - 4, cy - 7, 1, 1);
+      ctx.fillRect(cx + 3, cy - 7, 1, 1);
+
+      // Kerutan senyum & bibir ramah
+      ctx.fillStyle = "#bc6c25";
+      ctx.fillRect(cx - 2, cy - 4, 4, 1);
+
+      // Rambut abu-abu uban & sanggul tradisional
+      ctx.fillStyle = "#adb5bd";
+      ctx.fillRect(cx - 7, cy - 16, 14, 5);
+      ctx.fillRect(cx - 8, cy - 13, 2, 7);
+      ctx.fillRect(cx + 6, cy - 13, 2, 7);
+      // Sanggul atas berhias tusuk konde emas
+      ctx.fillRect(cx - 4, cy - 18, 8, 3);
+      ctx.fillStyle = "#d4af37";
+      ctx.fillRect(cx - 1, cy - 19, 2, 4);
+    });
+    return this.cache.npcNenek;
+  }
+
+  // 2. Sprite Mas Bayu si Pemancing (Caping Jerami, Rompi Indigo & Celana Santai)
+  getNpcBayuSprite() {
+    if (this.cache.npcBayu) return this.cache.npcBayu;
+    this.cache.npcBayu = this.createCanvasTexture(32, 38, (ctx, w, h) => {
+      const cx = 16;
+      const cy = 20;
+
+      // Sandal jepit kulit
+      ctx.fillStyle = "#5c4033";
+      ctx.fillRect(cx - 5, cy + 14, 4, 3);
+      ctx.fillRect(cx + 1, cy + 14, 4, 3);
+
+      // Celana pendek santai cokelat pasir
+      ctx.fillStyle = "#8d7b68";
+      ctx.fillRect(cx - 6, cy + 6, 12, 8);
+      ctx.fillStyle = "#2b2b2b";
+      ctx.fillRect(cx - 1, cy + 9, 2, 5); // belahan celana
+
+      // Rompi indigo biru di atas kaos putih
+      ctx.fillStyle = "#f8f9fa";
+      ctx.fillRect(cx - 6, cy - 2, 12, 9);
+      ctx.fillStyle = "#1d3557";
+      ctx.fillRect(cx - 7, cy - 2, 3, 9);
+      ctx.fillRect(cx + 4, cy - 2, 3, 9);
+
+      // Lengan kulit cokelat sehat
+      ctx.fillStyle = "#d4a373";
+      ctx.fillRect(cx - 9, cy - 1, 3, 8);
+      ctx.fillRect(cx + 6, cy - 1, 3, 8);
+      ctx.fillRect(cx - 9, cy + 7, 3, 3);
+      ctx.fillRect(cx + 6, cy + 7, 3, 3);
+
+      // Tongkat pancing bambu di tangan kanan
+      ctx.fillStyle = "#6b705c";
+      ctx.fillRect(cx + 8, cy - 14, 2, 28);
+      ctx.fillStyle = "#e9d8a6";
+      ctx.fillRect(cx + 8, cy - 16, 2, 2); // pucuk pancing
+
+      // Wajah pemuda ramah
+      ctx.fillStyle = "#d4a373";
+      ctx.fillRect(cx - 5, cy - 12, 10, 10);
+      ctx.fillStyle = "#1b263b";
+      ctx.fillRect(cx - 3, cy - 8, 2, 2);
+      ctx.fillRect(cx + 2, cy - 8, 2, 2);
+      ctx.fillStyle = "#bc6c25";
+      ctx.fillRect(cx - 1, cy - 5, 3, 1);
+
+      // Topi Caping Jerami Tradisional Segitiga Lebar
+      ctx.fillStyle = "#e9c46a";
+      ctx.beginPath();
+      ctx.moveTo(cx, cy - 18);
+      ctx.lineTo(cx - 11, cy - 11);
+      ctx.lineTo(cx + 11, cy - 11);
+      ctx.closePath();
+      ctx.fill();
+
+      // Tekstur anyaman caping
+      ctx.fillStyle = "#d4a373";
+      ctx.fillRect(cx - 6, cy - 13, 12, 1);
+      ctx.fillRect(cx - 3, cy - 15, 6, 1);
+    });
+    return this.cache.npcBayu;
+  }
+
+  // 3. Sprite Mang Ujang di Api Unggun (Ikat Kepala Sunda, Pangsi Cokelat & Jagung Bakar)
+  getNpcMangUjangSprite() {
+    if (this.cache.npcMangUjang) return this.cache.npcMangUjang;
+    this.cache.npcMangUjang = this.createCanvasTexture(32, 38, (ctx, w, h) => {
+      const cx = 16;
+      const cy = 20;
+
+      // Sandal selop hitam
+      ctx.fillStyle = "#212529";
+      ctx.fillRect(cx - 5, cy + 14, 4, 3);
+      ctx.fillRect(cx + 1, cy + 14, 4, 3);
+
+      // Celana pangsi longgar hitam
+      ctx.fillStyle = "#2b2d42";
+      ctx.fillRect(cx - 7, cy + 6, 14, 8);
+      ctx.fillStyle = "#161a1d";
+      ctx.fillRect(cx - 1, cy + 8, 2, 6);
+
+      // Baju pangsi cokelat tua & sabuk merah
+      ctx.fillStyle = "#4a3525";
+      ctx.fillRect(cx - 7, cy - 3, 14, 10);
+      ctx.fillStyle = "#ba181b";
+      ctx.fillRect(cx - 7, cy + 4, 14, 2); // sabuk ikat merah
+
+      // Lengan baju pangsi
+      ctx.fillStyle = "#4a3525";
+      ctx.fillRect(cx - 9, cy - 2, 3, 8);
+      ctx.fillRect(cx + 6, cy - 2, 3, 8);
+      ctx.fillStyle = "#cb997e";
+      ctx.fillRect(cx - 9, cy + 6, 3, 3);
+      ctx.fillRect(cx + 6, cy + 6, 3, 3);
+
+      // Jagung bakar di tangan kiri
+      ctx.fillStyle = "#ffb703";
+      ctx.fillRect(cx - 11, cy + 1, 3, 6);
+      ctx.fillStyle = "#603813";
+      ctx.fillRect(cx - 10, cy + 7, 1, 4); // tusukan kayu
+
+      // Wajah Mang Ujang tersenyum lebar & kumis tebal
+      ctx.fillStyle = "#cb997e";
+      ctx.fillRect(cx - 5, cy - 13, 10, 10);
+      ctx.fillStyle = "#1b1b1b";
+      ctx.fillRect(cx - 3, cy - 9, 2, 2);
+      ctx.fillRect(cx + 2, cy - 9, 2, 2);
+      // Kumis khas
+      ctx.fillStyle = "#161a1d";
+      ctx.fillRect(cx - 4, cy - 6, 9, 2);
+      ctx.fillStyle = "#ffffff";
+      ctx.fillRect(cx - 1, cy - 4, 3, 1); // gigi ramah
+
+      // Ikat kepala / Udeng Sunda merah batik
+      ctx.fillStyle = "#a4161a";
+      ctx.fillRect(cx - 7, cy - 16, 14, 5);
+      ctx.fillStyle = "#e5383b";
+      ctx.fillRect(cx + 4, cy - 18, 4, 4); // simpul udeng atas
+    });
+    return this.cache.npcMangUjang;
+  }
+
+  // 4. Sprite Teh Sarah di Kebun Bunga (Bandana Kuning, Celemek Hijau & Bunga Daisy)
+  getNpcTehSarahSprite() {
+    if (this.cache.npcTehSarah) return this.cache.npcTehSarah;
+    this.cache.npcTehSarah = this.createCanvasTexture(32, 38, (ctx, w, h) => {
+      const cx = 16;
+      const cy = 20;
+
+      // Sepatu bot kebun cokelat
+      ctx.fillStyle = "#6f4e37";
+      ctx.fillRect(cx - 5, cy + 14, 4, 3);
+      ctx.fillRect(cx + 1, cy + 14, 4, 3);
+
+      // Rok terakota santai
+      ctx.fillStyle = "#e07a5f";
+      ctx.fillRect(cx - 6, cy + 6, 12, 8);
+
+      // Baju putih & celemek berkebun hijau muda
+      ctx.fillStyle = "#f8f9fa";
+      ctx.fillRect(cx - 6, cy - 3, 12, 10);
+      ctx.fillStyle = "#81b29a";
+      ctx.fillRect(cx - 5, cy - 1, 10, 8);
+      // Kantong celemek berhias bunga aster kecil
+      ctx.fillStyle = "#3d405b";
+      ctx.fillRect(cx - 3, cy + 2, 6, 4);
+      ctx.fillStyle = "#ffffff";
+      ctx.fillRect(cx - 1, cy + 1, 2, 2);
+      ctx.fillStyle = "#f4a261";
+      ctx.fillRect(cx, cy + 2, 1, 1); // putik bunga
+
+      // Lengan baju
+      ctx.fillStyle = "#f8f9fa";
+      ctx.fillRect(cx - 8, cy - 2, 3, 8);
+      ctx.fillRect(cx + 5, cy - 2, 3, 8);
+      ctx.fillStyle = "#f5d0b0";
+      ctx.fillRect(cx - 8, cy + 6, 3, 3);
+      ctx.fillRect(cx + 5, cy + 6, 3, 3);
+
+      // Wajah ceria & pipi merah
+      ctx.fillStyle = "#f5d0b0";
+      ctx.fillRect(cx - 5, cy - 13, 10, 10);
+      ctx.fillStyle = "#3d405b";
+      ctx.fillRect(cx - 3, cy - 9, 2, 2);
+      ctx.fillRect(cx + 2, cy - 9, 2, 2);
+      ctx.fillStyle = "#ff758f";
+      ctx.fillRect(cx - 5, cy - 6, 2, 2);
+      ctx.fillRect(cx + 3, cy - 6, 2, 2);
+      ctx.fillStyle = "#e63946";
+      ctx.fillRect(cx - 1, cy - 5, 3, 1);
+
+      // Rambut bergelombang & bandana kuning cerah
+      ctx.fillStyle = "#4a2810";
+      ctx.fillRect(cx - 6, cy - 16, 12, 5);
+      ctx.fillRect(cx - 7, cy - 13, 2, 8);
+      ctx.fillRect(cx + 5, cy - 13, 2, 8);
+      // Bandana kuning
+      ctx.fillStyle = "#f9c74f";
+      ctx.fillRect(cx - 6, cy - 15, 12, 2);
+    });
+    return this.cache.npcTehSarah;
+  }
+
+  // 5. Sprite Adit di Pelataran Arcade (Topi Baseball Terbalik, Kaos Strip Merah & Celana Pendek)
+  getNpcAditSprite() {
+    if (this.cache.npcAdit) return this.cache.npcAdit;
+    this.cache.npcAdit = this.createCanvasTexture(32, 38, (ctx, w, h) => {
+      const cx = 16;
+      const cy = 20;
+
+      // Sneaker merah
+      ctx.fillStyle = "#d90429";
+      ctx.fillRect(cx - 5, cy + 14, 4, 3);
+      ctx.fillRect(cx + 1, cy + 14, 4, 3);
+      ctx.fillStyle = "#ffffff";
+      ctx.fillRect(cx - 5, cy + 15, 4, 1);
+      ctx.fillRect(cx + 1, cy + 15, 4, 1);
+
+      // Celana pendek denim biru
+      ctx.fillStyle = "#2b6cb0";
+      ctx.fillRect(cx - 5, cy + 7, 10, 7);
+      ctx.fillStyle = "#1a365d";
+      ctx.fillRect(cx - 1, cy + 9, 2, 5);
+
+      // Kaos bergaris merah-putih
+      ctx.fillStyle = "#ffffff";
+      ctx.fillRect(cx - 6, cy - 2, 12, 9);
+      ctx.fillStyle = "#d90429";
+      ctx.fillRect(cx - 6, cy - 1, 12, 2);
+      ctx.fillRect(cx - 6, cy + 3, 12, 2);
+
+      // Lengan anak-anak
+      ctx.fillStyle = "#f5d0b0";
+      ctx.fillRect(cx - 8, cy - 1, 3, 7);
+      ctx.fillRect(cx + 5, cy - 1, 3, 7);
+
+      // Wajah bocah bersemangat
+      ctx.fillStyle = "#f5d0b0";
+      ctx.fillRect(cx - 5, cy - 12, 10, 10);
+      ctx.fillStyle = "#1b263b";
+      ctx.fillRect(cx - 3, cy - 8, 2, 2);
+      ctx.fillRect(cx + 2, cy - 8, 2, 2);
+      ctx.fillStyle = "#e63946";
+      ctx.fillRect(cx - 1, cy - 4, 3, 2); // senyum lebar
+
+      // Topi baseball merah dipakai terbalik (lidah topi di belakang)
+      ctx.fillStyle = "#d90429";
+      ctx.fillRect(cx - 6, cy - 15, 12, 4);
+      ctx.fillStyle = "#023e8a";
+      ctx.fillRect(cx - 2, cy - 16, 4, 2); // kancing topi
+      ctx.fillStyle = "#d90429";
+      ctx.fillRect(cx - 4, cy - 12, 8, 2); // lidah topi di tengkuk
+      // Poni rambut cokelat
+      ctx.fillStyle = "#3e2723";
+      ctx.fillRect(cx - 4, cy - 12, 8, 2);
+    });
+    return this.cache.npcAdit;
+  }
+
+  // Sprite Kucing Oranye Lucu (Miko si Kucing Desa)
+  getCatSprite() {
+    if (this.cache.catOrange) return this.cache.catOrange;
+    this.cache.catOrange = this.createCanvasTexture(48, 48, (ctx, w, h) => {
+      // Kaki & cakar putih
+      ctx.fillStyle = "#ffffff";
+      ctx.fillRect(18, 38, 4, 6);
+      ctx.fillRect(26, 38, 4, 6);
+
+      // Tubuh oranye belang lembut
+      ctx.fillStyle = "#f77f00";
+      ctx.beginPath();
+      ctx.arc(24, 29, 11, 0, Math.PI * 2);
+      ctx.fill();
+
+      // Garis loreng punggung
+      ctx.fillStyle = "#d62828";
+      ctx.fillRect(20, 22, 2, 5);
+      ctx.fillRect(24, 21, 2, 6);
+      ctx.fillRect(28, 22, 2, 5);
+
+      // Dada putih lembut
+      ctx.fillStyle = "#fff3b0";
+      ctx.beginPath();
+      ctx.arc(24, 31, 6, 0, Math.PI * 2);
+      ctx.fill();
+
+      // Ekor melengkung lucu
+      ctx.fillStyle = "#f77f00";
+      ctx.beginPath();
+      ctx.moveTo(13, 32);
+      ctx.quadraticCurveTo(8, 24, 12, 16);
+      ctx.lineWidth = 3;
+      ctx.strokeStyle = "#f77f00";
+      ctx.stroke();
+      ctx.fillStyle = "#ffffff";
+      ctx.fillRect(10, 15, 3, 3); // ujung ekor putih
+
+      // Kepala bulat
+      ctx.fillStyle = "#f77f00";
+      ctx.beginPath();
+      ctx.arc(31, 22, 8, 0, Math.PI * 2);
+      ctx.fill();
+
+      // Telinga segitiga dengan dalam pink
+      ctx.fillStyle = "#f77f00";
+      ctx.beginPath();
+      ctx.moveTo(25, 17); ctx.lineTo(27, 9); ctx.lineTo(31, 16);
+      ctx.closePath(); ctx.fill();
+      ctx.beginPath();
+      ctx.moveTo(33, 16); ctx.lineTo(37, 9); ctx.lineTo(39, 17);
+      ctx.closePath(); ctx.fill();
+
+      ctx.fillStyle = "#ffb4a2";
+      ctx.fillRect(27, 12, 2, 3);
+      ctx.fillRect(35, 12, 2, 3);
+
+      // Mata hijau kucing yang menggemaskan
+      ctx.fillStyle = "#55a630";
+      ctx.fillRect(29, 20, 2, 3);
+      ctx.fillRect(35, 20, 2, 3);
+      ctx.fillStyle = "#000000";
+      ctx.fillRect(30, 21, 1, 2);
+      ctx.fillRect(36, 21, 1, 2);
+
+      // Hidung pink & kumis
+      ctx.fillStyle = "#ffb4a2";
+      ctx.fillRect(33, 24, 2, 2);
+      ctx.fillStyle = "#ffffff";
+      ctx.fillRect(26, 23, 2, 1);
+      ctx.fillRect(26, 25, 2, 1);
+      ctx.fillRect(37, 23, 2, 1);
+      ctx.fillRect(37, 25, 2, 1);
+    });
+    return this.cache.catOrange;
+  }
+
+  // Papan Pengumuman Warga (Mading Desa)
+  getNoticeBoardTexture() {
+    if (this.cache.noticeBoard) return this.cache.noticeBoard;
+    this.cache.noticeBoard = this.createCanvasTexture(64, 64, (ctx, w, h) => {
+      // Papan kayu gabus krem
+      ctx.fillStyle = "#b08968";
+      ctx.fillRect(0, 0, w, h);
+      ctx.fillStyle = "#d4a373";
+      ctx.fillRect(3, 3, w - 6, h - 6);
+
+      // Kertas memo / pengumuman ditempel dengan pin
+      // Memo 1: Putih (Info Desa)
+      ctx.fillStyle = "#fefae0";
+      ctx.fillRect(6, 6, 24, 26);
+      ctx.fillStyle = "#e63946";
+      ctx.fillRect(17, 4, 3, 3); // pin merah
+      ctx.fillStyle = "#4a4e69";
+      ctx.fillRect(9, 10, 18, 2);
+      ctx.fillRect(9, 14, 15, 2);
+      ctx.fillRect(9, 18, 17, 2);
+      ctx.fillRect(9, 22, 12, 2);
+
+      // Memo 2: Kuning (Agenda Api Unggun)
+      ctx.fillStyle = "#ffdda1";
+      ctx.fillRect(33, 8, 24, 22);
+      ctx.fillStyle = "#2a9d8f";
+      ctx.fillRect(44, 6, 3, 3); // pin hijau
+      ctx.fillStyle = "#333333";
+      ctx.fillRect(36, 12, 18, 2);
+      ctx.fillRect(36, 16, 14, 2);
+      ctx.fillRect(36, 20, 16, 2);
+
+      // Memo 3: Biru Pastel (Foto / Sketsa Bunga)
+      ctx.fillStyle = "#e0f2fe";
+      ctx.fillRect(10, 36, 44, 22);
+      ctx.fillStyle = "#f59e0b";
+      ctx.fillRect(31, 34, 3, 3);
+      ctx.fillStyle = "#0284c7";
+      ctx.fillRect(14, 40, 26, 2);
+      ctx.fillRect(14, 44, 36, 2);
+      ctx.fillRect(14, 48, 20, 2);
+    });
+    return this.cache.noticeBoard;
   }
 
   // Sprite Ayam Putih Riang (Sesuai Video)
