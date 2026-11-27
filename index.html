@@ -3,7 +3,10 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-  <title>Diorama Kenangan - Petualangan HD-2D</title>
+  <title>Taman Kecil. — Hadiah Untuk Keyzha</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Pixelify+Sans:wght@500;600;700&family=Plus+Jakarta+Sans:ital,wght@0,400;0,500;0,600;0,700;1,400&family=Cinzel:wght@600;700&display=swap" rel="stylesheet">
   <link rel="stylesheet" href="css/style.css">
   <!-- Three.js Library via CDN -->
   <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
@@ -18,49 +21,96 @@
   <div class="tilt-shift-bottom"></div>
   <div class="vignette-overlay"></div>
 
-  <!-- HUD Layer -->
-  <div class="hud-layer">
-    <!-- Top-Left: Quest Tracker -->
+  <!-- ======================================================================
+       START / OPENING SCREEN (PERSIS VIDEO REFERENSI FRAME 00:00 - 00:04)
+       ====================================================================== -->
+  <div class="start-screen-overlay" id="start-screen">
+    <div class="start-card">
+      <div class="start-subtitle">HADIAH UNTUK KEYZHA</div>
+      <h1 class="start-title">Taman Kecil<span class="dot">.</span></h1>
+      <p class="start-desc">
+        Hai Keyzha, ada taman kecil yang aku siapin buat kamu. Jalan pelan-pelan aja, nggak usah buru-buru. Beberapa hal baik lagi nungguin kamu.
+      </p>
+
+      <button class="btn-start-main" id="btn-start-play">
+        <span class="play-icon">▶</span>
+        <div class="start-btn-texts">
+          <div class="btn-main-label">Mulai</div>
+          <div class="btn-sub-label">Bab 1 · Sebuah Undangan</div>
+        </div>
+      </button>
+
+      <div class="start-actions-row">
+        <button class="btn-start-secondary" id="btn-start-settings">
+          ⚙️ Pengaturan
+        </button>
+        <button class="btn-start-secondary" id="btn-start-music">
+          🎵 Musik
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <!-- ======================================================================
+       HUD LAYER (IN-GAME)
+       ====================================================================== -->
+  <div class="hud-layer" id="hud-layer">
+    <!-- Top-Left: Quest Tracker Box (Persis Video) -->
     <div class="quest-tracker" id="quest-tracker-box">
-      <div class="quest-badge" id="quest-step">Misi 1 / 5</div>
-      <div class="quest-title" id="quest-title">Surat di Kotak Pos</div>
-      <div class="quest-desc" id="quest-desc">Dekati kotak pos merah di dekat jalan masuk teras dan baca surat pembuka.</div>
+      <div class="quest-top-row">
+        <div class="quest-star-badge">⭐</div>
+        <div class="quest-chapter" id="quest-chapter">BAB 1 : PAKET 1</div>
+        <div class="quest-progress-bar-bg">
+          <div class="quest-progress-fill" id="quest-progress-fill" style="width: 25%;"></div>
+        </div>
+        <div class="quest-counter" id="quest-step">0 / 6</div>
+      </div>
+      <div class="quest-title" id="quest-title">Sebuah Undangan</div>
+      <div class="quest-sub-box">
+        <div class="quest-exclamation">[ ! ]</div>
+        <div class="quest-sub-content">
+          <div class="quest-sub-title" id="quest-sub-title">01 · SEBUAH UNDANGAN</div>
+          <div class="quest-desc" id="quest-desc">Baca surat di atas peti pelataran.</div>
+        </div>
+      </div>
     </div>
 
-    <!-- Top-Right: Quick Action Buttons -->
+    <!-- Top-Right: Quick Action Buttons (Square Cream with Dark Border) -->
     <div class="top-controls">
-      <button class="hud-btn" id="btn-time" title="Ganti Suasana Waktu">☀️</button>
-      <button class="hud-btn" id="btn-audio" title="Matikan/Hidupkan Suara">🔊</button>
-      <button class="hud-btn" id="btn-bgm" title="Putar Musik Lofi">🎵</button>
-      <button class="hud-btn" id="btn-inventory" title="Buka Koleksi Kenangan">
-        🎒
+      <button class="hud-btn-retro" id="btn-inventory" title="Buka Koleksi Kenangan & Kupon">
+        📖
         <span class="badge-counter" id="inv-badge" style="display: none;">0</span>
       </button>
-      <button class="hud-btn" id="btn-settings" title="Pengaturan">⚙️</button>
+      <button class="hud-btn-retro" id="btn-audio" title="Matikan/Hidupkan Suara">🔊</button>
+      <button class="hud-btn-retro" id="btn-settings" title="Pengaturan & Panduan">⚙️</button>
     </div>
 
-    <!-- Floating Proximity Action Prompt -->
+    <!-- 3D Projected Contextual Floating Badge (Mengambang di Atas Objek) -->
+    <div id="floating-prompt-3d" class="floating-prompt-3d"></div>
+
+    <!-- Floating Fallback Action Prompt -->
     <div class="prompt-container">
       <button class="context-prompt-btn" id="context-prompt">[A] Interaksi</button>
     </div>
 
     <!-- Desktop Controls Hint -->
     <div class="desktop-hint">
-      ⌨️ Tombol: <b>WASD / Panah</b> (Gerak) • <b>E / Spasi / Enter</b> (Interaksi)
+      ⌨️ <b>WASD / Panah</b>: Jalan &nbsp;•&nbsp; <b>E / Spasi / Enter</b>: Interaksi
     </div>
 
-    <!-- Touch / Mobile Controls -->
+    <!-- Touch / Mobile Controls (Persis Video) -->
     <div class="touch-controls">
-      <!-- Virtual Joystick -->
+      <!-- Virtual Compass D-Pad -->
       <div class="joystick-zone" id="joystick-zone">
+        <div class="compass-ring"></div>
         <div class="joystick-knob" id="joystick-knob"></div>
       </div>
 
       <!-- Action Button A -->
       <div class="action-buttons">
         <button class="btn-action-a" id="btn-action">
-          A
-          <span class="sub">AKSI</span>
+          <span class="a-letter">A</span>
+          <span class="sub">Interaksi</span>
         </button>
       </div>
     </div>
@@ -73,7 +123,7 @@
        MODAL: DIALOG BERKARAKTER (TYPEWRITER NPC & HEWAN)
        ====================================================================== -->
   <div class="modal-overlay" id="modal-dialog">
-    <div class="modal-window">
+    <div class="modal-window dialog-window">
       <div class="dialog-container">
         <div class="dialog-header">
           <div class="dialog-avatar" id="dialog-avatar">☕</div>
@@ -84,41 +134,48 @@
         </div>
         <div class="dialog-text-body" id="dialog-text">Teks dialog...</div>
         <div class="dialog-actions">
-          <button class="btn-dialog-next" id="dialog-next">Lanjut ▶</button>
+          <button class="btn-retro" id="dialog-next">Lanjut ▶</button>
         </div>
       </div>
     </div>
   </div>
 
   <!-- ======================================================================
-       MODAL: SURAT (SURAT PEMBUKA & SURAT PENUTUP PARCHMENT)
+       MODAL: SURAT (PARCHMENT KERTAS & WAX SEAL - PERSIS VIDEO)
        ====================================================================== -->
   <div class="modal-overlay" id="modal-letter">
     <div class="modal-window letter-window">
       <button class="modal-close" title="Tutup">✕</button>
-      <div class="letter-header">
-        <div class="letter-title" id="letter-title">Surat di Kotak Pos</div>
-        <div class="letter-date" id="letter-date">Hari ini</div>
+      <div class="letter-seal-badge" id="letter-seal-badge">
+        <span class="wax-seal-icon">🔴</span>
+        <span class="seal-text" id="letter-seal-text">SEPUCUK SURAT UNTUKMU</span>
       </div>
-      <div class="letter-greeting" id="letter-greeting">Halo,</div>
+      <div class="letter-header">
+        <h2 class="letter-title" id="letter-title">Selamat datang di Taman Kecil, Keyzha.</h2>
+        <div class="letter-date" id="letter-date">Sebuah Hari yang Damai</div>
+      </div>
+      <div class="letter-greeting" id="letter-greeting">Untuk Keyzha,</div>
       <div class="letter-content" id="letter-content">
         <!-- Paragraf surat diisi secara dinamis -->
       </div>
       <div id="letter-coupons">
         <!-- Kupon kenangan diisi di surat penutup -->
       </div>
-      <div class="letter-signature" id="letter-signature">Salam hangat,</div>
+      <div class="letter-signature" id="letter-signature">- Dimas</div>
+      <div class="letter-bottom-action">
+        <button class="btn-retro-gold" id="btn-save-hint">Simpan petunjuk ▶</button>
+      </div>
     </div>
   </div>
 
   <!-- ======================================================================
-       MODAL: INVENTORY / KOLEKSI KENANGAN
+       MODAL: INVENTORY / KOLEKSI KENANGAN & KUPON
        ====================================================================== -->
   <div class="modal-overlay" id="modal-inventory">
-    <div class="modal-window">
+    <div class="modal-window inventory-window">
       <button class="modal-close" title="Tutup">✕</button>
       <div class="inventory-container">
-        <div class="inventory-header">🎒 Koleksi Kenangan & Kupon</div>
+        <div class="inventory-header">📖 Koleksi Kenangan & Kupon</div>
         <div class="inventory-grid" id="inventory-list">
           <!-- Item kenangan yang dikumpulkan -->
         </div>
@@ -132,19 +189,21 @@
   </div>
 
   <!-- ======================================================================
-       MODAL: ARCADE RETRO MINI-GAME
+       MODAL: ARCADE RETRO (HEYTML PLAY · TETRIS)
        ====================================================================== -->
   <div class="modal-overlay" id="modal-arcade">
     <div class="modal-window arcade-window">
       <button class="modal-close" title="Tutup">✕</button>
-      <div class="arcade-title-bar">★ RETRO ARCADE 1989 ★</div>
+      <div class="arcade-title-bar">★ HEYTML PLAY · TETRIS ★</div>
       <div class="arcade-screen-frame">
-        <canvas id="arcade-canvas" width="380" height="260"></canvas>
+        <canvas id="arcade-canvas" width="380" height="290"></canvas>
       </div>
-      <!-- Tombol sentuh untuk kontrol arcade di HP -->
+      <!-- Tombol Sentuh Arcade di Layar HP (Sesuai Video) -->
       <div class="arcade-controls-touch">
-        <button class="btn-arcade-touch" id="arcade-btn-left">◀ KIRI</button>
-        <button class="btn-arcade-touch" id="arcade-btn-right">KANAN ▶</button>
+        <button class="btn-arcade-key" id="arcade-btn-left">◀ KIRI</button>
+        <button class="btn-arcade-key" id="arcade-btn-right">KANAN ▶</button>
+        <button class="btn-arcade-key" id="arcade-btn-rotate">⟳ PUTAR</button>
+        <button class="btn-arcade-key btn-arcade-drop" id="arcade-btn-drop">▼ JATUH</button>
       </div>
     </div>
   </div>
@@ -171,8 +230,8 @@
       </div>
 
       <div class="photobooth-actions">
-        <button class="btn-primary" id="btn-snap-photo">📷 Jepret Foto</button>
-        <button class="btn-success" id="btn-save-photo" style="display: none;">💾 Simpan Foto</button>
+        <button class="btn-retro" id="btn-snap-photo">📷 Jepret Foto</button>
+        <button class="btn-retro-gold" id="btn-save-photo" style="display: none;">💾 Simpan Foto</button>
       </div>
     </div>
   </div>
@@ -183,12 +242,21 @@
   <div class="modal-overlay" id="modal-settings">
     <div class="modal-window settings-window">
       <button class="modal-close" title="Tutup">✕</button>
-      <div class="settings-header">⚙️ Pengaturan Permainan</div>
+      <div class="settings-header">⚙️ Pengaturan & Panduan</div>
+
+      <div class="settings-section">
+        <div class="settings-label">Pilihan Waktu Suasana</div>
+        <div class="time-buttons-row">
+          <button class="btn-time-opt" data-time="day">☀️ Siang</button>
+          <button class="btn-time-opt" data-time="dusk">🌅 Sore Senja</button>
+          <button class="btn-time-opt" data-time="night">🌙 Malam</button>
+        </div>
+      </div>
 
       <div class="settings-section">
         <div class="settings-label">Panduan Kontrol</div>
         <div class="settings-desc">
-          • <b>HP / Tablet:</b> Gunakan Virtual Joystick di kiri bawah untuk mengarahkan langkah dan tombol <b>A</b> di kanan bawah untuk berinteraksi.<br>
+          • <b>HP / Tablet:</b> Sentuh D-Pad di kiri bawah untuk melangkah, dan tombol <b>A</b> di kanan bawah untuk berinteraksi.<br>
           • <b>Laptop / PC:</b> Gunakan tombol <b>WASD</b> atau <b>Panah</b> untuk berjalan, serta <b>E / Spasi / Enter</b> untuk berinteraksi.
         </div>
       </div>
@@ -202,6 +270,9 @@
       </div>
     </div>
   </div>
+
+  <!-- Screen Fade Transition Overlay (Masuk/Keluar Rumah) -->
+  <div id="screen-fade" class="screen-fade-overlay"></div>
 
   <!-- Game Scripts -->
   <script src="js/config.js"></script>

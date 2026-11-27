@@ -2,21 +2,21 @@
  * ============================================================================
  * ENTITAS KARAKTER, NPC, HEWAN & SISTEM PROKSIMITAS TUNGGAL
  * ============================================================================
- * Mengatur pergerakan pemain dengan sliding collision halus (tanpa nyangkut),
- * arah hadap presisi (WASD / Joystick), integrasi custom asset loader dengan
- * auto-fallback aman, NPC hidup, dan deteksi interaksi target terdekat tunggal.
+ * Mengatur pergerakan pemain dengan sliding collision multi-substep (anti tembus),
+ * interpolasi ramp tangga halus, arah hadap presisi (WASD / D-Pad), integrasi
+ * custom asset loader dengan auto-fallback aman, dan deteksi interaksi 3D.
  */
 
 class Player {
-  constructor(world, startX = -6, startZ = 6) {
+  constructor(world, startX = 0, startZ = 2.2) {
     this.world = world;
     this.x = startX;
     this.y = 0;
     this.z = startZ;
     this.vx = 0;
     this.vz = 0;
-    this.speed = 6.8;
-    this.radius = 0.42; // Radius collider pemain untuk sliding halus
+    this.speed = 6.2;
+    this.radius = 0.36; // Radius tabrakan pemain
 
     this.direction = "down"; // "down", "up", "left", "right"
     this.isMoving = false;
@@ -31,7 +31,7 @@ class Player {
     const tg = window.textureGen;
     const cfg = window.ASSET_CONFIG ? window.ASSET_CONFIG.player : null;
 
-    // Muat custom asset dari assets/player/ jika ada, atau gunakan generator detail bawaan
+    // Default sprite sheet bergaya video referensi (hijab sage green & gaun krem)
     const defaultTex = tg.getPlayerSpriteSheet();
 
     this.spriteMat = new THREE.MeshLambertMaterial({
@@ -53,20 +53,20 @@ class Player {
       });
     }
 
-    // Mesh Karakter 3D HD-2D (Ukuran seimbang di depan kamera close-up)
-    this.mesh = new THREE.Mesh(new THREE.PlaneGeometry(2.0, 2.5), this.spriteMat);
-    this.mesh.position.set(this.x, 1.25, this.z);
+    // Mesh Karakter 3D HD-2D (Ukuran seimbang proporsional)
+    this.mesh = new THREE.Mesh(new THREE.PlaneGeometry(1.9, 2.3), this.spriteMat);
+    this.mesh.position.set(this.x, 1.15, this.z);
     this.mesh.castShadow = true;
 
-    // Bayangan Oval Lembut di Bawah Kaki
+    // Bayangan Oval di Bawah Kaki
     const shadowMat = new THREE.MeshBasicMaterial({
       color: 0x000000,
       transparent: true,
       opacity: 0.28
     });
-    this.shadowMesh = new THREE.Mesh(new THREE.PlaneGeometry(1.5, 0.85), shadowMat);
+    this.shadowMesh = new THREE.Mesh(new THREE.PlaneGeometry(1.3, 0.75), shadowMat);
     this.shadowMesh.rotation.x = -Math.PI / 2;
-    this.shadowMesh.position.set(this.x, 0.04, this.z);
+    this.shadowMesh.position.set(this.x, 0.03, this.z);
 
     this.world.scene.add(this.mesh);
     this.world.scene.add(this.shadowMesh);
@@ -75,7 +75,7 @@ class Player {
   updateSpriteFrame(frame, dir) {
     if (!this.spriteMat || !this.spriteMat.map) return;
 
-    // Mapping Baris Spritesheet 3x4:
+    // Spritesheet 3x4:
     // Baris 3: Down  (offset.y = 0.75)
     // Baris 2: Up    (offset.y = 0.50)
     // Baris 1: Left  (offset.y = 0.25)
@@ -88,7 +88,6 @@ class Player {
 
     const offsetX = frame * (1 / 3);
     const offsetY = row * (1 / 4);
-
     this.spriteMat.map.offset.set(offsetX, offsetY);
   }
 
@@ -96,7 +95,6 @@ class Player {
     let moveX = 0;
     let moveZ = 0;
 
-    // Jika input dikunci (misalnya sedang membuka surat atau bermain arcade), hentikan gerak
     if (!isInputLocked) {
       if (input.left) moveX -= 1;
       if (input.right) moveX += 1;
@@ -110,7 +108,6 @@ class Player {
       moveZ /= len;
       this.isMoving = true;
 
-      // Penentuan Arah Hadap yang Akurat
       if (Math.abs(moveX) > Math.abs(moveZ) * 0.8) {
         this.direction = moveX > 0 ? "right" : "left";
       } else {
@@ -123,55 +120,66 @@ class Player {
     // Akselerasi & Perlambatan Halus
     const targetVx = moveX * this.speed;
     const targetVz = moveZ * this.speed;
-    this.vx += (targetVx - this.vx) * 15 * delta;
-    this.vz += (targetVz - this.vz) * 15 * delta;
+    this.vx += (targetVx - this.vx) * 16 * delta;
+    this.vz += (targetVz - this.vz) * 16 * delta;
 
-    // --- SLIDING COLLISION SYSTEM (TIDAK NYANGKUT) ---
-    // Cek sumbu X secara independen
-    const nextX = this.x + this.vx * delta;
-    if (!this.checkCollisionAt(nextX, this.z)) {
-      this.x = nextX;
-    } else {
-      this.vx = 0; // Hentikan hanya dorongan sumbu X
-    }
+    // --- SLIDING COLLISION MULTI-SUBSTEP (ANTI TEMBUS SECARA TOTAL) ---
+    const subSteps = 2;
+    const subDelta = delta / subSteps;
+    for (let s = 0; s < subSteps; s++) {
+      // Cek sumbu X secara independen
+      const nextX = this.x + this.vx * subDelta;
+      if (!this.checkCollisionAt(nextX, this.z)) {
+        this.x = nextX;
+      } else {
+        this.vx = 0;
+      }
 
-    // Cek sumbu Z secara independen (memungkinkan sliding saat menabrak miring)
-    const nextZ = this.z + this.vz * delta;
-    if (!this.checkCollisionAt(this.x, nextZ)) {
-      this.z = nextZ;
-    } else {
-      this.vz = 0; // Hentikan hanya dorongan sumbu Z
+      // Cek sumbu Z secara independen
+      const nextZ = this.z + this.vz * subDelta;
+      if (!this.checkCollisionAt(this.x, nextZ)) {
+        this.z = nextZ;
+      } else {
+        this.vz = 0;
+      }
     }
 
     // --- KETINGGIAN & RAMP TANGGA TERAS ---
-    // Teras terangkat berada di x: [-14.5, 0.5] dan z: [-15.5, -4.5]
-    // Tangga akses depan di x: [-9.5, -4.5] dan z: [-4.5, -0.8]
-    const onTerrace = (this.x >= -14.2 && this.x <= 0.2 && this.z >= -15.2 && this.z <= -4.5);
-    const onStairs = (this.x >= -9.5 && this.x <= -4.5 && this.z >= -4.5 && this.z <= -0.8);
-
+    const isInterior = (this.world.currentZone === "interior");
     let targetY = 0;
-    if (onTerrace) {
-      targetY = 1.2;
-    } else if (onStairs) {
-      // Interpolasi ramp halus saat menaiki tangga
-      const progress = 1 - (this.z - (-4.5)) / ((-0.8) - (-4.5));
-      targetY = Math.max(0, Math.min(1.2, progress * 1.2));
+
+    if (isInterior) {
+      targetY = 0;
+    } else {
+      const onStairs = (this.x >= -2.6 && this.x <= 2.6 && this.z <= -2.5 && this.z >= -5.8);
+      const onTerrace = (this.x >= -7.0 && this.x <= 7.0 && this.z <= -5.8 && this.z >= -15.0);
+
+      if (onTerrace) {
+        targetY = 1.2;
+      } else if (onStairs) {
+        // Interpolasi ramp tangga batu dari Z = -2.5 (Y=0) ke Z = -5.8 (Y=1.2)
+        const progress = 1 - (this.z - (-5.8)) / ((-2.5) - (-5.8));
+        targetY = Math.max(0, Math.min(1.2, progress * 1.2));
+      }
     }
 
-    this.y += (targetY - this.y) * 12 * delta;
+    this.y += (targetY - this.y) * 14 * delta;
 
     // Update Animasi Sprite
     if (this.isMoving) {
-      this.animTimer += delta * 9.5;
+      this.animTimer += delta * 9.0;
       this.animFrame = Math.floor(this.animTimer) % 3;
       this.updateSpriteFrame(this.animFrame, this.direction);
 
       // Suara Langkah Kaki
       this.stepTimer += delta;
-      if (this.stepTimer > 0.3) {
+      if (this.stepTimer > 0.32) {
         this.stepTimer = 0;
         if (window.soundSystem) {
-          window.soundSystem.playFootstep((onTerrace || onStairs) ? "stone" : "grass");
+          const onWood = (this.x >= 5.2 && this.x <= 12.8 && this.z >= -2.6 && this.z <= 3.6);
+          const onStone = (this.y > 0.2 || (this.x >= -3.5 && this.x <= 3.5 && this.z >= -2.5 && this.z <= 1.8));
+          const stepType = isInterior ? "stone" : (onWood ? "wood" : (onStone ? "stone" : "grass"));
+          window.soundSystem.playFootstep(stepType);
         }
       }
     } else {
@@ -180,26 +188,17 @@ class Player {
       this.stepTimer = 0.25;
     }
 
-    // Pantulan Langkah (Bobbing)
-    const bob = this.isMoving ? Math.sin(this.animTimer * Math.PI) * 0.08 : 0;
+    const bob = this.isMoving ? Math.sin(this.animTimer * Math.PI) * 0.06 : 0;
+    this.mesh.position.set(this.x, 1.15 + this.y + bob, this.z);
+    this.shadowMesh.position.set(this.x, 0.03 + this.y, this.z);
 
-    // Update Posisi Mesh
-    this.mesh.position.set(this.x, 1.25 + this.y + bob, this.z);
-    this.shadowMesh.position.set(this.x, 0.04 + this.y, this.z);
-
-    // Update Kamera Third-Person Follow
-    this.world.updateThirdPersonCamera(this.x, this.y, this.z);
+    // Update Kamera Isometric Medium-Wide
+    this.world.updateCamera(this.x, this.y, this.z);
   }
 
-  // Cek Collision Lingkaran Pemain vs Kotak AABB
   checkCollisionAt(tx, tz) {
     const r = this.radius;
     for (let c of this.world.colliders) {
-      // Jika berada di tangga, abaikan collider depan teras agar bisa naik
-      if (c.isTerraceFront && tx >= -9.5 && tx <= -4.5) {
-        continue;
-      }
-
       if (
         tx + r > c.minX &&
         tx - r < c.maxX &&
@@ -213,7 +212,7 @@ class Player {
   }
 }
 
-// --- NPC RAMAH (ARGA, BIBI RINA, DITO) ---
+// --- NPC RAMAH (PAMAN JEMBATAN, KAKEK BIJAK, DITO) ---
 class NPC {
   constructor(world, id, config, x, z, y = 0) {
     this.world = world;
@@ -223,6 +222,7 @@ class NPC {
     this.y = y;
     this.z = z;
     this.dialogueIndex = 0;
+    this.badgeHeight = 2.4;
 
     this.initMesh();
   }
@@ -232,9 +232,9 @@ class NPC {
     const cfg = window.ASSET_CONFIG && window.ASSET_CONFIG.npcs ? window.ASSET_CONFIG.npcs[this.id] : null;
 
     let defaultTex;
-    if (this.id === "arga") defaultTex = tg.getNpcArgaSprite();
-    else if (this.id === "rina") defaultTex = tg.getNpcRinaSprite();
-    else defaultTex = tg.getNpcDitoSprite();
+    if (this.id === "paman") defaultTex = tg.getNpcPamanSprite();
+    else if (this.id === "kakek") defaultTex = tg.getNpcKakekSprite();
+    else defaultTex = tg.getNpcPamanSprite();
 
     const mat = new THREE.MeshLambertMaterial({
       map: defaultTex.clone(),
@@ -251,24 +251,24 @@ class NPC {
       });
     }
 
-    this.mesh = new THREE.Mesh(new THREE.PlaneGeometry(2.0, 2.5), mat);
-    this.mesh.position.set(this.x, 1.25 + this.y, this.z);
+    this.mesh = new THREE.Mesh(new THREE.PlaneGeometry(1.9, 2.3), mat);
+    this.mesh.position.set(this.x, 1.15 + this.y, this.z);
     this.mesh.castShadow = true;
-    this.world.scene.add(this.mesh);
+    this.world.exteriorGroup.add(this.mesh);
 
     // Bayangan Kaki
     const shadowMat = new THREE.MeshBasicMaterial({ color: 0x000000, transparent: true, opacity: 0.25 });
-    this.shadow = new THREE.Mesh(new THREE.PlaneGeometry(1.4, 0.8), shadowMat);
+    this.shadow = new THREE.Mesh(new THREE.PlaneGeometry(1.3, 0.7), shadowMat);
     this.shadow.rotation.x = -Math.PI / 2;
-    this.shadow.position.set(this.x, 0.04 + this.y, this.z);
-    this.world.scene.add(this.shadow);
+    this.shadow.position.set(this.x, 0.03 + this.y, this.z);
+    this.world.exteriorGroup.add(this.shadow);
 
     // Collider NPC
-    this.world.colliders.push({
-      minX: this.x - 0.7,
-      maxX: this.x + 0.7,
-      minZ: this.z - 0.7,
-      maxZ: this.z + 0.7
+    this.world.exteriorColliders.push({
+      minX: this.x - 0.65,
+      maxX: this.x + 0.65,
+      minZ: this.z - 0.65,
+      maxZ: this.z + 0.65
     });
   }
 
@@ -279,13 +279,12 @@ class NPC {
   }
 
   update(time) {
-    // Nafas halus / idle bobbing
-    const idleBob = Math.sin(time * 2.5 + this.x) * 0.035;
-    this.mesh.position.y = 1.25 + this.y + idleBob;
+    const idleBob = Math.sin(time * 2.2 + this.x) * 0.03;
+    this.mesh.position.y = 1.15 + this.y + idleBob;
   }
 }
 
-// --- HEWAN PELIHARAAN BERGERAK BEBAS (KUCING & AYAM) ---
+// --- HEWAN PELIHARAAN BERGERAK BEBAS (AYAM & KUCING) ---
 class RoamingAnimal {
   constructor(world, type, id, config, startX, startZ) {
     this.world = world;
@@ -296,30 +295,17 @@ class RoamingAnimal {
     this.z = startZ;
     this.vx = 0;
     this.vz = 0;
-
     this.state = "idle";
     this.stateTimer = 1.5 + Math.random() * 2.5;
     this.animTimer = 0;
+    this.badgeHeight = 1.2;
 
     this.initMesh();
   }
 
   initMesh() {
     const tg = window.textureGen;
-    const cfg = window.ASSET_CONFIG && window.ASSET_CONFIG.pets ? window.ASSET_CONFIG.pets[this.id] : null;
-
-    let defaultTex;
-    let w = 1.8, h = 1.35;
-
-    if (this.type === "cat") {
-      defaultTex = tg.getCatSprite(this.id === "catOrange" ? "orange" : "calico");
-      w = 1.8;
-      h = 1.35;
-    } else {
-      defaultTex = tg.getChickenSprite();
-      w = 1.3;
-      h = 1.3;
-    }
+    const defaultTex = tg.getChickenSprite();
 
     const mat = new THREE.MeshLambertMaterial({
       map: defaultTex.clone(),
@@ -327,25 +313,16 @@ class RoamingAnimal {
       alphaTest: 0.1
     });
 
-    if (cfg && cfg.path) {
-      tg.loadCustomSprite(cfg.path, () => defaultTex, (loadedTex) => {
-        if (loadedTex && loadedTex !== defaultTex) {
-          mat.map = loadedTex;
-          mat.needsUpdate = true;
-        }
-      });
-    }
-
-    this.mesh = new THREE.Mesh(new THREE.PlaneGeometry(w, h), mat);
-    this.mesh.position.set(this.x, h / 2, this.z);
+    this.mesh = new THREE.Mesh(new THREE.PlaneGeometry(1.3, 1.3), mat);
+    this.mesh.position.set(this.x, 0.65, this.z);
     this.mesh.castShadow = true;
-    this.world.scene.add(this.mesh);
+    this.world.exteriorGroup.add(this.mesh);
 
     const shadowMat = new THREE.MeshBasicMaterial({ color: 0x000000, transparent: true, opacity: 0.22 });
-    this.shadow = new THREE.Mesh(new THREE.PlaneGeometry(1.2, 0.6), shadowMat);
+    this.shadow = new THREE.Mesh(new THREE.PlaneGeometry(0.9, 0.5), shadowMat);
     this.shadow.rotation.x = -Math.PI / 2;
     this.shadow.position.set(this.x, 0.03, this.z);
-    this.world.scene.add(this.shadow);
+    this.world.exteriorGroup.add(this.shadow);
   }
 
   update(delta) {
@@ -354,17 +331,15 @@ class RoamingAnimal {
     if (this.stateTimer <= 0) {
       if (this.state === "idle") {
         this.state = "walk";
-        this.stateTimer = 1.8 + Math.random() * 2.8;
+        this.stateTimer = 1.5 + Math.random() * 2.5;
         const angle = Math.random() * Math.PI * 2;
-        const speed = this.type === "cat" ? 1.4 : 1.1;
+        const speed = 1.1;
         this.vx = Math.cos(angle) * speed;
         this.vz = Math.sin(angle) * speed;
-
-        // Balik arah hadap sprite (flip horizontal)
         this.mesh.scale.x = this.vx < 0 ? -1 : 1;
       } else {
         this.state = "idle";
-        this.stateTimer = 2.0 + Math.random() * 3.5;
+        this.stateTimer = 2.0 + Math.random() * 3.0;
         this.vx = 0;
         this.vz = 0;
       }
@@ -373,8 +348,9 @@ class RoamingAnimal {
     const nx = this.x + this.vx * delta;
     const nz = this.z + this.vz * delta;
 
-    // Batasan agar hewan tetap di dalam area taman yang hidup
-    if (nx > -14 && nx < 14 && nz > -14 && nz < 15) {
+    // Batasan agar ayam tetap di dalam area halaman dan tidak masuk ke dalam sungai
+    const inRiver = (nx < -7.8 && nx > -11.6);
+    if (!inRiver && nx > -14 && nx < 14 && nz > -14 && nz < 6.5) {
       this.x = nx;
       this.z = nz;
     } else {
@@ -383,24 +359,25 @@ class RoamingAnimal {
 
     if (this.state === "walk") {
       this.animTimer += delta * 8;
-      const hop = Math.abs(Math.sin(this.animTimer)) * (this.type === "chicken" ? 0.12 : 0.06);
-      this.mesh.position.set(this.x, (this.mesh.geometry.parameters.height / 2) + hop, this.z);
+      const hop = Math.abs(Math.sin(this.animTimer)) * 0.1;
+      this.mesh.position.set(this.x, 0.65 + hop, this.z);
     } else {
-      this.mesh.position.set(this.x, this.mesh.geometry.parameters.height / 2, this.z);
+      this.mesh.position.set(this.x, 0.65, this.z);
     }
     this.shadow.position.set(this.x, 0.03, this.z);
   }
 }
 
-// --- ITEM KENANGAN BERKILAU (QUEST 2) ---
+// --- ITEM KENANGAN & KUNCI BERKILAU ---
 class CollectibleItem {
-  constructor(world, data, x, z, y = 0.6) {
+  constructor(world, data, x, z, y = 0.5) {
     this.world = world;
     this.data = data;
     this.x = x;
     this.y = y;
     this.z = z;
     this.collected = false;
+    this.badgeHeight = 1.6;
 
     this.initMesh();
   }
@@ -415,21 +392,21 @@ class CollectibleItem {
       alphaTest: 0.1
     });
 
-    this.mesh = new THREE.Mesh(new THREE.PlaneGeometry(1.6, 1.6), mat);
+    this.mesh = new THREE.Mesh(new THREE.PlaneGeometry(1.5, 1.5), mat);
     this.mesh.position.set(this.x, this.y, this.z);
-    this.world.scene.add(this.mesh);
+    this.world.exteriorGroup.add(this.mesh);
 
-    this.light = new THREE.PointLight(this.data.color, 1.3, 3.8, 2);
+    this.light = new THREE.PointLight(this.data.color, 1.2, 3.5, 2);
     this.light.position.set(this.x, this.y + 0.3, this.z);
-    this.world.scene.add(this.light);
+    this.world.exteriorGroup.add(this.light);
   }
 
   update(time) {
     if (this.collected) return;
-    const floatY = this.y + Math.sin(time * 3 + this.x) * 0.18;
+    const floatY = this.y + Math.sin(time * 3 + this.x) * 0.15;
     this.mesh.position.y = floatY;
     this.light.position.y = floatY + 0.2;
-    this.mesh.rotation.y = time * 1.5;
+    this.mesh.rotation.y = time * 1.4;
   }
 
   collect() {
@@ -439,14 +416,14 @@ class CollectibleItem {
   }
 }
 
-// --- PENGELOLA INTERAKSI & PROMPT TUNGGAL TERDEKAT ---
+// --- PENGELOLA INTERAKSI & PROMPT 3D TUNGGAL TERDEKAT ---
 class InteractionManager {
   constructor(world, player) {
     this.world = world;
     this.player = player;
     this.interactables = [];
     this.currentNearest = null;
-    this.interactionRange = 2.5;
+    this.interactionRange = 2.4;
   }
 
   register(entity) {
@@ -456,9 +433,14 @@ class InteractionManager {
   update() {
     let nearest = null;
     let minDst = this.interactionRange;
+    const currentZone = this.world.currentZone || "exterior";
 
     for (let item of this.interactables) {
       if (item.collected) continue;
+
+      // Filter berdasarkan zona (eksterior vs interior rumah)
+      const itemZone = item.zone || (item.x > 50 ? "interior" : "exterior");
+      if (itemZone !== currentZone) continue;
 
       const dst = Math.hypot(this.player.x - item.x, this.player.z - item.z);
       if (dst < minDst) {
@@ -471,8 +453,27 @@ class InteractionManager {
     return nearest;
   }
 
+  // Hitung proyeksi koordinat 3D ke posisi layar (piksel) untuk badge interaksi mengambang
+  getScreenPosition(camera) {
+    if (!this.currentNearest || !camera) return null;
+    const target = this.currentNearest;
+    const posX = target.mesh ? target.mesh.position.x : target.x;
+    const posY = target.mesh ? target.mesh.position.y : (target.y || 0);
+    const posZ = target.mesh ? target.mesh.position.z : target.z;
+    const badgeOffset = target.badgeHeight !== undefined ? target.badgeHeight : 2.2;
+
+    const vec = new THREE.Vector3(posX, posY + badgeOffset, posZ);
+    vec.project(camera);
+
+    if (vec.z < 1.0) {
+      const screenX = (vec.x * 0.5 + 0.5) * window.innerWidth;
+      const screenY = (-(vec.y * 0.5) + 0.5) * window.innerHeight;
+      return { x: screenX, y: screenY, visible: true };
+    }
+    return { x: 0, y: 0, visible: false };
+  }
+
   trigger() {
-    // Pastikan HANYA memicu 1 objek terdekat yang sedang aktif
     if (!this.currentNearest) return false;
     if (this.currentNearest.onInteract) {
       this.currentNearest.onInteract();
