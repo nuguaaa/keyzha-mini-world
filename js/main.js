@@ -77,6 +77,10 @@ class GameApp {
     requestAnimationFrame(this.gameLoop);
   }
 
+  hasKeyInInventory() {
+    return !!(this.hasHouseKey && Array.isArray(this.inventorySlots) && this.inventorySlots.some(s => s && s.id === "item_house_key"));
+  }
+
   spawnEntities() {
     const cfg = window.GAME_CONFIG;
 
@@ -86,13 +90,13 @@ class GameApp {
     paman.promptText = "[A] Bicara dengan Paman";
     paman.onInteract = () => {
       window.soundSystem.playClick();
-      if (this.hasHouseKey) {
+      if (this.hasKeyInInventory()) {
         this.ui.openDialog(cfg.npcs.paman.name, cfg.npcs.paman.role, cfg.npcs.paman.avatarColor, cfg.npcs.paman.postKeyDialogue);
       } else if (this.currentQuestIndex === 2) {
         this.ui.openDialog(cfg.npcs.paman.name, cfg.npcs.paman.role, cfg.npcs.paman.avatarColor, cfg.npcs.paman.questDialogue);
         this.advanceQuest(3);
       } else {
-        // Jika belum membaca surat pembuka atau melompat langkah: ngobrol santai biasa
+        // Jika belum membaca surat pembuka atau melompat langkah: murni ngobrol santai biasa
         this.ui.openDialog(cfg.npcs.paman.name, cfg.npcs.paman.role, cfg.npcs.paman.avatarColor, cfg.npcs.paman.casualDialogue);
       }
     };
@@ -104,7 +108,7 @@ class GameApp {
     kakek.promptText = "[A] Bicara dengan Kakek";
     kakek.onInteract = () => {
       window.soundSystem.playClick();
-      const text = this.hasHouseKey ? cfg.npcs.kakek.postKeyDialogue : cfg.npcs.kakek.casualDialogue;
+      const text = this.hasKeyInInventory() ? cfg.npcs.kakek.postKeyDialogue : cfg.npcs.kakek.casualDialogue;
       this.ui.openDialog(cfg.npcs.kakek.name, cfg.npcs.kakek.role, cfg.npcs.kakek.avatarColor, text);
     };
     this.npcs.push(kakek);
@@ -115,7 +119,7 @@ class GameApp {
     nenekMinah.promptText = "[A] Bicara dengan Nenek Minah";
     nenekMinah.onInteract = () => {
       window.soundSystem.playClick();
-      const text = this.hasHouseKey ? cfg.npcs.nenek_minah.postKeyDialogue : cfg.npcs.nenek_minah.casualDialogue;
+      const text = this.hasKeyInInventory() ? cfg.npcs.nenek_minah.postKeyDialogue : cfg.npcs.nenek_minah.casualDialogue;
       this.ui.openDialog(cfg.npcs.nenek_minah.name, cfg.npcs.nenek_minah.role, cfg.npcs.nenek_minah.avatarColor, text);
     };
     this.npcs.push(nenekMinah);
@@ -126,7 +130,7 @@ class GameApp {
     masBayu.promptText = "[A] Bicara dengan Mas Bayu";
     masBayu.onInteract = () => {
       window.soundSystem.playClick();
-      const text = this.hasHouseKey ? cfg.npcs.mas_bayu.postKeyDialogue : cfg.npcs.mas_bayu.casualDialogue;
+      const text = this.hasKeyInInventory() ? cfg.npcs.mas_bayu.postKeyDialogue : cfg.npcs.mas_bayu.casualDialogue;
       this.ui.openDialog(cfg.npcs.mas_bayu.name, cfg.npcs.mas_bayu.role, cfg.npcs.mas_bayu.avatarColor, text);
     };
     this.npcs.push(masBayu);
@@ -137,13 +141,13 @@ class GameApp {
     dito.promptText = "[A] Bicara dengan Dito";
     dito.onInteract = () => {
       window.soundSystem.playClick();
-      if (this.hasHouseKey) {
+      if (this.hasKeyInInventory()) {
         this.ui.openDialog(cfg.npcs.dito.name, cfg.npcs.dito.role, cfg.npcs.dito.avatarColor, cfg.npcs.dito.postKeyDialogue);
       } else if (this.currentQuestIndex === 3) {
         this.ui.openDialog(cfg.npcs.dito.name, cfg.npcs.dito.role, cfg.npcs.dito.avatarColor, cfg.npcs.dito.questDialogue);
         this.advanceQuest(4);
       } else {
-        // Jika dilewati (belum Quest 3), ngobrol santai seputar Tetris tanpa bocorkan rahasia
+        // Jika dilewati (belum Quest 3): murni ngobrol santai seputar Tetris tanpa bocorkan alur
         this.ui.openDialog(cfg.npcs.dito.name, cfg.npcs.dito.role, cfg.npcs.dito.avatarColor, cfg.npcs.dito.casualDialogue);
       }
     };
@@ -155,7 +159,7 @@ class GameApp {
     adit.promptText = "[A] Bicara dengan Adit";
     adit.onInteract = () => {
       window.soundSystem.playClick();
-      const text = this.hasHouseKey ? cfg.npcs.adit.postKeyDialogue : cfg.npcs.adit.casualDialogue;
+      const text = this.hasKeyInInventory() ? cfg.npcs.adit.postKeyDialogue : cfg.npcs.adit.casualDialogue;
       this.ui.openDialog(cfg.npcs.adit.name, cfg.npcs.adit.role, cfg.npcs.adit.avatarColor, text);
     };
     this.npcs.push(adit);
@@ -166,7 +170,7 @@ class GameApp {
     tehSarah.promptText = "[A] Bicara dengan Teh Sarah";
     tehSarah.onInteract = () => {
       window.soundSystem.playClick();
-      const text = this.hasHouseKey ? cfg.npcs.teh_sarah.postKeyDialogue : cfg.npcs.teh_sarah.casualDialogue;
+      const text = this.hasKeyInInventory() ? cfg.npcs.teh_sarah.postKeyDialogue : cfg.npcs.teh_sarah.casualDialogue;
       this.ui.openDialog(cfg.npcs.teh_sarah.name, cfg.npcs.teh_sarah.role, cfg.npcs.teh_sarah.avatarColor, text);
     };
     this.npcs.push(tehSarah);
@@ -177,7 +181,7 @@ class GameApp {
     rina.promptText = "[A] Bicara dengan Bibi Rina";
     rina.onInteract = () => {
       window.soundSystem.playClick();
-      if (this.hasHouseKey || this.houseUnlocked) {
+      if (this.hasKeyInInventory()) {
         this.ui.openDialog(cfg.npcs.rina.name, cfg.npcs.rina.role, cfg.npcs.rina.avatarColor, cfg.npcs.rina.questDialogue);
       } else {
         this.ui.openDialog(cfg.npcs.rina.name, cfg.npcs.rina.role, cfg.npcs.rina.avatarColor, cfg.npcs.rina.casualDialogue);
@@ -192,7 +196,7 @@ class GameApp {
     buRt.promptText = "[A] Bicara dengan Bu RT";
     buRt.onInteract = () => {
       window.soundSystem.playClick();
-      const text = this.hasHouseKey ? cfg.npcs.bu_rt.postKeyDialogue : cfg.npcs.bu_rt.casualDialogue;
+      const text = this.hasKeyInInventory() ? cfg.npcs.bu_rt.postKeyDialogue : cfg.npcs.bu_rt.casualDialogue;
       this.ui.openDialog(cfg.npcs.bu_rt.name, cfg.npcs.bu_rt.role, cfg.npcs.bu_rt.avatarColor, text);
     };
     this.npcs.push(buRt);
@@ -203,14 +207,14 @@ class GameApp {
     pakRt.promptText = "[A] Bicara dengan Pak RT Broto";
     pakRt.onInteract = () => {
       window.soundSystem.playClick();
-      if (this.hasHouseKey) {
+      if (this.hasKeyInInventory()) {
         this.ui.openDialog(cfg.npcs.pak_rt.name, cfg.npcs.pak_rt.role, cfg.npcs.pak_rt.avatarColor, cfg.npcs.pak_rt.postKeyDialogue);
       } else if (this.currentQuestIndex === 4) {
         this.ui.openDialog(cfg.npcs.pak_rt.name, cfg.npcs.pak_rt.role, cfg.npcs.pak_rt.avatarColor, cfg.npcs.pak_rt.questDialogue);
         this.receiveHouseKeyFromPakRt();
         this.advanceQuest(5);
       } else {
-        // Jika dilewati (belum Quest 4): pura-pura tidak tahu dan ngobrol santai seputar kerukunan desa
+        // Jika dilewati (belum Quest 4): pura-pura tidak tahu dan murni percakapan santai biasa
         this.ui.openDialog(cfg.npcs.pak_rt.name, cfg.npcs.pak_rt.role, cfg.npcs.pak_rt.avatarColor, cfg.npcs.pak_rt.casualDialogue);
       }
     };
@@ -222,7 +226,7 @@ class GameApp {
     mbakTari.promptText = "[A] Bicara dengan Mbak Tari";
     mbakTari.onInteract = () => {
       window.soundSystem.playClick();
-      const text = this.hasHouseKey ? cfg.npcs.mbak_tari.postKeyDialogue : cfg.npcs.mbak_tari.casualDialogue;
+      const text = this.hasKeyInInventory() ? cfg.npcs.mbak_tari.postKeyDialogue : cfg.npcs.mbak_tari.casualDialogue;
       this.ui.openDialog(cfg.npcs.mbak_tari.name, cfg.npcs.mbak_tari.role, cfg.npcs.mbak_tari.avatarColor, text);
     };
     this.npcs.push(mbakTari);
@@ -233,7 +237,7 @@ class GameApp {
     mangUjang.promptText = "[A] Bicara dengan Mang Ujang";
     mangUjang.onInteract = () => {
       window.soundSystem.playClick();
-      const text = this.hasHouseKey ? cfg.npcs.mang_ujang.postKeyDialogue : cfg.npcs.mang_ujang.casualDialogue;
+      const text = this.hasKeyInInventory() ? cfg.npcs.mang_ujang.postKeyDialogue : cfg.npcs.mang_ujang.casualDialogue;
       this.ui.openDialog(cfg.npcs.mang_ujang.name, cfg.npcs.mang_ujang.role, cfg.npcs.mang_ujang.avatarColor, text);
     };
     this.npcs.push(mangUjang);
@@ -362,12 +366,21 @@ class GameApp {
       promptText: "[A] Baca Mading Desa",
       onInteract: () => {
         window.soundSystem.playClick();
-        this.ui.openDialog(
-          "Mading Informasi Desa",
-          "Pengumuman Warga",
-          "#4a6b82",
-          "📌 PENGUMUMAN WARGA TAMAN KECIL:\n\n• Suasana desa hari ini sangat tenang dan bersahabat.\n• Para warga sedang berkumpul santai di area api unggun timur laut.\n• Bagi siapa pun yang mencari Nugua, seluruh warga desa sebenarnya kompak menjaga rahasia kejutan manis untuk Keyzha di dalam rumah kayu teras atas!"
-        );
+        if (this.hasKeyInInventory()) {
+          this.ui.openDialog(
+            "Mading Informasi Desa",
+            "Catatan Hangat Warga",
+            "#4a6b82",
+            "📌 CATATAN HANGAT WARGA DESA:\n\n• Selamat untuk Keyzha! Seluruh warga desa ikut bahagia menyambut kejutan manis dari Nugua di dalam rumah kayu teras atas! ✨"
+          );
+        } else {
+          this.ui.openDialog(
+            "Mading Informasi Desa",
+            "Pengumuman Warga",
+            "#4a6b82",
+            "📌 PENGUMUMAN WARGA TAMAN KECIL:\n\n• Suasana desa hari ini sangat tenang dan bersahabat.\n• Para warga sedang berkumpul santai di area api unggun timur laut.\n• Nikmati gemericik air sungai, udara sejuk kebun barat, dan keramahan warga desa!"
+          );
+        }
       }
     };
     this.interactionManager.register(noticeBoard);
@@ -454,9 +467,9 @@ class GameApp {
       y: 1.2,
       zone: "exterior",
       badgeHeight: 2.4,
-      promptText: this.hasHouseKey ? "[A] Masuk ke Dalam Rumah" : "[A] Pintu Depan Terkunci",
+      promptText: "[A] Periksa Pintu Rumah",
       onInteract: () => {
-        if (this.hasHouseKey || this.houseUnlocked) {
+        if (this.hasKeyInInventory()) {
           this.enterHouse();
         } else {
           window.soundSystem.playDoorLocked();
@@ -781,7 +794,7 @@ class GameApp {
       quest: this.currentQuestIndex,
       inventorySlots: this.inventorySlots ? this.inventorySlots.map(s => s ? s.id : null) : [],
       items: this.collectedItems.map(i => i.id),
-      hasHouseKey: this.hasHouseKey,
+      hasHouseKey: this.hasKeyInInventory(),
       houseUnlocked: this.houseUnlocked,
       arcadeCompleted: this.arcadeCompleted,
       photoTaken: this.photoTaken,
@@ -789,27 +802,28 @@ class GameApp {
       timeOfDay: this.world ? this.world.timeOfDay : "afternoon"
     };
     try {
-      localStorage.setItem("taman_kecil_progress", JSON.stringify(data));
+      localStorage.setItem("taman_kecil_progress_v4", JSON.stringify(data));
     } catch (e) {
       console.warn("Gagal menyimpan ke localStorage", e);
     }
   }
 
   loadProgress() {
+    // Hapus data simpanan lama agar tidak ada residu kunci lama
     try {
-      const raw = localStorage.getItem("taman_kecil_progress");
+      localStorage.removeItem("taman_kecil_progress");
+      localStorage.removeItem("taman_kecil_save_v2");
+      localStorage.removeItem("taman_kecil_save_v3");
+    } catch (e) {}
+
+    try {
+      const raw = localStorage.getItem("taman_kecil_progress_v4");
       if (raw) {
         const data = JSON.parse(raw);
         this.currentQuestIndex = data.quest || 1;
         this.arcadeCompleted = !!data.arcadeCompleted;
         this.photoTaken = !!data.photoTaken;
         this.closingLetterOpened = !!data.closingLetterOpened;
-        this.hasHouseKey = !!data.hasHouseKey;
-        this.houseUnlocked = !!data.houseUnlocked;
-
-        if (this.hasHouseKey && this.frontDoorEntity) {
-          this.frontDoorEntity.promptText = "[A] Masuk ke Dalam Rumah";
-        }
 
         const cfg = window.GAME_CONFIG;
         const findItemDef = (id) => {
@@ -848,22 +862,23 @@ class GameApp {
               if (def) this.inventorySlots[idx] = def;
             }
           });
-        } else if (Array.isArray(data.items)) {
-          // Fallback backward compatibility
-          this.inventorySlots = [null, null, null, null];
-          let slotIdx = 0;
-          data.items.forEach(itemId => {
-            if (slotIdx < 4) {
-              const def = findItemDef(itemId);
-              if (def) {
-                this.inventorySlots[slotIdx] = def;
-                slotIdx++;
-              }
-            }
-          });
+        }
+
+        // SANITASI KETAT: Kunci kuningan HANYA boleh ada jika alur sudah mencapai Quest 5 (setelah diberikan Pak RT)
+        if (this.currentQuestIndex < 5 || !this.inventorySlots.some(s => s && s.id === "item_house_key")) {
+          this.hasHouseKey = false;
+          this.houseUnlocked = false;
+          this.inventorySlots = this.inventorySlots.map(s => (s && s.id === "item_house_key" ? null : s));
+        } else {
+          this.hasHouseKey = true;
+          this.houseUnlocked = true;
         }
 
         this.collectedItems = this.inventorySlots.filter(Boolean);
+
+        if (this.frontDoorEntity) {
+          this.frontDoorEntity.promptText = this.hasKeyInInventory() ? "[A] Masuk ke Dalam Rumah" : "[A] Periksa Pintu Rumah";
+        }
 
         // Mark world collectibles as collected if held
         this.collectibles.forEach(c => {
@@ -884,7 +899,12 @@ class GameApp {
   }
 
   resetProgress() {
-    localStorage.removeItem("taman_kecil_progress");
+    try {
+      localStorage.removeItem("taman_kecil_progress");
+      localStorage.removeItem("taman_kecil_save_v2");
+      localStorage.removeItem("taman_kecil_save_v3");
+      localStorage.removeItem("taman_kecil_progress_v4");
+    } catch (e) {}
     window.location.reload();
   }
 

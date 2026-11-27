@@ -65,16 +65,16 @@ class DioramaWorld {
     this.camera.position.set(0, 12.7, 14.7);
     this.camera.lookAt(0, 1.2, 5.0);
 
-    // 3. WebGL Renderer
+    // 3. WebGL Renderer (Optimasi Smooth 60 FPS)
     this.renderer = new THREE.WebGLRenderer({
       powerPreference: "high-performance",
       antialias: true,
       alpha: false
     });
     this.renderer.setSize(width, height);
-    this.renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
+    this.renderer.setPixelRatio(Math.min(window.devicePixelRatio, 1.5));
     this.renderer.shadowMap.enabled = true;
-    this.renderer.shadowMap.type = THREE.PCFSoftShadowMap;
+    this.renderer.shadowMap.type = THREE.PCFShadowMap;
     this.renderer.outputEncoding = THREE.sRGBEncoding;
 
     this.container.appendChild(this.renderer.domElement);
@@ -94,7 +94,7 @@ class DioramaWorld {
     window.addEventListener("resize", () => this.onResize());
   }
 
-  // --- SISTEM PENCAHAYAAN (LIGHTING & SHADOWS) ---
+  // --- SISTEM PENCAHAYAAN (LIGHTING & SHADOWS EFISIEN) ---
   setupLighting() {
     this.ambientLight = new THREE.AmbientLight("#eaf4ec", 0.75);
     this.scene.add(this.ambientLight);
@@ -106,8 +106,8 @@ class DioramaWorld {
     this.dirLight.position.set(18, 32, 16);
     this.dirLight.castShadow = true;
 
-    this.dirLight.shadow.mapSize.width = 2048;
-    this.dirLight.shadow.mapSize.height = 2048;
+    this.dirLight.shadow.mapSize.width = 1024;
+    this.dirLight.shadow.mapSize.height = 1024;
     this.dirLight.shadow.camera.near = 5;
     this.dirLight.shadow.camera.far = 70;
     const d = 26;
@@ -132,7 +132,10 @@ class DioramaWorld {
       this.dirLight.intensity = 1.28;
       this.ambientLight.color.set("#eaf4ec");
       this.ambientLight.intensity = 0.75;
-      this.lamps.forEach(l => { l.light.intensity = 0.05; l.mesh.material.emissiveIntensity = 0.2; });
+      this.lamps.forEach(l => {
+        if (l.light) l.light.intensity = 0.05;
+        if (l.mesh && l.mesh.material) l.mesh.material.emissiveIntensity = 0.3;
+      });
       this.houseWindows.forEach(m => m.emissive.setHex(0x000000));
     } else if (time === "dusk") {
       const duskFog = new THREE.Color("#f6a066");
@@ -142,7 +145,10 @@ class DioramaWorld {
       this.dirLight.intensity = 1.1;
       this.ambientLight.color.set("#e57757");
       this.ambientLight.intensity = 0.65;
-      this.lamps.forEach(l => { l.light.intensity = 1.6; l.mesh.material.emissiveIntensity = 1.0; });
+      this.lamps.forEach(l => {
+        if (l.light) l.light.intensity = 1.6;
+        if (l.mesh && l.mesh.material) l.mesh.material.emissiveIntensity = 1.0;
+      });
       this.houseWindows.forEach(m => { m.emissive.setHex(0xffaa33); m.emissiveIntensity = 0.6; });
     } else if (time === "night") {
       const nightFog = new THREE.Color("#0d1525");
@@ -152,7 +158,10 @@ class DioramaWorld {
       this.dirLight.intensity = 0.42;
       this.ambientLight.color.set("#18233a");
       this.ambientLight.intensity = 0.48;
-      this.lamps.forEach(l => { l.light.intensity = 2.6; l.mesh.material.emissiveIntensity = 1.2; });
+      this.lamps.forEach(l => {
+        if (l.light) l.light.intensity = 2.4;
+        if (l.mesh && l.mesh.material) l.mesh.material.emissiveIntensity = 1.2;
+      });
       this.houseWindows.forEach(m => { m.emissive.setHex(0xffbe0b); m.emissiveIntensity = 0.95; });
     }
   }
@@ -1061,16 +1070,21 @@ class DioramaWorld {
     courtGroup.add(benchGroup);
     this.exteriorColliders.push({ minX: -5.8, maxX: -3.8, minZ: 4.1, maxZ: 4.9 });
 
-    // E. Lampu Taman Besi Hitam Klasik Berdiri (Sesuai Posisi di Video)
-    this.createLampPost(-3.6, 5.5, 0);   // Kiri taman depan
-    this.createLampPost(3.6, 5.5, 0);    // Kanan taman depan
-    this.createLampPost(-3.6, -3.5, 0);  // Bawah tangga kiri
-    this.createLampPost(3.6, -3.5, 0);   // Bawah tangga kanan
-    this.createLampPost(-8.5, 1.5, 0);   // Ujung jembatan timur
-    this.createLampPost(-14.8, 1.5, 0);  // Ujung jembatan barat
-    this.createLampPost(-16.0, -6.5, 0); // Kebun barat dekat kakek
-    this.createLampPost(7.2, 4.2, 0);    // Pintu masuk pelataran arcade
-    this.createLampPost(17.8, 4.2, 0);   // Sudut tenggara pelataran foto
+    // E. Tata Letak Lampu Taman Berdiri yang Rapi, Lapang & Estetik (Bebas Halangan)
+    // 1. Sudut Barat Taman Depan (Sisi Kotak Surat & Bangku)
+    this.createLampPost(-6.0, 5.8, 0);
+    // 2. Sudut Timur Taman Depan (Sisi Mading Desa)
+    this.createLampPost(6.0, 5.8, 0);
+    // 3. Ujung Timur Jembatan Kayu Sungai (Lampu Hub dengan PointLight)
+    this.createLampPost(-8.2, 1.5, 0, false, true);
+    // 4. Ujung Barat Jembatan Kayu Sungai (Sisi Mas Bayu & Kebun)
+    this.createLampPost(-15.2, 1.5, 0);
+    // 5. Kebun Barat Sisi Selatan (Dekat Kakek Bijak)
+    this.createLampPost(-16.8, -6.5, 0);
+    // 6. Pintu Masuk Pelataran Arcade & Photobooth
+    this.createLampPost(7.2, 2.0, 0);
+    // 7. Area Api Unggun Warga (Sisi Luar Bangku Timur)
+    this.createLampPost(17.8, -11.5, 0);
 
     this.exteriorGroup.add(courtGroup);
 
@@ -1274,8 +1288,8 @@ class DioramaWorld {
     this.exteriorGroup.add(villagePropsGroup);
   }
 
-  // Tiang Lampu Taman Klasik
-  createLampPost(x, z, y = 0, isWallLamp = false) {
+  // Tiang Lampu Taman Klasik (Optimasi High Performance & Bebas Lag)
+  createLampPost(x, z, y = 0, isWallLamp = false, addPointLight = false) {
     const lampGroup = new THREE.Group();
     const ironMat = new THREE.MeshLambertMaterial({ color: "#1a1a1e" });
 
@@ -1283,7 +1297,6 @@ class DioramaWorld {
       // Tiang Besi Hitam Berdiri
       const post = new THREE.Mesh(new THREE.CylinderGeometry(0.07, 0.09, 2.5), ironMat);
       post.position.set(0, 1.25, 0);
-      post.castShadow = true;
       lampGroup.add(post);
 
       const base = new THREE.Mesh(new THREE.CylinderGeometry(0.2, 0.24, 0.3), ironMat);
@@ -1300,38 +1313,41 @@ class DioramaWorld {
       cap.position.set(0, 2.75, 0);
       lampGroup.add(cap);
 
-      // Kaca Kuning Menyala
+      // Kaca Kuning Menyala Berpendar Hangat (Emissive Shader)
       const glassMat = new THREE.MeshLambertMaterial({
         color: "#ffd166",
         emissive: 0xffb703,
-        emissiveIntensity: 0.7
+        emissiveIntensity: 0.95
       });
       const glass = new THREE.Mesh(new THREE.CylinderGeometry(0.18, 0.12, 0.35, 6), glassMat);
       glass.position.set(0, 2.45, 0);
       lampGroup.add(glass);
 
-      // Cahaya PointLight Hangat
-      const light = new THREE.PointLight("#ffbe0b", 1.2, 7.5, 2);
-      light.position.set(0, 2.45, 0);
-      lampGroup.add(light);
+      // PointLight hanya diaktifkan pada titik-titik lampu utama untuk menjaga FPS tetap 60
+      let light = null;
+      if (addPointLight) {
+        light = new THREE.PointLight("#ffbe0b", 1.1, 7.0, 2);
+        light.position.set(0, 2.45, 0);
+        lampGroup.add(light);
+      }
 
       lampGroup.position.set(x, y, z);
       this.exteriorGroup.add(lampGroup);
 
       this.lamps.push({ light: light, mesh: glass });
-      this.exteriorColliders.push({ minX: x - 0.35, maxX: x + 0.35, minZ: z - 0.35, maxZ: z + 0.35 });
+      this.exteriorColliders.push({ minX: x - 0.25, maxX: x + 0.25, minZ: z - 0.25, maxZ: z + 0.25 });
     } else {
-      // Lampu Dinding
+      // Lampu Dinding Teras Rumah
       const arm = new THREE.Mesh(new THREE.BoxGeometry(0.1, 0.1, 0.4), ironMat);
       arm.position.set(0, 0, 0.2);
       lampGroup.add(arm);
 
-      const glassMat = new THREE.MeshLambertMaterial({ color: "#ffd166", emissive: 0xffb703, emissiveIntensity: 0.8 });
+      const glassMat = new THREE.MeshLambertMaterial({ color: "#ffd166", emissive: 0xffb703, emissiveIntensity: 0.95 });
       const glass = new THREE.Mesh(new THREE.BoxGeometry(0.25, 0.35, 0.25), glassMat);
       glass.position.set(0, -0.1, 0.38);
       lampGroup.add(glass);
 
-      const light = new THREE.PointLight("#ffbe0b", 1.4, 6.0, 2);
+      const light = new THREE.PointLight("#ffbe0b", 1.2, 5.5, 2);
       light.position.set(0, -0.1, 0.42);
       lampGroup.add(light);
 
