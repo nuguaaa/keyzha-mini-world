@@ -223,6 +223,78 @@ class TextureGenerator {
     return this.cache.stonePath;
   }
 
+  // Dinding Tembok Batu Penahan Teras (Ashlar Stone Wall)
+  getStoneWallTexture() {
+    if (this.cache.stoneWall) return this.cache.stoneWall;
+    this.cache.stoneWall = this.createCanvasTexture(64, 64, (ctx, w, h) => {
+      ctx.fillStyle = "#3e3731";
+      ctx.fillRect(0, 0, w, h);
+
+      // Balok-balok batu tersusun rapi berselang-seling
+      const blockH = 16;
+      const blockW = 32;
+      const colors = ["#827b72", "#918980", "#736b63", "#9b9389"];
+
+      for (let row = 0; row < 4; row++) {
+        const y = row * blockH;
+        const offset = (row % 2 === 0) ? 0 : blockW / 2;
+        for (let col = -1; col < 3; col++) {
+          const x = col * blockW + offset;
+          const c = colors[(row * 2 + col + 4) % colors.length];
+          ctx.fillStyle = c;
+          ctx.fillRect(x + 1, y + 1, blockW - 2, blockH - 2);
+
+          // Highlight tepi atas & kiri balok batu
+          ctx.fillStyle = "rgba(255, 255, 255, 0.25)";
+          ctx.fillRect(x + 1, y + 1, blockW - 2, 2);
+          ctx.fillRect(x + 1, y + 1, 2, blockH - 2);
+
+          // Bayangan tepi bawah & sambungan adukan semen
+          ctx.fillStyle = "rgba(0, 0, 0, 0.35)";
+          ctx.fillRect(x + 1, y + blockH - 3, blockW - 2, 2);
+          ctx.fillRect(x + blockW - 3, y + 1, 2, blockH - 2);
+        }
+      }
+    });
+    this.cache.stoneWall.wrapS = THREE.RepeatWrapping;
+    this.cache.stoneWall.wrapT = THREE.RepeatWrapping;
+    return this.cache.stoneWall;
+  }
+
+  // Genteng Atap Rumah Tradisional (Dark Slate Roof Tiles)
+  getRoofTileTexture() {
+    if (this.cache.roofTile) return this.cache.roofTile;
+    this.cache.roofTile = this.createCanvasTexture(64, 64, (ctx, w, h) => {
+      ctx.fillStyle = "#1e2226";
+      ctx.fillRect(0, 0, w, h);
+
+      const tileH = 16;
+      const tileW = 16;
+      for (let row = 0; row < 4; row++) {
+        const y = row * tileH;
+        const offset = (row % 2 === 0) ? 0 : 8;
+        for (let col = -1; col < 5; col++) {
+          const x = col * tileW + offset;
+          ctx.fillStyle = (col + row) % 2 === 0 ? "#2f353b" : "#384048";
+          ctx.beginPath();
+          ctx.rect(x + 1, y + 1, tileW - 2, tileH - 2);
+          ctx.fill();
+
+          // Bevel highlight genteng
+          ctx.fillStyle = "rgba(255, 255, 255, 0.18)";
+          ctx.fillRect(x + 1, y + 1, tileW - 2, 2);
+
+          // Bayangan tumpang tindih genteng
+          ctx.fillStyle = "rgba(0, 0, 0, 0.4)";
+          ctx.fillRect(x + 1, y + tileH - 3, tileW - 2, 2);
+        }
+      }
+    });
+    this.cache.roofTile.wrapS = THREE.RepeatWrapping;
+    this.cache.roofTile.wrapT = THREE.RepeatWrapping;
+    return this.cache.roofTile;
+  }
+
   // Papan Kayu Pelataran Main & Foto (Deck)
   getWoodDeckTexture() {
     if (this.cache.woodDeck) return this.cache.woodDeck;
@@ -281,21 +353,26 @@ class TextureGenerator {
     return this.cache.bridgeWood;
   }
 
-  // Air Sungai Mengalir HD-2D (Cyan Jernih dengan Gelombang)
+  // Air Sungai Mengalir HD-2D (Biru Jernih Berkilau dengan Gelombang & Busa Putih)
   getRiverWaterTexture() {
     if (this.cache.riverWater) return this.cache.riverWater;
     this.cache.riverWater = this.createCanvasTexture(64, 64, (ctx, w, h) => {
-      ctx.fillStyle = "#3d8ba6";
+      // Dasar biru jernih cerah
+      ctx.fillStyle = "#1e88e5";
       ctx.fillRect(0, 0, w, h);
 
-      const waterColors = ["#4ea3c2", "#5fb8d9", "#35778f", "#78cce6"];
+      const waterColors = ["#29b6f6", "#4fc3f7", "#0288d1", "#81d4fa"];
       for (let y = 0; y < h; y += 8) {
         for (let x = 0; x < w; x += 16) {
           const c = waterColors[((x / 16) + (y / 8)) % waterColors.length];
           ctx.fillStyle = c;
-          ctx.fillRect(x + (y % 16 === 0 ? 0 : 8), y, 12, 4);
-          ctx.fillStyle = "rgba(255, 255, 255, 0.4)";
-          ctx.fillRect(x + (y % 16 === 0 ? 2 : 10), y + 1, 6, 1);
+          ctx.fillRect(x + (y % 16 === 0 ? 0 : 8), y, 14, 5);
+
+          // Riak buih gelombang putih berkilau
+          ctx.fillStyle = "rgba(255, 255, 255, 0.65)";
+          ctx.fillRect(x + (y % 16 === 0 ? 2 : 10), y + 1, 8, 2);
+          ctx.fillStyle = "rgba(255, 255, 255, 0.9)";
+          ctx.fillRect(x + (y % 16 === 0 ? 4 : 12), y + 2, 4, 1);
         }
       }
     });

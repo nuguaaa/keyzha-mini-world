@@ -191,6 +191,21 @@ class GameApp {
     };
     this.interactionManager.register(photobooth);
 
+    // 3.5. Api Unggun Hangat (Campfire di Halaman Timur Laut: X = 14.5, Z = -11.5)
+    const campfire = {
+      x: 14.5,
+      z: -11.5,
+      y: 0.2,
+      zone: "exterior",
+      badgeHeight: 1.8,
+      promptText: "[A] Hangatkan Diri di Api Unggun",
+      onInteract: () => {
+        window.soundSystem.playClick();
+        this.ui.showToast("🔥 Kehangatan api unggun membuat suasana sore terasa begitu damai dan tenang.");
+      }
+    };
+    this.interactionManager.register(campfire);
+
     // 4. Pintu Depan Rumah Kayu di Atas Teras (Z = -10.4, Y = 1.2)
     const frontDoor = {
       x: 0,
