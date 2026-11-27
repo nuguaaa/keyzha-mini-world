@@ -183,6 +183,7 @@
        ====================================================================== -->
     <div class="modal-overlay" id="modal-dialog">
       <div class="modal-window dialog-window">
+        <button class="modal-close" id="dialog-close-btn" title="Tutup Dialog">✕</button>
         <div class="dialog-container">
           <div class="dialog-header">
             <div class="dialog-avatar" id="dialog-avatar">☕</div>
@@ -192,7 +193,8 @@
             </div>
           </div>
           <div class="dialog-text-body" id="dialog-text">Teks dialog...</div>
-          <div class="dialog-actions">
+          <div class="dialog-options-list" id="dialog-options" style="display: none;"></div>
+          <div class="dialog-actions" id="dialog-actions">
             <button class="btn-retro" id="dialog-next">Lanjut ▶</button>
           </div>
         </div>

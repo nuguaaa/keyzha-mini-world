@@ -110,17 +110,7 @@ class GameApp {
     const paman = new NPC(this.world, "paman", cfg.npcs.paman, -11.75, 1.5, 0.22);
     paman.promptText = "[A] Bicara dengan Paman";
     paman.onInteract = () => {
-      window.soundSystem.playClick();
-      if (this.hasKeyInInventory()) {
-        this.ui.openDialog(cfg.npcs.paman.name, cfg.npcs.paman.role, cfg.npcs.paman.avatarColor, cfg.npcs.paman.postKeyDialogue);
-      } else if (this.currentQuestIndex === 2) {
-        this.visitedPaman = true;
-        this.ui.openDialog(cfg.npcs.paman.name, cfg.npcs.paman.role, cfg.npcs.paman.avatarColor, cfg.npcs.paman.questDialogue);
-        this.advanceQuest(3);
-      } else {
-        // Jika belum membaca surat pembuka atau melompat langkah: murni ngobrol santai biasa
-        this.ui.openDialog(cfg.npcs.paman.name, cfg.npcs.paman.role, cfg.npcs.paman.avatarColor, cfg.npcs.paman.casualDialogue);
-      }
+      this.openNPCDialog("paman");
     };
     this.npcs.push(paman);
     this.interactionManager.register(paman);
@@ -133,22 +123,7 @@ class GameApp {
     kakek.promptText = "[A] Bicara dengan Kakek";
     kakek.onInteract = () => {
       if (!this.kakekSpawned || !kakek.isActive) return;
-      window.soundSystem.playClick();
-
-      // STRICT CHECKLIST: Harus sudah membuka Box Sambutan, menyapa Paman, bicara dengan Dito, dan mendapat arahan Pak RT
-      const allChecked = this.visitedWelcomeBox && this.visitedPaman && this.visitedDito && this.visitedPakRt;
-
-      if (this.hasKeyInInventory()) {
-        this.ui.openDialog(cfg.npcs.kakek.name, cfg.npcs.kakek.role, cfg.npcs.kakek.avatarColor, cfg.npcs.kakek.postKeyDialogue);
-      } else if (allChecked) {
-        // Alur berurutan lengkap! Kakek menyerahkan kunci rumah kuningan dengan bangga
-        this.ui.openDialog(cfg.npcs.kakek.name, cfg.npcs.kakek.role, cfg.npcs.kakek.avatarColor, cfg.npcs.kakek.questDialogue);
-        this.receiveHouseKeyFromKakek();
-        this.advanceQuest(6);
-      } else {
-        // Jika pemain entah bagaimana sampai ke Kakek tanpa melalui alur lengkap: pura-pura tidak tahu dan hanya basa-basi santai hangat!
-        this.ui.openDialog(cfg.npcs.kakek.name, cfg.npcs.kakek.role, cfg.npcs.kakek.avatarColor, cfg.npcs.kakek.casualDialogue);
-      }
+      this.openNPCDialog("kakek");
     };
     this.npcs.push(kakek);
     this.interactionManager.register(kakek);
@@ -157,9 +132,7 @@ class GameApp {
     const nenekMinah = new NPC(this.world, "nenek_minah", cfg.npcs.nenek_minah, -14.8, -3.2, 0);
     nenekMinah.promptText = "[A] Bicara dengan Nenek Minah";
     nenekMinah.onInteract = () => {
-      window.soundSystem.playClick();
-      const text = this.hasKeyInInventory() ? cfg.npcs.nenek_minah.postKeyDialogue : cfg.npcs.nenek_minah.casualDialogue;
-      this.ui.openDialog(cfg.npcs.nenek_minah.name, cfg.npcs.nenek_minah.role, cfg.npcs.nenek_minah.avatarColor, text);
+      this.openNPCDialog("nenek_minah");
     };
     this.npcs.push(nenekMinah);
     this.interactionManager.register(nenekMinah);
@@ -168,9 +141,7 @@ class GameApp {
     const masBayu = new NPC(this.world, "mas_bayu", cfg.npcs.mas_bayu, -9.5, 0.5, 0.22);
     masBayu.promptText = "[A] Bicara dengan Mas Bayu";
     masBayu.onInteract = () => {
-      window.soundSystem.playClick();
-      const text = this.hasKeyInInventory() ? cfg.npcs.mas_bayu.postKeyDialogue : cfg.npcs.mas_bayu.casualDialogue;
-      this.ui.openDialog(cfg.npcs.mas_bayu.name, cfg.npcs.mas_bayu.role, cfg.npcs.mas_bayu.avatarColor, text);
+      this.openNPCDialog("mas_bayu");
     };
     this.npcs.push(masBayu);
     this.interactionManager.register(masBayu);
@@ -179,17 +150,7 @@ class GameApp {
     const dito = new NPC(this.world, "dito", cfg.npcs.dito, 8.2, -0.5, 0.06);
     dito.promptText = "[A] Bicara dengan Dito";
     dito.onInteract = () => {
-      window.soundSystem.playClick();
-      if (this.hasKeyInInventory()) {
-        this.ui.openDialog(cfg.npcs.dito.name, cfg.npcs.dito.role, cfg.npcs.dito.avatarColor, cfg.npcs.dito.postKeyDialogue);
-      } else if (this.currentQuestIndex === 3) {
-        this.visitedDito = true;
-        this.ui.openDialog(cfg.npcs.dito.name, cfg.npcs.dito.role, cfg.npcs.dito.avatarColor, cfg.npcs.dito.questDialogue);
-        this.advanceQuest(4);
-      } else {
-        // Jika dilewati (belum Quest 3): murni ngobrol santai seputar Tetris tanpa bocorkan alur
-        this.ui.openDialog(cfg.npcs.dito.name, cfg.npcs.dito.role, cfg.npcs.dito.avatarColor, cfg.npcs.dito.casualDialogue);
-      }
+      this.openNPCDialog("dito");
     };
     this.npcs.push(dito);
     this.interactionManager.register(dito);
@@ -198,9 +159,7 @@ class GameApp {
     const adit = new NPC(this.world, "adit", cfg.npcs.adit, 11.2, -0.5, 0.06);
     adit.promptText = "[A] Bicara dengan Adit";
     adit.onInteract = () => {
-      window.soundSystem.playClick();
-      const text = this.hasKeyInInventory() ? cfg.npcs.adit.postKeyDialogue : cfg.npcs.adit.casualDialogue;
-      this.ui.openDialog(cfg.npcs.adit.name, cfg.npcs.adit.role, cfg.npcs.adit.avatarColor, text);
+      this.openNPCDialog("adit");
     };
     this.npcs.push(adit);
     this.interactionManager.register(adit);
@@ -209,9 +168,7 @@ class GameApp {
     const tehSarah = new NPC(this.world, "teh_sarah", cfg.npcs.teh_sarah, 3.5, -3.2, 0);
     tehSarah.promptText = "[A] Bicara dengan Teh Sarah";
     tehSarah.onInteract = () => {
-      window.soundSystem.playClick();
-      const text = this.hasKeyInInventory() ? cfg.npcs.teh_sarah.postKeyDialogue : cfg.npcs.teh_sarah.casualDialogue;
-      this.ui.openDialog(cfg.npcs.teh_sarah.name, cfg.npcs.teh_sarah.role, cfg.npcs.teh_sarah.avatarColor, text);
+      this.openNPCDialog("teh_sarah");
     };
     this.npcs.push(tehSarah);
     this.interactionManager.register(tehSarah);
@@ -220,12 +177,7 @@ class GameApp {
     const rina = new NPC(this.world, "rina", cfg.npcs.rina, 4.2, -8.8, 1.2);
     rina.promptText = "[A] Bicara dengan Bibi Rina";
     rina.onInteract = () => {
-      window.soundSystem.playClick();
-      if (this.hasKeyInInventory()) {
-        this.ui.openDialog(cfg.npcs.rina.name, cfg.npcs.rina.role, cfg.npcs.rina.avatarColor, cfg.npcs.rina.questDialogue);
-      } else {
-        this.ui.openDialog(cfg.npcs.rina.name, cfg.npcs.rina.role, cfg.npcs.rina.avatarColor, cfg.npcs.rina.casualDialogue);
-      }
+      this.openNPCDialog("rina");
     };
     this.npcs.push(rina);
     this.interactionManager.register(rina);
@@ -235,9 +187,7 @@ class GameApp {
     const buRt = new NPC(this.world, "bu_rt", cfg.npcs.bu_rt, 13.2, -9.2, 0);
     buRt.promptText = "[A] Bicara dengan Bu RT";
     buRt.onInteract = () => {
-      window.soundSystem.playClick();
-      const text = this.hasKeyInInventory() ? cfg.npcs.bu_rt.postKeyDialogue : cfg.npcs.bu_rt.casualDialogue;
-      this.ui.openDialog(cfg.npcs.bu_rt.name, cfg.npcs.bu_rt.role, cfg.npcs.bu_rt.avatarColor, text);
+      this.openNPCDialog("bu_rt");
     };
     this.npcs.push(buRt);
     this.interactionManager.register(buRt);
@@ -246,20 +196,7 @@ class GameApp {
     const pakRt = new NPC(this.world, "pak_rt", cfg.npcs.pak_rt, 16.5, -11.5, 0);
     pakRt.promptText = "[A] Bicara dengan Pak RT Broto";
     pakRt.onInteract = () => {
-      window.soundSystem.playClick();
-      if (this.hasKeyInInventory()) {
-        this.ui.openDialog(cfg.npcs.pak_rt.name, cfg.npcs.pak_rt.role, cfg.npcs.pak_rt.avatarColor, cfg.npcs.pak_rt.postKeyDialogue);
-      } else if (this.currentQuestIndex === 4) {
-        this.visitedPakRt = true;
-        this.ui.openDialog(cfg.npcs.pak_rt.name, cfg.npcs.pak_rt.role, cfg.npcs.pak_rt.avatarColor, cfg.npcs.pak_rt.questDialogue);
-        // Memicu kemunculan Kakek Bijak di gubuk kebun barat!
-        this.setKakekVisible(true);
-        this.advanceQuest(5);
-        this.ui.showToast("🌿 Kakek Bijak telah terlihat sedang bersantai di gubuk kebun barat!");
-      } else {
-        // Jika dilewati (belum Quest 4): pura-pura tidak tahu dan murni percakapan santai biasa
-        this.ui.openDialog(cfg.npcs.pak_rt.name, cfg.npcs.pak_rt.role, cfg.npcs.pak_rt.avatarColor, cfg.npcs.pak_rt.casualDialogue);
-      }
+      this.openNPCDialog("pak_rt");
     };
     this.npcs.push(pakRt);
     this.interactionManager.register(pakRt);
@@ -268,9 +205,7 @@ class GameApp {
     const mbakTari = new NPC(this.world, "mbak_tari", cfg.npcs.mbak_tari, 12.5, -13.2, 0);
     mbakTari.promptText = "[A] Bicara dengan Mbak Tari";
     mbakTari.onInteract = () => {
-      window.soundSystem.playClick();
-      const text = this.hasKeyInInventory() ? cfg.npcs.mbak_tari.postKeyDialogue : cfg.npcs.mbak_tari.casualDialogue;
-      this.ui.openDialog(cfg.npcs.mbak_tari.name, cfg.npcs.mbak_tari.role, cfg.npcs.mbak_tari.avatarColor, text);
+      this.openNPCDialog("mbak_tari");
     };
     this.npcs.push(mbakTari);
     this.interactionManager.register(mbakTari);
@@ -279,9 +214,7 @@ class GameApp {
     const mangUjang = new NPC(this.world, "mang_ujang", cfg.npcs.mang_ujang, 15.0, -13.5, 0);
     mangUjang.promptText = "[A] Bicara dengan Mang Ujang";
     mangUjang.onInteract = () => {
-      window.soundSystem.playClick();
-      const text = this.hasKeyInInventory() ? cfg.npcs.mang_ujang.postKeyDialogue : cfg.npcs.mang_ujang.casualDialogue;
-      this.ui.openDialog(cfg.npcs.mang_ujang.name, cfg.npcs.mang_ujang.role, cfg.npcs.mang_ujang.avatarColor, text);
+      this.openNPCDialog("mang_ujang");
     };
     this.npcs.push(mangUjang);
     this.interactionManager.register(mangUjang);
@@ -291,7 +224,7 @@ class GameApp {
     chicken1.promptText = "[A] Elus Ayam";
     chicken1.onInteract = () => {
       window.soundSystem.playChicken();
-      this.ui.showToast(`🌾 ${cfg.animals.chicken1.petMessage}`);
+      this.ui.openDialog(cfg.animals.chicken1.name, "Hewan Peliharaan Halaman", "🌾", `Petok petok! ${cfg.animals.chicken1.petMessage}`);
     };
     this.animals.push(chicken1);
     this.interactionManager.register(chicken1);
@@ -300,7 +233,7 @@ class GameApp {
     chicken2.promptText = "[A] Elus Ayam";
     chicken2.onInteract = () => {
       window.soundSystem.playChicken();
-      this.ui.showToast(`🌾 ${cfg.animals.chicken2.petMessage}`);
+      this.ui.openDialog(cfg.animals.chicken2.name, "Hewan Peliharaan Halaman", "🌾", `Kukuruyuk! ${cfg.animals.chicken2.petMessage}`);
     };
     this.animals.push(chicken2);
     this.interactionManager.register(chicken2);
@@ -310,7 +243,7 @@ class GameApp {
     cat.promptText = "[A] Elus Miko si Kucing";
     cat.onInteract = () => {
       window.soundSystem.playCatMeow();
-      this.ui.showToast(`🐱 ${cfg.animals.catOrange.petMessage}`);
+      this.ui.openDialog(cfg.animals.catOrange.name, "Sahabat Berbulu Manja", "🐱", `Miko mendengkur hangat (purrr...) sambil menggosokkan kepalanya yang berbulu lembut ke tanganmu.\n\nMatanya terpejam nyaman saat dielus, seolah berkata bahwa Keyzha adalah orang favoritnya di desa ini!`);
     };
     this.animals.push(cat);
     this.interactionManager.register(cat);
@@ -375,7 +308,12 @@ class GameApp {
       promptText: "[A] Duduk & Hangatkan Diri di Api Unggun",
       onInteract: () => {
         window.soundSystem.playFireCrackle();
-        this.ui.showToast("🔥 Kamu duduk santai di dekat api unggun hangat bersama para warga desa. Gemeretak kayu bakar dan aroma jagung manis membawa ketenangan mendalam.");
+        this.ui.openDialog(
+          "Api Unggun Hangat Warga",
+          "Kumpul Warga Desa",
+          "🔥",
+          "Kamu duduk santai di dekat api unggun hangat bersama para warga desa.\n\nGemeretak kayu bakar dan aroma jagung bakar manis menyelimuti udara senja. Di sini, kebersamaan warga terasa begitu dekat dan menentramkan hati."
+        );
       }
     };
     this.interactionManager.register(campfire);
@@ -439,7 +377,12 @@ class GameApp {
       promptText: "[A] Timba Air Sumur yang Segar",
       onInteract: () => {
         window.soundSystem.playWaterSplash();
-        this.ui.showToast("💧 Timba kayu ditarik ke atas sumur, membasuh tangan dan wajahmu dengan air tanah yang begitu jernih dan dingin. Badanmu terasa segar kembali!");
+        this.ui.openDialog(
+          "Sumur Tua Kebun Barat",
+          "Mata Air Alami Desa",
+          "💧",
+          "Kamu menarik timba kayu dari dalam sumur tua, lalu membasuh tangan dan wajahmu dengan air tanah yang begitu jernih dan dingin.\n\nKesegaran air alami ini seketika menyapu rasa lelahmu, meninggalkan rasa sejuk yang menyenangkan!"
+        );
       }
     };
     this.interactionManager.register(villageWell);
@@ -454,7 +397,12 @@ class GameApp {
       promptText: "[A] Cicipi Apel Segar dari Keranjang",
       onInteract: () => {
         window.soundSystem.playCrunch();
-        this.ui.showToast("🍎 Kamu mencicipi sepotong apel merah yang manis dan renyah dari keranjang piknik. Rasanya begitu menyegarkan!");
+        this.ui.openDialog(
+          "Keranjang Piknik Buah",
+          "Camilan Segar di Taman",
+          "🍎",
+          "Kamu membuka keranjang piknik dan mengambil sepotong apel merah segar.\n\nKriuk! Rasanya manis, renyah, dan berair. Apel ini tampak sengaja disiapkan dengan penuh perhatian untuk menemani jalan-jalanmu."
+        );
       }
     };
     this.interactionManager.register(picnicBasket);
@@ -469,7 +417,12 @@ class GameApp {
       promptText: "[A] Hirup Harum Bunga Aster & Mawar",
       onInteract: () => {
         window.soundSystem.playRustle();
-        this.ui.showToast("🌸 Aroma manis bunga aster dan kelopak mawar teras tercium lembut di hidungmu, menenangkan hati.");
+        this.ui.openDialog(
+          "Bunga Parapet Teras",
+          "Taman Bunga Rumahan",
+          "🌸",
+          "Aroma manis bunga aster dan kelopak mawar teras tercium lembut di udara sore.\n\nKelopaknya bermekaran dengan anggun di sepanjang pagar teras, menyambut langkahmu dengan keindahan yang menenangkan."
+        );
       }
     };
     this.interactionManager.register(terraceFlowers);
@@ -484,7 +437,12 @@ class GameApp {
       promptText: "[A] Lempar Kerikil & Nikmati Sungai",
       onInteract: () => {
         window.soundSystem.playWaterSplash();
-        this.ui.showToast("🌊 Kamu melempar kerikil kecil ke aliran sungai yang jernih di bawah jembatan. Riak-riak air beriak indah memantulkan cahaya senja yang damai.");
+        this.ui.openDialog(
+          "Tepian Sungai Jembatan",
+          "Suasana Alam yang Damai",
+          "🌊",
+          "Kamu mengambil kerikil kecil lalu melemparkannya ke aliran sungai yang jernih di bawah jembatan kayu.\n\nRiak airnya berputar lembut, memantulkan kilau cahaya senja yang tenang. Suara gemericik air membuat hatimu terasa begitu sejuk dan damai."
+        );
       }
     };
     this.interactionManager.register(riverOverlook);
@@ -499,7 +457,12 @@ class GameApp {
       promptText: "[A] Duduk Santai di Bangku Taman",
       onInteract: () => {
         window.soundSystem.playClick();
-        this.ui.showToast("🪑 Kamu duduk sejenak di bangku kayu taman, memandangi panorama diorama kecil yang asri dan tenang.");
+        this.ui.openDialog(
+          "Bangku Kayu Santai",
+          "Sudut Beristirahat Taman",
+          "🪑",
+          "Kamu duduk sejenak di atas bangku kayu taman, menyandarkan punggung sambil menghela napas lega.\n\nDari sini, seluruh sudut diorama kecil ini tampak begitu cantik, asri, dan dipenuhi kehangatan."
+        );
       }
     };
     this.interactionManager.register(parkBench);
@@ -618,8 +581,7 @@ class GameApp {
       // Tombol Interaksi (E, Enter, Spasi)
       if (e.key === "e" || e.key === "E" || e.key === "Enter" || e.key === " ") {
         if (this.ui.dialogModal.classList.contains("active")) {
-          if (this.ui.isTyping) this.ui.skipTypewriter();
-          else this.ui.closeDialog();
+          this.ui.advanceOrSkipDialog();
           return;
         }
 
@@ -732,6 +694,148 @@ class GameApp {
       this.updateQuestUI();
       this.saveProgress();
     }
+  }
+
+  // --- SISTEM DIALOG PERCAKAPAN BERCABANG RPG & PENGULANGAN PETUNJUK (LOOPING CLUE) ---
+
+  openNPCDialog(npcKey) {
+    window.soundSystem.playClick();
+    const cfg = window.GAME_CONFIG;
+    const npc = cfg.npcs[npcKey];
+    if (!npc) return;
+
+    const options = [
+      {
+        icon: "💬",
+        label: "Basa-basi & Cerita tentang Nugua",
+        onSelect: () => this.showNPCOptionResponse(npcKey, "casual")
+      },
+      {
+        icon: "🗝️",
+        label: "Aku mau tanya, kunci rumah di mana ya?",
+        isQuest: true,
+        onSelect: () => this.showNPCOptionResponse(npcKey, "clue")
+      },
+      {
+        icon: npc.avatarIcon || "✨",
+        label: npc.topicOptionLabel || "Cerita topik menarik",
+        onSelect: () => this.showNPCOptionResponse(npcKey, "topic")
+      },
+      {
+        icon: "✕",
+        label: "Pamit dulu ya, sampai jumpa!",
+        className: "opt-close",
+        onSelect: () => this.ui.closeDialog()
+      }
+    ];
+
+    const greeting = npc.greeting || `Halo neng Keyzha! Senang sekali bertemu denganmu di sini. Ada yang ingin kamu tanyakan atau mau ngobrol santai?`;
+    this.ui.openDialog(npc.name, npc.role, npc.avatarIcon || npc.avatarColor, greeting, options);
+  }
+
+  showNPCOptionResponse(npcKey, branch) {
+    const cfg = window.GAME_CONFIG;
+    const npc = cfg.npcs[npcKey];
+    if (!npc) return;
+
+    let responseText = "";
+
+    if (branch === "casual") {
+      responseText = npc.casualDialogue;
+    } else if (branch === "topic") {
+      responseText = npc.topicDialogue || npc.casualDialogue;
+    } else if (branch === "clue") {
+      // 1. Cek jika Keyzha sudah berhasil mengantongi Kunci Rumah Kuningan
+      if (this.hasKeyInInventory()) {
+        responseText = npc.postKeyDialogue || `Kunci rumah kuningan kan sudah berhasil kamu dapatkan dari Kakek Bijak, neng Keyzha! Lekaslah naik tangga ke teras rumah, mas Nugua sudah menyiapkan ruangan hangat dan hadiah spesial menunggumu di dalam!`;
+      } else if (npcKey === "paman") {
+        if (!this.visitedWelcomeBox) {
+          responseText = `Paman senang sekali neng Keyzha sudah tiba di desa ini! Tapi sebelum mencari kunci rumah, coba periksa kotak surat kayu sambutan di pelataran depan dulu ya! Ada sepucuk pesan pembuka dari Nugua di sana.`;
+        } else {
+          // Petunjuk Paman (Bisa diulang-ulang kapan saja jika ditanya lagi)
+          this.visitedPaman = true;
+          if (this.currentQuestIndex === 2) {
+            this.advanceQuest(3);
+            responseText = npc.questDialogue;
+          } else {
+            responseText = npc.clueReminder || npc.questDialogue;
+          }
+        }
+      } else if (npcKey === "dito") {
+        if (!this.visitedPaman) {
+          responseText = `Eh Keyzha manis, aslinya kamu lebih cantik daripada yang diceritain Nugua! Tapi kamu sudah sempat sapa Paman di jembatan seberang barat belum? Coba ngobrol sama Paman dulu di jembatan ya, biar alur ceritamu berurutan!`;
+        } else {
+          // Petunjuk Dito (Bisa diulang-ulang kapan saja jika ditanya lagi)
+          this.visitedDito = true;
+          if (this.currentQuestIndex === 3) {
+            this.advanceQuest(4);
+            responseText = npc.questDialogue;
+          } else {
+            responseText = npc.clueReminder || npc.questDialogue;
+          }
+        }
+      } else if (npcKey === "pak_rt") {
+        if (!this.visitedDito) {
+          responseText = `Selamat sore neng Keyzha yang ayu. Pak RT senang sekali neng singgah ke sini. Tapi sebelum kita bahas rahasia desa, coba main ke pelataran arcade timur dulu dan sapa anak muda bernama Dito ya!`;
+        } else {
+          // Petunjuk Pak RT & memunculkan Kakek Bijak di gubuk kebun barat (Bisa diulang-ulang)
+          this.visitedPakRt = true;
+          this.setKakekVisible(true);
+          if (this.currentQuestIndex === 4) {
+            this.advanceQuest(5);
+            responseText = npc.questDialogue;
+          } else {
+            responseText = npc.clueReminder || npc.questDialogue;
+          }
+        }
+      } else if (npcKey === "kakek") {
+        const allChecked = this.visitedWelcomeBox && this.visitedPaman && this.visitedDito && this.visitedPakRt;
+        if (allChecked) {
+          if (!this.hasHouseKey) {
+            this.receiveHouseKeyFromKakek();
+            if (this.currentQuestIndex === 5) {
+              this.advanceQuest(6);
+            }
+            responseText = npc.questDialogue;
+          } else {
+            responseText = npc.clueReminder || npc.postKeyDialogue;
+          }
+        } else {
+          // Checklist belum lengkap: tunjukkan secara ramah hal apa saja yang belum dikunjungi
+          const missing = [];
+          if (!this.visitedWelcomeBox) missing.push("membaca surat di kotak sambutan pelataran depan");
+          if (!this.visitedPaman) missing.push("menyapa Paman di jembatan sungai barat");
+          if (!this.visitedDito) missing.push("mengobrol dengan Dito di pelataran arcade timur");
+          if (!this.visitedPakRt) missing.push("meminta arahan dari Pak RT Broto di api unggun timur laut");
+
+          responseText = `Kakek tersenyum hangat... 'Taman ini luas dan penuh kehangatan nak Keyzha. Kakek memang memegang amanah kunci rumah dari mas Nugua, tapi sebelum Kakek serahkan, pastikan kamu sudah:\n\n• ${missing.join("\n• ")}\n\nSelesaikan langkah-langkah itu dulu ya cucuku manis, agar kejutan Nugua terasa berurutan dan berkesan!'`;
+        }
+      } else if (npcKey === "rina") {
+        responseText = npc.clueReminder || `Pintu rumah kayu ini masih terkunci dengan gembok kuningan, Keyzha sayang. Nugua menitipkan kuncinya ke Kakek Bijak di gubuk kebun barat. Coba telusuri alur petunjuk dari Paman, Dito, dan Pak RT ya!`;
+      } else {
+        // Warga lainnya (bu_rt, mbak_tari, mang_ujang, nenek_minah, mas_bayu, teh_sarah, adit)
+        responseText = npc.clueReminder || `Kunci rumah kuningan dititipkan mas Nugua ke sesepuh desa, Kakek Bijak di gubuk kebun barat! Telusuri langkahnya lewat Paman di jembatan, Dito di arcade, dan Pak RT di api unggun ya!`;
+      }
+    }
+
+    // Sub-opsi setelah jawaban selesai:
+    // Pemain bisa kembali memilih topik lain dari karakter ini (Looping!), atau selesai bicara
+    const returnOptions = [
+      {
+        icon: "↩",
+        label: `Tanya hal lain pada ${npc.name}`,
+        className: "opt-return",
+        onSelect: () => this.openNPCDialog(npcKey)
+      },
+      {
+        icon: "✕",
+        label: "Selesai bicara",
+        className: "opt-close",
+        onSelect: () => this.ui.closeDialog()
+      }
+    ];
+
+    this.ui.openDialog(npc.name, npc.role, npc.avatarIcon || npc.avatarColor, responseText, returnOptions);
   }
 
   // Menambahkan item ke dalam 4 slot inventori
