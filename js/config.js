@@ -243,7 +243,7 @@ window.GAME_CONFIG = {
     date: "Hari yang Istimewa",
     greeting: "Untuk Keyzha tersayang,",
     paragraphs: [
-      "Terima kasih banyak sudah meluangkan waktu untuk berjalan keliling, menemukan kunci kuningan dari Pak RT, dan sampai di ruangan hangat ini.",
+      "Terima kasih banyak sudah meluangkan waktu untuk berjalan keliling, menemukan kunci kuningan dari Kakek Bijak, dan sampai di ruangan hangat ini.",
       "Diorama kecil ini mungkin hanya sebuah dunia piksel sederhana, tapi setiap sudut, tanaman, dan detail di dalamnya dibuat dengan tulus untuk menggambarkan betapa berharganya setiap obrolan, tawa, dan waktu yang kita lalui bersama.",
       "Hidup mungkin sering kali penuh dengan dinamika dan kesibukan, tapi kuharap kamu selalu ingat bahwa kamu selalu punya ruang aman untuk beristirahat, menjadi dirimu sendiri apa adanya, dan merasa dihargai.",
       "Semoga hari-harimu ke depan selalu dinaungi ketenangan, langkahmu dimudahkan, dan hal-hal baik selalu menemukan jalannya kepadamu."
@@ -268,5 +268,84 @@ window.GAME_CONFIG = {
     ],
     signature: "Dengan tulus dan penuh kasih,",
     closingSender: "Nugua"
-  }
+  },
+
+  // Koleksi Foto Kenangan Berbingkai di Dinding Rumah Dalam (Nugua & Keyzha)
+  wallPhotos: [
+    {
+      id: "photo_wall_1",
+      image: "assets/photos/IMG_5994.JPG",
+      title: "Pelukan & Cubitan Manis",
+      subtitle: "Bingkai Kenangan 01 · Dinding Utara",
+      caption: "Setiap tawa kecil dan keusilan manis ini selalu jadi alasan terbesar kenapa aku selalu bersyukur punya kamu di hidupku, Keyzha.",
+      x: 96.0,
+      y: 2.35,
+      z: 95.06,
+      rotY: 0,
+      width: 2.2,
+      height: 1.47,
+      interactX: 96.0,
+      interactZ: 96.5
+    },
+    {
+      id: "photo_wall_2",
+      image: "assets/photos/IMG_5995.JPG",
+      title: "Senyuman Paling Teduh",
+      subtitle: "Bingkai Kenangan 02 · Dinding Utara",
+      caption: "Di antara semua hal di dunia, senyumanmu yang paling bisa bikin hariku tenang. Terima kasih sudah selalu jadi tempat pulang ternyaman buat aku.",
+      x: 103.8,
+      y: 2.35,
+      z: 95.06,
+      rotY: 0,
+      width: 2.2,
+      height: 1.47,
+      interactX: 103.8,
+      interactZ: 96.5
+    },
+    {
+      id: "photo_wall_3",
+      image: "assets/photos/IMG_5996.JPG",
+      title: "Tiga Momen Tawa Lepas",
+      subtitle: "Photostrip 3 Panel · Dinding Barat",
+      caption: "Tiga gaya, tiga tawa, dan jutaan rasa sayang. Kapan pun kita lihat foto ini, semoga kamu selalu ingat betapa bahagianya kita saat bersama.",
+      x: 93.06,
+      y: 2.35,
+      z: 97.2,
+      rotY: Math.PI / 2,
+      width: 2.3,
+      height: 1.53,
+      interactX: 94.4,
+      interactZ: 97.2
+    },
+    {
+      id: "photo_wall_4",
+      image: "assets/photos/IMG_5997.JPG",
+      title: "Photobooth Seru Kita",
+      subtitle: "Photobooth Kenangan · Dinding Barat",
+      caption: "Pose jail berdua di dalam photobooth. Nggak ada momen yang membosankan kalau dihabiskan bareng kamu!",
+      x: 93.06,
+      y: 2.35,
+      z: 101.8,
+      rotY: Math.PI / 2,
+      width: 2.2,
+      height: 1.47,
+      interactX: 94.4,
+      interactZ: 101.8
+    },
+    {
+      id: "photo_wall_5",
+      image: "assets/photos/IMG_5998.JPG",
+      title: "Hangatnya Bersamamu",
+      subtitle: "Bingkai Kenangan 05 · Dinding Timur",
+      caption: "Taman kecil ini dibangun khusus untuk merayakan setiap detik manis yang pernah dan akan kita lewati bersama. I love you, Keyzha!",
+      x: 106.94,
+      y: 2.35,
+      z: 97.5,
+      rotY: -Math.PI / 2,
+      width: 2.2,
+      height: 1.47,
+      interactX: 105.6,
+      interactZ: 97.5
+    }
+  ]
 };

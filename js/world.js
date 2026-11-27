@@ -1855,6 +1855,9 @@ class DioramaWorld {
     shelfGroup.add(shelfBody);
     room.add(shelfGroup);
 
+    // I. Bingkai Foto Galeri Kenangan di Dinding Rumah
+    this.buildInteriorPhotoGallery();
+
     // Collider Interior
     this.interiorColliders.push({ minX: ox - 7.5, maxX: ox + 7.5, minZ: oz - 5.5, maxZ: oz - 4.8 }); // Utara
     this.interiorColliders.push({ minX: ox - 7.5, maxX: ox - 6.7, minZ: oz - 5.0, maxZ: oz + 5.0 }); // Barat
@@ -1864,6 +1867,77 @@ class DioramaWorld {
     this.interiorColliders.push({ minX: ox - 2.0, maxX: ox + 2.0, minZ: oz - 5.0, maxZ: oz - 3.8 }); // Perapian
     this.interiorColliders.push({ minX: ox - 5.2, maxX: ox - 3.0, minZ: oz - 1.2, maxZ: oz + 1.2 }); // Sofa
     this.interiorColliders.push({ minX: ox + 2.8, maxX: ox + 5.6, minZ: oz - 2.8, maxZ: oz - 1.2 }); // Meja Belajar
+  }
+
+  // I. Bingkai Foto Galeri Kenangan di Dinding Rumah Dalam (Nugua & Keyzha)
+  buildInteriorPhotoGallery() {
+    const photos = window.GAME_CONFIG && window.GAME_CONFIG.wallPhotos;
+    if (!Array.isArray(photos)) return;
+
+    const texLoader = new THREE.TextureLoader();
+    const room = this.interiorGroup;
+
+    photos.forEach(p => {
+      const frameGroup = new THREE.Group();
+      frameGroup.position.set(p.x, p.y, p.z);
+      frameGroup.rotation.y = p.rotY;
+
+      const w = p.width || 2.2;
+      const h = p.height || 1.47;
+      const frameMargin = 0.12;
+      const frameDepth = 0.08;
+
+      // 1. Bingkai Kayu Jati Gelap (Dark Teak / Walnut Frame)
+      const frameMat = new THREE.MeshLambertMaterial({ color: "#2b1b17" });
+      const frameMesh = new THREE.Mesh(
+        new THREE.BoxGeometry(w + frameMargin * 2, h + frameMargin * 2, frameDepth),
+        frameMat
+      );
+      frameMesh.position.set(0, 0, -frameDepth / 2);
+      frameGroup.add(frameMesh);
+
+      // 2. Bevel List Emas Tipis (Gold trim ornament)
+      const trimMat = new THREE.MeshLambertMaterial({ color: "#d4af37" });
+      const trimMesh = new THREE.Mesh(
+        new THREE.BoxGeometry(w + 0.05, h + 0.05, 0.02),
+        trimMat
+      );
+      trimMesh.position.set(0, 0, 0.005);
+      frameGroup.add(trimMesh);
+
+      // 3. Matting / Paspartu Putih Krem Halus
+      const mattingMat = new THREE.MeshBasicMaterial({ color: "#faf8f5" });
+      const mattingMesh = new THREE.Mesh(
+        new THREE.PlaneGeometry(w + 0.03, h + 0.03),
+        mattingMat
+      );
+      mattingMesh.position.set(0, 0, 0.012);
+      frameGroup.add(mattingMesh);
+
+      // 4. Kanvas Foto Asli Beresolusi Tinggi
+      const photoTex = texLoader.load(p.image);
+      if (THREE.sRGBEncoding) photoTex.encoding = THREE.sRGBEncoding;
+      else if (THREE.SRGBColorSpace) photoTex.colorSpace = THREE.SRGBColorSpace;
+
+      const photoMat = new THREE.MeshLambertMaterial({
+        map: photoTex,
+        emissive: new THREE.Color("#444444"),
+        emissiveIntensity: 0.35
+      });
+      const photoMesh = new THREE.Mesh(
+        new THREE.PlaneGeometry(w, h),
+        photoMat
+      );
+      photoMesh.position.set(0, 0, 0.018);
+      frameGroup.add(photoMesh);
+
+      // 5. Lampu Sorot Aksen Lembut di Atas Bingkai (Spotlight Effect)
+      const accentLight = new THREE.PointLight("#fff0d4", 0.7, 3.2, 2);
+      accentLight.position.set(0, h / 2 + 0.28, 0.35);
+      frameGroup.add(accentLight);
+
+      room.add(frameGroup);
+    });
   }
 
   // --- TRANSISI MASUK & KELUAR RUMAH ---

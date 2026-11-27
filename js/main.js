@@ -581,6 +581,26 @@ class GameApp {
         this.interactionManager.register(itemObj);
       }
     });
+
+    // 9. Foto Galeri Kenangan di Dinding Rumah Dalam (Nugua & Keyzha)
+    if (cfg.wallPhotos && Array.isArray(cfg.wallPhotos)) {
+      cfg.wallPhotos.forEach(p => {
+        const photoItem = {
+          id: p.id,
+          x: p.interactX,
+          z: p.interactZ,
+          y: 0.8,
+          zone: "interior",
+          badgeHeight: 1.8,
+          promptText: `[A] Lihat ${p.title}`,
+          onInteract: () => {
+            window.soundSystem.playClick();
+            this.ui.openPhotoViewer(p);
+          }
+        };
+        this.interactionManager.register(photoItem);
+      });
+    }
   }
 
   // --- KONTROL DESKTOP (KEYBOARD & KLIK TAP) ---
@@ -605,6 +625,11 @@ class GameApp {
 
         if (this.ui.letterModal.classList.contains("active")) {
           this.ui.closeLetter();
+          return;
+        }
+
+        if (this.ui.photoModal && this.ui.photoModal.classList.contains("active")) {
+          this.ui.closePhotoViewer();
           return;
         }
 

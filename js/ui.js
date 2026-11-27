@@ -60,6 +60,11 @@ class UIManager {
     this.arcadeModal = document.getElementById("modal-arcade");
     this.photoboothModal = document.getElementById("modal-photobooth");
     this.settingsModal = document.getElementById("modal-settings");
+    this.photoModal = document.getElementById("modal-photo");
+    this.photoViewerTitle = document.getElementById("photo-viewer-title");
+    this.photoViewerSubtitle = document.getElementById("photo-viewer-subtitle");
+    this.photoViewerImg = document.getElementById("photo-viewer-img");
+    this.photoViewerCaption = document.getElementById("photo-viewer-caption");
 
     // State Dialog Typewriter
     this.typewriterTimer = null;
@@ -668,6 +673,24 @@ class UIManager {
 
   openSettings() {
     this.settingsModal.classList.add("active");
+    this.updateModalState();
+  }
+
+  // --- MODAL VIEWER FOTO DINDING KENANGAN ---
+
+  openPhotoViewer(photoData) {
+    if (!this.photoModal || !photoData) return;
+    if (this.photoViewerImg) this.photoViewerImg.src = photoData.image;
+    if (this.photoViewerTitle) this.photoViewerTitle.innerText = photoData.title;
+    if (this.photoViewerSubtitle) this.photoViewerSubtitle.innerText = photoData.subtitle || "Nugua & Keyzha";
+    if (this.photoViewerCaption) this.photoViewerCaption.innerText = photoData.caption || "";
+    this.photoModal.classList.add("active");
+    this.updateModalState();
+  }
+
+  closePhotoViewer() {
+    if (!this.photoModal) return;
+    this.photoModal.classList.remove("active");
     this.updateModalState();
   }
 }

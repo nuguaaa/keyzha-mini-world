@@ -1280,3 +1280,86 @@ html, body {
   color: #8c735d;
   font-size: 11px;
 }
+
+/* ==========================================================================
+   MODAL GALERI FOTO KENANGAN DI DINDING RUMAH
+   ========================================================================== */
+.photo-window {
+  max-width: 540px;
+  background: #fdfaf3;
+  border: 3px solid #3e2723;
+  border-radius: 16px;
+  padding: 20px 22px 24px;
+  box-shadow: 0 16px 40px rgba(0, 0, 0, 0.55), 0 0 0 1.5px #ffd166 inset;
+}
+
+.photo-viewer-header {
+  text-align: center;
+  margin-bottom: 14px;
+  padding-bottom: 10px;
+  border-bottom: 1.5px dashed #d8c8b4;
+}
+
+.photo-viewer-header .modal-title {
+  font-family: 'Pixelify Sans', monospace;
+  font-size: 20px;
+  color: #3e2723;
+  font-weight: 700;
+  letter-spacing: 0.5px;
+}
+
+.photo-viewer-header .modal-subtitle {
+  font-size: 12px;
+  color: #8c6d53;
+  margin-top: 3px;
+  font-weight: 600;
+}
+
+.photo-frame-ornament {
+  background: #2b1b17;
+  border: 3.5px solid #d4af37;
+  border-radius: 12px;
+  padding: 8px;
+  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.35), 0 0 0 1px #fff3d1 inset;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  overflow: hidden;
+}
+
+.photo-frame-ornament img {
+  width: 100%;
+  height: auto;
+  max-height: 52vh;
+  object-fit: contain;
+  display: block;
+  border-radius: 6px;
+  image-rendering: auto;
+}
+
+.photo-viewer-caption {
+  margin-top: 14px;
+  font-size: 13.5px;
+  line-height: 1.6;
+  color: #4a3828;
+  text-align: center;
+  font-style: italic;
+  background: #f5ece0;
+  border: 1px solid #e0d0be;
+  border-radius: 10px;
+  padding: 10px 14px;
+}
+
+@media (max-width: 600px) {
+  .photo-window {
+    padding: 16px 14px 18px;
+    max-width: 95vw;
+  }
+  .photo-viewer-header .modal-title {
+    font-size: 17px;
+  }
+  .photo-viewer-caption {
+    font-size: 12px;
+    padding: 8px 10px;
+  }
+}
