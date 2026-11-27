@@ -1296,12 +1296,10 @@ class DioramaWorld {
 
     const darkTimberMat = new THREE.MeshLambertMaterial({ color: "#3d2211" });
     const woodPlankMat = new THREE.MeshLambertMaterial({
-      map: tg.getWoodDeckTexture(),
-      roughness: 0.8
+      map: tg.getWoodDeckTexture()
     });
     const roofShingleMat = new THREE.MeshLambertMaterial({
-      map: tg.getRoofTileTexture(),
-      roughness: 0.7
+      map: tg.getRoofTileTexture()
     });
 
     const gx = -16.5;
@@ -1373,15 +1371,15 @@ class DioramaWorld {
 
     // Dinding sopi-sopi segitiga kayu (Gable Infill)
     [-1.9, 1.9].forEach(sideX => {
-      const gable = new THREE.Mesh(new THREE.BufferGeometry(), darkTimberMat);
+      const gableGeo = new THREE.BufferGeometry();
       const vertices = new Float32Array([
         sideX, 2.75, -1.6,
         sideX, 2.75, 1.6,
         sideX, 3.92, 0.0
       ]);
-      gable.setAttribute("position", new THREE.BufferAttribute(vertices, 3));
-      gable.computeVertexNormals();
-      const gableMesh = new THREE.Mesh(gable, darkTimberMat);
+      gableGeo.setAttribute("position", new THREE.BufferAttribute(vertices, 3));
+      gableGeo.computeVertexNormals();
+      const gableMesh = new THREE.Mesh(gableGeo, darkTimberMat);
       gazeboGroup.add(gableMesh);
     });
 
