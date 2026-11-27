@@ -1,5 +1,5 @@
 /* ==========================================================================
-   HD-2D DIORAMA INTERACTIVE WEB GAME - STYLES
+   HD-2D DIORAMA INTERACTIVE WEB GAME - STYLES (PERSIS VIDEO REFERENSI)
    ========================================================================== */
 
 * {
@@ -15,9 +15,9 @@ html, body {
   width: 100%;
   height: 100%;
   overflow: hidden;
-  background-color: #0c1220;
-  font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
-  color: #f1faee;
+  background-color: #121820;
+  font-family: 'Plus Jakarta Sans', -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+  color: #2c1e0e;
 }
 
 #canvas-container {
@@ -43,12 +43,12 @@ html, body {
   top: 0;
   left: 0;
   right: 0;
-  height: 14vh;
+  height: 13vh;
   pointer-events: none;
   backdrop-filter: blur(3.5px);
   -webkit-backdrop-filter: blur(3.5px);
-  mask-image: linear-gradient(to bottom, rgba(0, 0, 0, 1) 15%, rgba(0, 0, 0, 0) 100%);
-  -webkit-mask-image: linear-gradient(to bottom, rgba(0, 0, 0, 1) 15%, rgba(0, 0, 0, 0) 100%);
+  mask-image: linear-gradient(to bottom, rgba(0, 0, 0, 1) 20%, rgba(0, 0, 0, 0) 100%);
+  -webkit-mask-image: linear-gradient(to bottom, rgba(0, 0, 0, 1) 20%, rgba(0, 0, 0, 0) 100%);
   z-index: 3;
 }
 
@@ -57,12 +57,12 @@ html, body {
   bottom: 0;
   left: 0;
   right: 0;
-  height: 12vh;
+  height: 9vh;
   pointer-events: none;
-  backdrop-filter: blur(3px);
-  -webkit-backdrop-filter: blur(3px);
-  mask-image: linear-gradient(to top, rgba(0, 0, 0, 1) 10%, rgba(0, 0, 0, 0) 100%);
-  -webkit-mask-image: linear-gradient(to top, rgba(0, 0, 0, 1) 10%, rgba(0, 0, 0, 0) 100%);
+  backdrop-filter: blur(2.5px);
+  -webkit-backdrop-filter: blur(2.5px);
+  mask-image: linear-gradient(to top, rgba(0, 0, 0, 1) 15%, rgba(0, 0, 0, 0) 100%);
+  -webkit-mask-image: linear-gradient(to top, rgba(0, 0, 0, 1) 15%, rgba(0, 0, 0, 0) 100%);
   z-index: 3;
 }
 
@@ -73,12 +73,148 @@ html, body {
   width: 100%;
   height: 100%;
   pointer-events: none;
-  background: radial-gradient(circle at 50% 50%, transparent 68%, rgba(0, 0, 0, 0.38) 100%);
+  background: radial-gradient(circle at 50% 48%, transparent 68%, rgba(10, 15, 25, 0.35) 100%);
   z-index: 4;
 }
 
 /* ==========================================================================
-   HUD (HEADS-UP DISPLAY)
+   START / OPENING SCREEN (PERSIS VIDEO REFERENSI FRAME 00:00 - 00:04)
+   ========================================================================== */
+.start-screen-overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  z-index: 50;
+  background: rgba(18, 22, 32, 0.45);
+  backdrop-filter: blur(2px);
+  -webkit-backdrop-filter: blur(2px);
+  display: flex;
+  justify-content: center;
+  align-items: flex-end;
+  padding-bottom: 7vh;
+  transition: opacity 0.4s ease, visibility 0.4s ease;
+}
+
+.start-screen-overlay.hidden {
+  opacity: 0;
+  visibility: hidden;
+  pointer-events: none;
+}
+
+.start-card {
+  width: 90%;
+  max-width: 420px;
+  background: #fbf6ea;
+  border: 2.5px solid #2b1d0c;
+  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.45), 0 0 0 1px #fff inset;
+  border-radius: 14px;
+  padding: 24px 22px 20px 22px;
+  text-align: left;
+  animation: slideUpCard 0.5s ease-out;
+}
+
+@keyframes slideUpCard {
+  from { transform: translateY(40px); opacity: 0; }
+  to { transform: translateY(0); opacity: 1; }
+}
+
+.start-subtitle {
+  font-family: 'Pixelify Sans', monospace;
+  font-size: 11px;
+  font-weight: 700;
+  letter-spacing: 1.5px;
+  color: #8c735d;
+  margin-bottom: 6px;
+  text-transform: uppercase;
+}
+
+.start-title {
+  font-family: 'Pixelify Sans', 'Plus Jakarta Sans', serif;
+  font-size: 34px;
+  font-weight: 700;
+  line-height: 1.1;
+  color: #2b1d0c;
+  margin-bottom: 12px;
+}
+
+.start-title .dot {
+  color: #d4971c;
+}
+
+.start-desc {
+  font-size: 13.5px;
+  line-height: 1.55;
+  color: #524032;
+  margin-bottom: 22px;
+}
+
+.btn-start-main {
+  width: 100%;
+  background: #fdfaf2;
+  border: 2px solid #2b1d0c;
+  box-shadow: 0 4px 0 #2b1d0c;
+  border-radius: 10px;
+  padding: 12px 16px;
+  display: flex;
+  align-items: center;
+  cursor: pointer;
+  transition: transform 0.1s ease, box-shadow 0.1s ease;
+  margin-bottom: 14px;
+}
+
+.btn-start-main:active {
+  transform: translateY(3px);
+  box-shadow: 0 1px 0 #2b1d0c;
+}
+
+.btn-start-main .play-icon {
+  font-size: 20px;
+  color: #d4971c;
+  margin-right: 14px;
+}
+
+.btn-main-label {
+  font-family: 'Pixelify Sans', monospace;
+  font-size: 17px;
+  font-weight: 700;
+  color: #2b1d0c;
+  text-align: left;
+}
+
+.btn-sub-label {
+  font-size: 11.5px;
+  color: #7a6350;
+  text-align: left;
+}
+
+.start-actions-row {
+  display: flex;
+  gap: 12px;
+}
+
+.btn-start-secondary {
+  flex: 1;
+  background: #f4ecdc;
+  border: 1.5px solid #2b1d0c;
+  border-radius: 8px;
+  padding: 8px 12px;
+  font-family: 'Pixelify Sans', monospace;
+  font-size: 12px;
+  font-weight: 700;
+  color: #3d2b1d;
+  cursor: pointer;
+  box-shadow: 0 2px 0 #2b1d0c;
+}
+
+.btn-start-secondary:active {
+  transform: translateY(2px);
+  box-shadow: 0 0 0 #2b1d0c;
+}
+
+/* ==========================================================================
+   HUD LAYER (IN-GAME)
    ========================================================================== */
 .hud-layer {
   position: absolute;
@@ -91,958 +227,176 @@ html, body {
   display: flex;
   flex-direction: column;
   justify-content: space-between;
-  padding: 16px;
+  padding: 14px 16px;
 }
 
-/* Pojok Kiri Atas: Quest Tracker */
+/* Top-Left: Quest Tracker Box (Persis Video) */
 .quest-tracker {
   pointer-events: auto;
-  background: rgba(18, 24, 38, 0.88);
-  backdrop-filter: blur(10px);
-  -webkit-backdrop-filter: blur(10px);
-  border: 1.5px solid rgba(255, 255, 255, 0.16);
-  border-radius: 14px;
-  padding: 12px 16px;
-  max-width: 320px;
-  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.35);
-  animation: fadeInDown 0.5s ease-out;
+  background: #fbf6ea;
+  border: 2px solid #2b1d0c;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.25), 0 0 0 1px rgba(255, 255, 255, 0.8) inset;
+  border-radius: 12px;
+  padding: 10px 14px;
+  max-width: 310px;
 }
 
-.quest-badge {
-  display: inline-block;
-  font-size: 11px;
+.quest-top-row {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin-bottom: 6px;
+}
+
+.quest-star-badge {
+  background: #2b1d0c;
+  color: #ffd166;
+  font-size: 10px;
+  padding: 2px 4px;
+  border-radius: 4px;
+}
+
+.quest-chapter {
+  font-family: 'Pixelify Sans', monospace;
+  font-size: 10px;
   font-weight: 700;
   letter-spacing: 0.5px;
+  color: #7a6350;
   text-transform: uppercase;
-  color: #ffd166;
-  background: rgba(255, 209, 102, 0.16);
-  padding: 3px 8px;
-  border-radius: 6px;
-  margin-bottom: 5px;
+}
+
+.quest-progress-bar-bg {
+  flex: 1;
+  height: 6px;
+  background: #e2d7c5;
+  border-radius: 3px;
+  overflow: hidden;
+  border: 1px solid #c2b5a1;
+}
+
+.quest-progress-fill {
+  height: 100%;
+  background: #d4971c;
+  border-radius: 2px;
+  transition: width 0.3s ease;
+}
+
+.quest-counter {
+  font-family: 'Pixelify Sans', monospace;
+  font-size: 10px;
+  font-weight: 700;
+  color: #7a6350;
 }
 
 .quest-title {
+  font-family: 'Pixelify Sans', 'Plus Jakarta Sans', serif;
   font-size: 15px;
   font-weight: 700;
-  color: #ffffff;
-  margin-bottom: 4px;
+  color: #2b1d0c;
+  margin-bottom: 6px;
+}
+
+.quest-sub-box {
+  display: flex;
+  align-items: flex-start;
+  gap: 8px;
+  background: #f3ebd8;
+  border: 1px solid #ddceb6;
+  border-radius: 6px;
+  padding: 6px 8px;
+}
+
+.quest-exclamation {
+  background: #d4971c;
+  color: #2b1d0c;
+  font-size: 10px;
+  font-weight: 700;
+  padding: 1px 4px;
+  border-radius: 3px;
+}
+
+.quest-sub-title {
+  font-family: 'Pixelify Sans', monospace;
+  font-size: 9.5px;
+  font-weight: 700;
+  color: #8c735d;
+  letter-spacing: 0.5px;
+  margin-bottom: 2px;
 }
 
 .quest-desc {
-  font-size: 12.5px;
-  color: #cbd5e1;
-  line-height: 1.45;
+  font-size: 11.5px;
+  color: #3d2b1d;
+  line-height: 1.35;
 }
 
-/* Pojok Kanan Atas: Quick Controls */
+/* Top-Right: Retro Square Buttons */
 .top-controls {
   position: absolute;
-  top: 16px;
+  top: 14px;
   right: 16px;
+  pointer-events: auto;
   display: flex;
   gap: 8px;
-  pointer-events: auto;
 }
 
-.hud-btn {
-  width: 44px;
-  height: 44px;
-  border-radius: 12px;
-  background: rgba(18, 24, 38, 0.88);
-  backdrop-filter: blur(10px);
-  -webkit-backdrop-filter: blur(10px);
-  border: 1.5px solid rgba(255, 255, 255, 0.16);
-  color: #ffffff;
-  font-size: 18px;
-  cursor: pointer;
+.hud-btn-retro {
+  width: 40px;
+  height: 40px;
+  background: #fbf6ea;
+  border: 2px solid #2b1d0c;
+  box-shadow: 0 3px 0 #2b1d0c;
+  border-radius: 9px;
+  font-size: 17px;
   display: flex;
   align-items: center;
   justify-content: center;
-  box-shadow: 0 4px 14px rgba(0, 0, 0, 0.25);
-  transition: transform 0.15s ease, background 0.2s ease, border-color 0.2s;
+  cursor: pointer;
   position: relative;
+  transition: transform 0.1s ease, box-shadow 0.1s ease;
 }
 
-.hud-btn:hover {
-  transform: translateY(-2px);
-  background: rgba(30, 40, 62, 0.95);
-  border-color: rgba(255, 255, 255, 0.35);
-}
-
-.hud-btn:active {
-  transform: scale(0.92);
-}
-
-.hud-btn.active {
-  border-color: #ffd166;
-  background: rgba(255, 209, 102, 0.24);
+.hud-btn-retro:active {
+  transform: translateY(2px);
+  box-shadow: 0 1px 0 #2b1d0c;
 }
 
 .badge-counter {
   position: absolute;
-  top: -4px;
-  right: -4px;
-  background: #ef233c;
+  top: -5px;
+  right: -5px;
+  background: #d62828;
   color: #ffffff;
   font-size: 10px;
-  font-weight: bold;
-  padding: 2px 6px;
-  border-radius: 10px;
-  border: 2px solid #121826;
-}
-
-/* Indikator Prompt Kontekstual di Tengah Bawah */
-.prompt-container {
-  position: absolute;
-  bottom: 112px;
-  left: 50%;
-  transform: translateX(-50%);
-  pointer-events: auto;
-  z-index: 12;
-}
-
-.context-prompt-btn {
-  display: none;
-  background: #ffd166;
-  color: #1a1a24;
-  font-size: 13.5px;
   font-weight: 700;
-  padding: 9px 18px;
-  border-radius: 24px;
-  border: 2px solid #ffffff;
-  box-shadow: 0 6px 20px rgba(0, 0, 0, 0.45);
-  cursor: pointer;
-  animation: bouncePrompt 1.4s infinite ease-in-out;
-  transition: transform 0.15s ease;
-  white-space: nowrap;
-}
-
-.context-prompt-btn.visible {
-  display: block;
-}
-
-.context-prompt-btn:active {
-  transform: scale(0.95);
-}
-
-/* ==========================================================================
-   KONTROL LAYAR SENTUH (VIRTUAL JOYSTICK & ACTION A BUTTON)
-   ========================================================================== */
-.touch-controls {
-  position: absolute;
-  bottom: 0;
-  left: 0;
-  width: 100%;
-  height: 160px;
-  pointer-events: none;
-  z-index: 11;
-  display: flex;
-  justify-content: space-between;
-  align-items: flex-end;
-  padding: 0 24px 24px 24px;
-}
-
-/* Virtual Joystick Area (Kiri Bawah) */
-.joystick-zone {
-  width: 115px;
-  height: 115px;
-  border-radius: 50%;
-  background: rgba(255, 255, 255, 0.08);
-  border: 2px dashed rgba(255, 255, 255, 0.24);
+  min-width: 17px;
+  height: 17px;
+  border-radius: 9px;
   display: flex;
   align-items: center;
   justify-content: center;
-  pointer-events: auto;
-  touch-action: none;
+  border: 1.5px solid #2b1d0c;
 }
 
-.joystick-knob {
-  width: 48px;
-  height: 48px;
-  border-radius: 50%;
-  background: radial-gradient(circle at 35% 35%, #ffffff, #94a3b8);
-  border: 2px solid #475569;
-  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.4);
-  transition: transform 0.04s ease-out;
-}
-
-/* Tombol Aksi "A" (Kanan Bawah) */
-.action-buttons {
-  pointer-events: auto;
-  display: flex;
-  gap: 14px;
-  align-items: center;
-}
-
-.btn-action-a {
-  width: 72px;
-  height: 72px;
-  border-radius: 50%;
-  background: radial-gradient(circle at 35% 35%, #06d6a0, #048a66);
-  border: 3.5px solid #ffffff;
-  color: #ffffff;
-  font-size: 22px;
-  font-weight: 800;
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  justify-content: center;
-  cursor: pointer;
-  box-shadow: 0 8px 24px rgba(6, 214, 160, 0.45);
-  transition: transform 0.12s, box-shadow 0.12s;
-}
-
-.btn-action-a span.sub {
-  font-size: 10px;
-  font-weight: 600;
-  letter-spacing: 0.5px;
-  opacity: 0.9;
-}
-
-.btn-action-a:active {
-  transform: scale(0.9);
-}
-
-.btn-action-a.highlight {
-  background: radial-gradient(circle at 35% 35%, #ffd166, #e5a108);
-  box-shadow: 0 0 25px rgba(255, 209, 102, 0.7);
-  animation: pulseButton 1.2s infinite;
-}
-
-/* Petunjuk Desktop (WASD & E) */
-.desktop-hint {
-  position: absolute;
-  bottom: 12px;
-  left: 50%;
-  transform: translateX(-50%);
-  font-size: 11.5px;
-  color: rgba(255, 255, 255, 0.55);
-  pointer-events: none;
-  background: rgba(0, 0, 0, 0.45);
-  padding: 4px 14px;
-  border-radius: 12px;
-}
-
-/* ==========================================================================
-   TOAST NOTIFICATION BANNER
-   ========================================================================== */
-.toast-banner {
-  position: absolute;
-  top: 76px;
-  left: 50%;
-  transform: translateX(-50%) translateY(-30px);
-  background: rgba(18, 24, 38, 0.95);
-  backdrop-filter: blur(10px);
-  -webkit-backdrop-filter: blur(10px);
-  border: 1.5px solid #ffd166;
-  color: #ffffff;
-  font-size: 13.5px;
-  font-weight: 600;
-  padding: 10px 22px;
-  border-radius: 24px;
-  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.45);
-  opacity: 0;
-  pointer-events: none;
-  transition: opacity 0.3s ease, transform 0.3s cubic-bezier(0.18, 0.89, 0.32, 1.28);
-  z-index: 50;
-  white-space: nowrap;
-}
-
-.toast-banner.show {
-  opacity: 1;
-  transform: translateX(-50%) translateY(0);
-}
-
-/* ==========================================================================
-   MODAL WINDOWS (DIALOG, SURAT, INVENTORY, ARCADE, PHOTOBOOTH)
-   ========================================================================== */
-.modal-overlay {
-  position: fixed;
-  top: 0;
-  left: 0;
-  width: 100%;
-  height: 100%;
-  background: rgba(8, 12, 22, 0.75);
-  backdrop-filter: blur(8px);
-  -webkit-backdrop-filter: blur(8px);
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  opacity: 0;
-  pointer-events: none;
-  transition: opacity 0.25s ease;
-  z-index: 100;
-  padding: 18px;
-}
-
-.modal-overlay.active {
-  opacity: 1;
-  pointer-events: auto;
-}
-
-.modal-window {
-  background: #171e30;
-  border: 2px solid rgba(255, 255, 255, 0.18);
-  border-radius: 20px;
-  box-shadow: 0 16px 48px rgba(0, 0, 0, 0.6);
-  max-width: 520px;
-  width: 100%;
-  max-height: 85vh;
-  overflow-y: auto;
-  position: relative;
-  transform: scale(0.92);
-  transition: transform 0.25s cubic-bezier(0.18, 0.89, 0.32, 1.28);
-}
-
-.modal-overlay.active .modal-window {
-  transform: scale(1);
-}
-
-.modal-close {
-  position: absolute;
-  top: 14px;
-  right: 14px;
-  width: 34px;
-  height: 34px;
-  border-radius: 50%;
-  background: rgba(255, 255, 255, 0.1);
-  border: none;
-  color: #cbd5e1;
-  font-size: 16px;
-  font-weight: bold;
-  cursor: pointer;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  transition: background 0.15s, color 0.15s;
-  z-index: 5;
-}
-
-.modal-close:hover {
-  background: rgba(239, 35, 60, 0.3);
-  color: #ff4d6d;
-}
-
-/* --- MODAL DIALOG BERKARAKTER --- */
-.dialog-container {
-  padding: 24px;
-}
-
-.dialog-header {
-  display: flex;
-  align-items: center;
-  gap: 14px;
-  margin-bottom: 16px;
-  border-bottom: 1px solid rgba(255, 255, 255, 0.1);
-  padding-bottom: 12px;
-}
-
-.dialog-avatar {
-  width: 48px;
-  height: 48px;
-  border-radius: 12px;
-  border: 2px solid #ffffff;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  font-size: 22px;
-}
-
-.dialog-names {
-  display: flex;
-  flex-direction: column;
-}
-
-.dialog-speaker {
-  font-size: 17px;
-  font-weight: 700;
-  color: #ffffff;
-}
-
-.dialog-role {
-  font-size: 12px;
-  color: #94a3b8;
-}
-
-.dialog-text-body {
-  font-size: 15px;
-  line-height: 1.65;
-  color: #e2e8f0;
-  min-height: 70px;
-  margin-bottom: 20px;
-}
-
-.dialog-actions {
-  display: flex;
-  justify-content: flex-end;
-}
-
-.btn-dialog-next {
-  background: #3b82f6;
-  color: #ffffff;
-  border: none;
-  padding: 8px 18px;
-  border-radius: 10px;
-  font-size: 14px;
-  font-weight: 600;
-  cursor: pointer;
-  transition: background 0.15s, transform 0.1s;
-}
-
-.btn-dialog-next:hover {
-  background: #2563eb;
-}
-
-.btn-dialog-next:active {
-  transform: scale(0.95);
-}
-
-/* --- MODAL SURAT (PARCHMENT KERTAS RETRO ELEGAN) --- */
-.letter-window {
-  background: #fdfbf7;
-  color: #2b2118;
-  border: 3px solid #d4c5b3;
-  padding: 36px 32px;
-  border-radius: 16px;
-  box-shadow: 0 20px 60px rgba(0, 0, 0, 0.7);
-  max-width: 580px;
-}
-
-.letter-header {
-  text-align: center;
-  border-bottom: 2px solid #e2d7c7;
-  padding-bottom: 14px;
-  margin-bottom: 20px;
-}
-
-.letter-title {
-  font-size: 20px;
-  font-family: Georgia, serif;
-  font-weight: bold;
-  color: #6a381f;
-  margin-bottom: 4px;
-}
-
-.letter-date {
-  font-size: 12px;
-  color: #8c7866;
-  font-style: italic;
-}
-
-.letter-greeting {
-  font-size: 16px;
-  font-family: Georgia, serif;
-  font-weight: 600;
-  margin-bottom: 14px;
-  color: #4a2810;
-}
-
-.letter-content {
-  font-size: 15px;
-  line-height: 1.7;
-  font-family: Georgia, serif;
-  color: #3b2f25;
-}
-
-.letter-content p {
-  margin-bottom: 14px;
-}
-
-.letter-hint {
-  margin-top: 18px;
-  padding: 12px 14px;
-  background: #f4ece1;
-  border-left: 3px solid #b57b4f;
-  border-radius: 6px;
-  font-size: 13.5px;
-  font-style: italic;
-  color: #5a4231;
-}
-
-.coupons-heading {
-  margin-top: 24px;
-  margin-bottom: 12px;
-  font-size: 14.5px;
-  font-weight: bold;
-  color: #6a381f;
-}
-
-.coupon-card {
-  background: #ffffff;
-  border: 1.5px dashed #c49a6c;
-  border-radius: 10px;
-  padding: 12px 16px;
-  margin-bottom: 10px;
-  box-shadow: 0 4px 10px rgba(0, 0, 0, 0.05);
-}
-
-.coupon-code {
-  display: inline-block;
-  font-size: 10px;
-  font-weight: bold;
-  background: #faedcd;
-  color: #7f5539;
-  padding: 2px 6px;
-  border-radius: 4px;
-  margin-bottom: 4px;
-}
-
-.coupon-title {
-  font-size: 14px;
-  font-weight: bold;
-  color: #2b1810;
-  margin-bottom: 2px;
-}
-
-.coupon-desc {
-  font-size: 12.5px;
-  color: #5e503f;
-  line-height: 1.4;
-}
-
-.letter-signature {
-  margin-top: 24px;
-  text-align: right;
-  font-family: Georgia, serif;
-  font-style: italic;
-  font-size: 15px;
-  color: #4a2810;
-  white-space: pre-line;
-}
-
-/* --- MODAL INVENTORY --- */
-.inventory-container {
-  padding: 24px;
-}
-
-.inventory-header {
-  font-size: 18px;
-  font-weight: 700;
-  margin-bottom: 16px;
-  border-bottom: 1px solid rgba(255, 255, 255, 0.1);
-  padding-bottom: 10px;
-}
-
-.inventory-grid {
-  display: flex;
-  flex-direction: column;
-  gap: 8px;
-  max-height: 180px;
-  overflow-y: auto;
-  margin-bottom: 18px;
-}
-
-.inv-item-btn {
-  background: rgba(255, 255, 255, 0.06);
-  border: 1.5px solid rgba(255, 255, 255, 0.12);
-  color: #ffffff;
-  padding: 10px 14px;
-  border-radius: 10px;
-  font-size: 14px;
-  font-weight: 600;
-  text-align: left;
-  cursor: pointer;
-  display: flex;
-  align-items: center;
-  gap: 10px;
-  transition: all 0.15s ease;
-}
-
-.inv-item-btn:hover {
-  background: rgba(255, 255, 255, 0.12);
-}
-
-.inv-item-btn.active {
-  background: rgba(255, 209, 102, 0.2);
-  border-color: #ffd166;
-  color: #ffd166;
-}
-
-.inv-item-icon {
-  font-size: 18px;
-}
-
-.empty-inv {
-  font-size: 13.5px;
-  color: #94a3b8;
-  font-style: italic;
-  padding: 12px 0;
-}
-
-.inventory-detail-box {
-  background: rgba(0, 0, 0, 0.35);
-  border: 1px solid rgba(255, 255, 255, 0.1);
-  border-radius: 12px;
-  padding: 16px;
-}
-
-.inv-detail-title {
-  font-size: 16px;
-  font-weight: 700;
-  color: #ffd166;
-  margin-bottom: 4px;
-}
-
-.inv-detail-summary {
-  font-size: 12.5px;
-  color: #94a3b8;
-  margin-bottom: 10px;
-  font-style: italic;
-}
-
-.inv-detail-story {
-  font-size: 13.5px;
-  line-height: 1.6;
-  color: #e2e8f0;
-}
-
-/* --- MODAL ARCADE KABINET RETRO --- */
-.arcade-window {
-  background: #18112e;
-  border: 3px solid #ff007f;
-  box-shadow: 0 0 35px rgba(255, 0, 127, 0.45);
-  max-width: 440px;
-  padding: 20px;
-}
-
-.arcade-title-bar {
-  text-align: center;
-  font-family: monospace;
-  font-size: 16px;
-  font-weight: 900;
-  letter-spacing: 2px;
-  color: #00f0ff;
-  text-shadow: 0 0 8px #00f0ff;
-  margin-bottom: 12px;
-}
-
-.arcade-screen-frame {
-  background: #000000;
-  border: 3px solid #2a1f4a;
-  border-radius: 8px;
-  overflow: hidden;
-  display: flex;
-  justify-content: center;
-  align-items: center;
-  margin-bottom: 14px;
-}
-
-#arcade-canvas {
-  width: 100%;
-  max-width: 380px;
-  height: 260px;
-  display: block;
-}
-
-.arcade-controls-touch {
-  display: flex;
-  justify-content: space-around;
-  margin-top: 10px;
-}
-
-.btn-arcade-touch {
-  flex: 1;
-  max-width: 140px;
-  padding: 12px;
-  background: #3a2266;
-  border: 2px solid #a855f7;
-  color: #ffffff;
-  font-size: 20px;
-  font-weight: bold;
-  border-radius: 12px;
-  cursor: pointer;
-  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.4);
-}
-
-.btn-arcade-touch:active {
-  background: #a855f7;
-}
-
-/* --- MODAL PHOTOBOOTH RETRO --- */
-.photobooth-window {
-  background: #202636;
-  padding: 24px;
-}
-
-.photobooth-header {
-  font-size: 18px;
-  font-weight: 700;
-  margin-bottom: 6px;
-  color: #ffffff;
-}
-
-.photobooth-desc {
-  font-size: 13px;
-  color: #94a3b8;
-  margin-bottom: 16px;
-}
-
-.polaroid-preview-area {
-  display: flex;
-  justify-content: center;
-  margin-bottom: 16px;
-}
-
-#photo-preview {
-  max-width: 220px;
-  border-radius: 6px;
-  box-shadow: 0 10px 25px rgba(0, 0, 0, 0.5);
-  display: none;
-}
-
-.sticker-selector {
-  display: flex;
-  gap: 8px;
-  flex-wrap: wrap;
-  margin-bottom: 14px;
-}
-
-.sticker-tag {
-  background: rgba(255, 255, 255, 0.08);
-  border: 1px solid rgba(255, 255, 255, 0.2);
-  color: #ffffff;
-  padding: 6px 12px;
-  border-radius: 16px;
-  font-size: 12px;
-  cursor: pointer;
-}
-
-.sticker-tag.active {
-  background: #ffd166;
-  color: #1a1a24;
-  border-color: #ffd166;
-  font-weight: 600;
-}
-
-.photo-input-group {
-  margin-bottom: 16px;
-}
-
-.photo-input-group input {
-  width: 100%;
-  padding: 10px 14px;
-  border-radius: 10px;
-  background: rgba(0, 0, 0, 0.3);
-  border: 1.5px solid rgba(255, 255, 255, 0.15);
-  color: #ffffff;
-  font-size: 13.5px;
-  outline: none;
-}
-
-.photo-input-group input:focus {
-  border-color: #ffd166;
-}
-
-.photobooth-actions {
-  display: flex;
-  gap: 10px;
-}
-
-.btn-primary {
-  flex: 1;
-  background: #3b82f6;
-  color: #ffffff;
-  border: none;
-  padding: 10px 16px;
-  border-radius: 10px;
-  font-size: 14px;
-  font-weight: 600;
-  cursor: pointer;
-}
-
-.btn-primary:hover {
-  background: #2563eb;
-}
-
-.btn-success {
-  flex: 1;
-  background: #10b981;
-  color: #ffffff;
-  border: none;
-  padding: 10px 16px;
-  border-radius: 10px;
-  font-size: 14px;
-  font-weight: 600;
-  cursor: pointer;
-}
-
-.btn-success:hover {
-  background: #059669;
-}
-
-/* --- MODAL PENGATURAN / RESET PROGRESS --- */
-.settings-window {
-  padding: 24px;
-}
-
-.settings-header {
-  font-size: 18px;
-  font-weight: 700;
-  margin-bottom: 16px;
-  border-bottom: 1px solid rgba(255, 255, 255, 0.1);
-  padding-bottom: 10px;
-}
-
-.settings-section {
-  margin-bottom: 18px;
-}
-
-.settings-label {
-  font-size: 14px;
-  font-weight: 600;
-  color: #ffffff;
-  margin-bottom: 6px;
-}
-
-.settings-desc {
-  font-size: 12.5px;
-  color: #94a3b8;
-  line-height: 1.4;
-  margin-bottom: 10px;
-}
-
-.btn-danger {
-  background: #ef233c;
-  color: #ffffff;
-  border: none;
-  padding: 9px 16px;
-  border-radius: 10px;
-  font-size: 13.5px;
-  font-weight: 600;
-  cursor: pointer;
-  transition: background 0.15s;
-}
-
-.btn-danger:hover {
-  background: #d90429;
-}
-
-/* ==========================================================================
-   KEYFRAME ANIMATIONS
-   ========================================================================== */
-@keyframes fadeInDown {
-  from {
-    opacity: 0;
-    transform: translateY(-16px);
-  }
-  to {
-    opacity: 1;
-    transform: translateY(0);
-  }
-}
-
-@keyframes bouncePrompt {
-  0%, 100% {
-    transform: translateY(0);
-  }
-  50% {
-    transform: translateY(-6px);
-  }
-}
-
-@keyframes pulseButton {
-  0%, 100% {
-    transform: scale(1);
-  }
-  50% {
-    transform: scale(1.08);
-  }
-}
-
-/* ==========================================================================
-   RESPONSIVE DESIGN (HP / MOBILE FRIENDLY)
-   ========================================================================== */
-@media (max-width: 600px) {
-  .hud-layer {
-    padding: 10px;
-  }
-
-  .quest-tracker {
-    max-width: calc(100% - 150px);
-    padding: 8px 12px;
-  }
-
-  .quest-title {
-    font-size: 13px;
-  }
-
-  .quest-desc {
-    font-size: 11px;
-  }
-
-  .desktop-hint {
-    display: none;
-  }
-
-  .touch-controls {
-    padding: 0 14px 14px 14px;
-  }
-
-  .joystick-zone {
-    width: 100px;
-    height: 100px;
-  }
-
-  .joystick-knob {
-    width: 44px;
-    height: 44px;
-  }
-
-  .btn-action-a {
-    width: 66px;
-    height: 66px;
-    font-size: 20px;
-  }
-
-  .prompt-container {
-    bottom: 94px;
-  }
-
-  .letter-window {
-    padding: 24px 16px;
-  }
-}
-
-/* ==========================================================================
-   SCREEN FADE OVERLAY & 3D FLOATING CONTEXT BADGE
-   ========================================================================== */
-.screen-fade-overlay {
-  position: fixed;
-  top: 0;
-  left: 0;
-  width: 100vw;
-  height: 100vh;
-  background-color: #0c0914;
-  opacity: 0;
-  pointer-events: none;
-  z-index: 99999;
-  transition: opacity 0.45s ease-in-out;
-}
-
-.screen-fade-overlay.active {
-  opacity: 1;
-  pointer-events: auto;
-}
-
-/* Sharp Floating 3D Interaction Prompt Badge */
+/* 3D Projected Floating Interaction Badge (Mengambang di Atas Objek) */
 .floating-prompt-3d {
   position: fixed;
   display: none;
   pointer-events: none;
-  z-index: 40;
+  z-index: 35;
   transform: translate(-50%, -100%);
-  background: rgba(18, 24, 38, 0.94);
-  color: #ffd166;
-  border: 1.5px solid rgba(255, 209, 102, 0.85);
-  border-radius: 8px;
-  padding: 6px 12px;
-  font-size: 13px;
+  background: #fbf6ea;
+  color: #2b1d0c;
+  border: 2px solid #2b1d0c;
+  border-radius: 20px;
+  padding: 5px 14px;
+  font-family: 'Pixelify Sans', monospace;
+  font-size: 12px;
   font-weight: 700;
   letter-spacing: 0.3px;
   white-space: nowrap;
-  box-shadow: 0 4px 16px rgba(0, 0, 0, 0.6), 0 0 12px rgba(255, 209, 102, 0.25);
-  text-shadow: 0 1px 2px rgba(0, 0, 0, 0.9);
-  animation: floatBadgeBounce 1.5s ease-in-out infinite alternate;
+  box-shadow: 0 4px 10px rgba(0, 0, 0, 0.35);
+  animation: floatBadge 1.5s ease-in-out infinite alternate;
 }
 
 .floating-prompt-3d::after {
@@ -1053,17 +407,706 @@ html, body {
   transform: translateX(-50%);
   width: 0;
   height: 0;
-  border-left: 6px solid transparent;
-  border-right: 6px solid transparent;
-  border-top: 6px solid rgba(18, 24, 38, 0.96);
+  border-left: 5px solid transparent;
+  border-right: 5px solid transparent;
+  border-top: 6px solid #2b1d0c;
 }
 
 .floating-prompt-3d.visible {
   display: block;
 }
 
-@keyframes floatBadgeBounce {
+@keyframes floatBadge {
   0% { transform: translate(-50%, -100%) translateY(0px); }
   100% { transform: translate(-50%, -100%) translateY(-5px); }
 }
 
+/* Fallback Context Prompt */
+.prompt-container {
+  display: none;
+}
+
+/* Desktop Controls Hint */
+.desktop-hint {
+  position: absolute;
+  bottom: 14px;
+  left: 50%;
+  transform: translateX(-50%);
+  background: rgba(251, 246, 234, 0.92);
+  border: 1.5px solid #2b1d0c;
+  border-radius: 20px;
+  padding: 5px 16px;
+  font-size: 12px;
+  color: #3d2b1d;
+  pointer-events: none;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.25);
+  white-space: nowrap;
+}
+
+/* ==========================================================================
+   KONTROL SENTUH / MOBILE (D-PAD & TOMBOL AKSI A)
+   ========================================================================== */
+.touch-controls {
+  position: absolute;
+  bottom: 0;
+  left: 0;
+  width: 100%;
+  padding: 0 16px 18px 16px;
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-end;
+  pointer-events: none;
+}
+
+/* Circular Compass D-Pad */
+.joystick-zone {
+  width: 110px;
+  height: 110px;
+  position: relative;
+  pointer-events: auto;
+  touch-action: none;
+}
+
+.compass-ring {
+  width: 100%;
+  height: 100%;
+  border-radius: 50%;
+  background: #3a2717;
+  border: 3px solid #24160a;
+  box-shadow: 0 5px 15px rgba(0, 0, 0, 0.4), 0 0 0 2px #d4971c inset;
+  position: relative;
+}
+
+/* Diamond Directional Markers */
+.compass-ring::before {
+  content: "";
+  position: absolute;
+  top: 6px;
+  left: 50%;
+  transform: translateX(-50%);
+  width: 0;
+  height: 0;
+  border-left: 5px solid transparent;
+  border-right: 5px solid transparent;
+  border-bottom: 7px solid #ffd166;
+}
+
+.compass-ring::after {
+  content: "";
+  position: absolute;
+  bottom: 6px;
+  left: 50%;
+  transform: translateX(-50%);
+  width: 0;
+  height: 0;
+  border-left: 5px solid transparent;
+  border-right: 5px solid transparent;
+  border-top: 7px solid #ffd166;
+}
+
+.joystick-knob {
+  width: 50px;
+  height: 50px;
+  border-radius: 50%;
+  background: radial-gradient(circle at 35% 35%, #fffef7, #ebdcc3);
+  border: 2.5px solid #2b1d0c;
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.4);
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  margin-top: -25px;
+  margin-left: -25px;
+  pointer-events: none;
+  transform: translate(0px, 0px);
+  transition: transform 0.05s ease-out;
+}
+
+/* Round Action A Button */
+.action-buttons {
+  pointer-events: auto;
+}
+
+.btn-action-a {
+  width: 72px;
+  height: 72px;
+  border-radius: 50%;
+  background: radial-gradient(circle at 35% 35%, #ffffff, #f4ecd9);
+  border: 3px solid #2b1d0c;
+  box-shadow: 0 5px 0 #2b1d0c, 0 8px 16px rgba(0, 0, 0, 0.35);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  transition: transform 0.1s ease, box-shadow 0.1s ease;
+}
+
+.btn-action-a:active {
+  transform: translateY(4px);
+  box-shadow: 0 1px 0 #2b1d0c;
+}
+
+.btn-action-a .a-letter {
+  font-family: 'Pixelify Sans', monospace;
+  font-size: 26px;
+  font-weight: 700;
+  color: #2b1d0c;
+  line-height: 1;
+}
+
+.btn-action-a .sub {
+  font-size: 9.5px;
+  font-weight: 700;
+  color: #7a6350;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  margin-top: 1px;
+}
+
+/* Toast Notification Banner */
+.toast-banner {
+  position: absolute;
+  top: 18px;
+  left: 50%;
+  transform: translate(-50%, -60px);
+  background: #2b1d0c;
+  color: #fbf6ea;
+  border: 1.5px solid #ffd166;
+  border-radius: 20px;
+  padding: 8px 18px;
+  font-family: 'Pixelify Sans', monospace;
+  font-size: 13px;
+  font-weight: 600;
+  box-shadow: 0 6px 18px rgba(0, 0, 0, 0.45);
+  z-index: 100;
+  transition: transform 0.3s cubic-bezier(0.18, 0.89, 0.32, 1.28);
+  pointer-events: none;
+  white-space: nowrap;
+}
+
+.toast-banner.show {
+  transform: translate(-50%, 0);
+}
+
+/* ==========================================================================
+   MODAL WINDOWS & POPUPS (RETRO CREAM & PARCHMENT STYLING)
+   ========================================================================== */
+.modal-overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  z-index: 60;
+  background: rgba(18, 24, 38, 0.65);
+  backdrop-filter: blur(3px);
+  -webkit-backdrop-filter: blur(3px);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 16px;
+  opacity: 0;
+  visibility: hidden;
+  transition: opacity 0.25s ease, visibility 0.25s ease;
+}
+
+.modal-overlay.active {
+  opacity: 1;
+  visibility: visible;
+}
+
+.modal-window {
+  width: 92%;
+  max-width: 480px;
+  background: #fbf6ea;
+  border: 2.5px solid #2b1d0c;
+  box-shadow: 0 12px 32px rgba(0, 0, 0, 0.5), 0 0 0 1px #fff inset;
+  border-radius: 14px;
+  padding: 22px;
+  position: relative;
+  max-height: 88vh;
+  overflow-y: auto;
+  animation: popInModal 0.3s cubic-bezier(0.18, 0.89, 0.32, 1.28);
+}
+
+@keyframes popInModal {
+  from { transform: scale(0.92); opacity: 0; }
+  to { transform: scale(1); opacity: 1; }
+}
+
+.modal-close {
+  position: absolute;
+  top: 12px;
+  right: 14px;
+  width: 32px;
+  height: 32px;
+  background: #f3ebd8;
+  border: 1.5px solid #2b1d0c;
+  border-radius: 6px;
+  font-size: 14px;
+  color: #2b1d0c;
+  font-weight: 700;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.modal-close:active {
+  background: #e2d5bd;
+}
+
+/* Dialog Berkarakter */
+.dialog-container {
+  display: flex;
+  flex-direction: column;
+}
+
+.dialog-header {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  margin-bottom: 14px;
+  padding-bottom: 10px;
+  border-bottom: 1.5px solid #e5d9c2;
+}
+
+.dialog-avatar {
+  width: 46px;
+  height: 46px;
+  border-radius: 8px;
+  border: 2px solid #2b1d0c;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 22px;
+  background-color: #ffd166;
+}
+
+.dialog-speaker {
+  font-family: 'Pixelify Sans', monospace;
+  font-size: 16px;
+  font-weight: 700;
+  color: #2b1d0c;
+}
+
+.dialog-role {
+  font-size: 11.5px;
+  color: #7a6350;
+}
+
+.dialog-text-body {
+  font-size: 14px;
+  line-height: 1.6;
+  color: #3d2b1d;
+  min-height: 60px;
+  margin-bottom: 16px;
+}
+
+.dialog-actions {
+  display: flex;
+  justify-content: flex-end;
+}
+
+.btn-retro {
+  background: #f4ecdc;
+  border: 1.5px solid #2b1d0c;
+  border-radius: 7px;
+  padding: 8px 16px;
+  font-family: 'Pixelify Sans', monospace;
+  font-size: 13px;
+  font-weight: 700;
+  color: #2b1d0c;
+  cursor: pointer;
+  box-shadow: 0 3px 0 #2b1d0c;
+}
+
+.btn-retro:active {
+  transform: translateY(2px);
+  box-shadow: 0 1px 0 #2b1d0c;
+}
+
+.btn-retro-gold {
+  background: #ffd166;
+  border: 2px solid #2b1d0c;
+  border-radius: 8px;
+  padding: 10px 18px;
+  font-family: 'Pixelify Sans', monospace;
+  font-size: 13px;
+  font-weight: 700;
+  color: #2b1d0c;
+  cursor: pointer;
+  box-shadow: 0 3px 0 #2b1d0c;
+}
+
+.btn-retro-gold:active {
+  transform: translateY(2px);
+  box-shadow: 0 1px 0 #2b1d0c;
+}
+
+/* Surat Kertas Parchment (Persis Video) */
+.letter-window {
+  background: #faf4e6;
+  border: 3px solid #2b1d0c;
+  padding: 28px 24px 20px 24px;
+  box-shadow: 0 14px 40px rgba(0, 0, 0, 0.45);
+}
+
+.letter-seal-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  background: #f1e4cd;
+  border: 1px solid #d8c7a8;
+  border-radius: 14px;
+  padding: 3px 10px;
+  font-family: 'Pixelify Sans', monospace;
+  font-size: 10px;
+  font-weight: 700;
+  color: #8c735d;
+  margin-bottom: 12px;
+}
+
+.letter-header {
+  margin-bottom: 14px;
+}
+
+.letter-title {
+  font-family: 'Pixelify Sans', 'Cinzel', serif;
+  font-size: 20px;
+  font-weight: 700;
+  color: #2b1d0c;
+  line-height: 1.25;
+  margin-bottom: 4px;
+}
+
+.letter-date {
+  font-size: 11.5px;
+  color: #8c735d;
+  font-style: italic;
+}
+
+.letter-greeting {
+  font-size: 14px;
+  font-weight: 600;
+  color: #2b1d0c;
+  margin-bottom: 10px;
+}
+
+.letter-content p {
+  font-size: 13.5px;
+  line-height: 1.65;
+  color: #3e2815;
+  margin-bottom: 12px;
+}
+
+.letter-signature {
+  text-align: right;
+  font-family: 'Cinzel', serif;
+  font-size: 14px;
+  font-weight: 700;
+  color: #2b1d0c;
+  margin: 18px 0 14px 0;
+}
+
+.letter-bottom-action {
+  display: flex;
+  justify-content: flex-end;
+}
+
+/* Kupon Kenangan */
+.coupons-heading {
+  font-family: 'Pixelify Sans', monospace;
+  font-size: 12px;
+  color: #8c735d;
+  margin: 16px 0 8px 0;
+  text-transform: uppercase;
+}
+
+.coupon-card {
+  background: #fffdf8;
+  border: 1.5px dashed #d4971c;
+  border-radius: 8px;
+  padding: 10px 12px;
+  margin-bottom: 8px;
+}
+
+.coupon-code {
+  font-family: 'Pixelify Sans', monospace;
+  font-size: 11px;
+  font-weight: 700;
+  color: #d62828;
+}
+
+.coupon-title {
+  font-size: 13px;
+  font-weight: 700;
+  color: #2b1d0c;
+}
+
+.coupon-desc {
+  font-size: 11.5px;
+  color: #634d3c;
+}
+
+/* Modal Arcade */
+.arcade-window {
+  background: #1e1428;
+  border: 3px solid #d4971c;
+  color: #ffffff;
+  padding: 16px;
+  max-width: 440px;
+}
+
+.arcade-title-bar {
+  font-family: 'Pixelify Sans', monospace;
+  font-size: 14px;
+  font-weight: 700;
+  color: #ffd166;
+  text-align: center;
+  margin-bottom: 10px;
+}
+
+.arcade-screen-frame {
+  display: flex;
+  justify-content: center;
+  margin-bottom: 12px;
+}
+
+#arcade-canvas {
+  background: #0d1117;
+  border: 2px solid #ffd166;
+  border-radius: 6px;
+  max-width: 100%;
+}
+
+.arcade-controls-touch {
+  display: flex;
+  gap: 8px;
+  justify-content: center;
+}
+
+.btn-arcade-key {
+  flex: 1;
+  background: #2b1d0c;
+  border: 1.5px solid #ffd166;
+  border-radius: 6px;
+  color: #ffd166;
+  font-family: 'Pixelify Sans', monospace;
+  font-size: 11.5px;
+  font-weight: 700;
+  padding: 10px 6px;
+  cursor: pointer;
+  box-shadow: 0 3px 0 #000;
+}
+
+.btn-arcade-key:active {
+  transform: translateY(2px);
+  box-shadow: 0 1px 0 #000;
+}
+
+.btn-arcade-drop {
+  background: #d62828;
+  color: #fff;
+  border-color: #ffbe0b;
+}
+
+/* Modal Photobooth */
+.photobooth-window {
+  max-width: 460px;
+}
+
+.photobooth-header {
+  font-family: 'Pixelify Sans', monospace;
+  font-size: 16px;
+  font-weight: 700;
+  color: #2b1d0c;
+  margin-bottom: 4px;
+}
+
+.photobooth-desc {
+  font-size: 12px;
+  color: #7a6350;
+  margin-bottom: 12px;
+}
+
+.polaroid-preview-area {
+  display: flex;
+  justify-content: center;
+  margin-bottom: 12px;
+}
+
+#photo-preview {
+  max-width: 240px;
+  height: auto;
+  border-radius: 4px;
+  box-shadow: 0 6px 18px rgba(0, 0, 0, 0.3);
+  display: none;
+}
+
+.sticker-selector {
+  display: flex;
+  gap: 6px;
+  flex-wrap: wrap;
+  margin-bottom: 10px;
+}
+
+.sticker-tag {
+  background: #f3ebd8;
+  border: 1px solid #c2b5a1;
+  border-radius: 12px;
+  padding: 4px 10px;
+  font-size: 11px;
+  cursor: pointer;
+  color: #3d2b1d;
+}
+
+.sticker-tag.active {
+  background: #ffd166;
+  border-color: #2b1d0c;
+  font-weight: 700;
+}
+
+.photo-input-group input {
+  width: 100%;
+  padding: 8px 12px;
+  border: 1.5px solid #2b1d0c;
+  border-radius: 6px;
+  background: #fff;
+  font-size: 12px;
+  margin-bottom: 12px;
+}
+
+.photobooth-actions {
+  display: flex;
+  gap: 8px;
+  justify-content: flex-end;
+}
+
+/* Modal Settings */
+.settings-section {
+  margin-bottom: 16px;
+  padding-bottom: 12px;
+  border-bottom: 1px solid #e5d9c2;
+}
+
+.settings-label {
+  font-family: 'Pixelify Sans', monospace;
+  font-size: 12px;
+  font-weight: 700;
+  color: #2b1d0c;
+  margin-bottom: 6px;
+}
+
+.settings-desc {
+  font-size: 12px;
+  line-height: 1.5;
+  color: #5a4535;
+}
+
+.time-buttons-row {
+  display: flex;
+  gap: 8px;
+}
+
+.btn-time-opt {
+  flex: 1;
+  background: #f4ecdc;
+  border: 1.5px solid #2b1d0c;
+  border-radius: 6px;
+  padding: 6px;
+  font-size: 11px;
+  font-weight: 600;
+  cursor: pointer;
+}
+
+.btn-danger {
+  background: #d62828;
+  color: #fff;
+  border: 1.5px solid #2b1d0c;
+  border-radius: 6px;
+  padding: 8px 14px;
+  font-family: 'Pixelify Sans', monospace;
+  font-size: 12px;
+  font-weight: 700;
+  cursor: pointer;
+  margin-top: 8px;
+}
+
+/* Screen Fade Overlay */
+.screen-fade-overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100vw;
+  height: 100vh;
+  background-color: #0c0914;
+  opacity: 0;
+  pointer-events: none;
+  z-index: 99999;
+  transition: opacity 0.4s ease-in-out;
+}
+
+.screen-fade-overlay.active {
+  opacity: 1;
+  pointer-events: auto;
+}
+
+/* ==========================================================================
+   RESPONSIVE DESIGN (HP / MOBILE FIRST)
+   ========================================================================== */
+@media (max-width: 600px) {
+  .hud-layer {
+    padding: 10px;
+  }
+
+  .quest-tracker {
+    max-width: calc(100% - 145px);
+    padding: 8px 10px;
+  }
+
+  .quest-title {
+    font-size: 13.5px;
+  }
+
+  .quest-desc {
+    font-size: 10.5px;
+  }
+
+  .desktop-hint {
+    display: none;
+  }
+
+  .touch-controls {
+    padding: 0 10px 14px 10px;
+  }
+
+  .joystick-zone {
+    width: 96px;
+    height: 96px;
+  }
+
+  .joystick-knob {
+    width: 44px;
+    height: 44px;
+    margin-top: -22px;
+    margin-left: -22px;
+  }
+
+  .btn-action-a {
+    width: 64px;
+    height: 64px;
+  }
+
+  .btn-action-a .a-letter {
+    font-size: 23px;
+  }
+
+  .start-card {
+    padding: 18px 16px;
+  }
+
+  .start-title {
+    font-size: 28px;
+  }
+}

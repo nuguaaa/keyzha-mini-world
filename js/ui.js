@@ -1,20 +1,32 @@
 /**
  * ============================================================================
- * PENGELOLA TAMPILAN PENGGUNA (HUD, MODAL, DIALOG & VIRTUAL JOYSTICK)
+ * PENGELOLA TAMPILAN PENGGUNA (HUD, MODAL, DIALOG, D-PAD & START SCREEN)
  * ============================================================================
- * Menyediakan antarmuka yang bersih, responsif untuk HP (mobile-first) dan
- * Desktop/PC, dengan penguncian input otomatis saat modal terbuka (agar karakter
- * tidak jalan sendiri di belakang layar), dan prompt interaksi tunggal.
+ * Menyediakan antarmuka retro cream & dark brown persis video referensi:
+ * - Start Screen Card pembuka dengan judul "Taman Kecil." dan tombol Mulai
+ * - Top-Left Quest Tracker Box dengan progress bar & star badge
+ * - Top-Right retro square buttons (Buku/Inventory, Suara, Pengaturan)
+ * - Virtual Compass D-Pad & Tombol Aksi "A" di mobile
+ * - 3D Projected Floating Contextual Badge mengambang tepat di atas objek
+ * - Modal dialog typewriter, surat parchment, dan kontrol arcade Tetris
  */
 
 class UIManager {
   constructor(game) {
     this.game = game;
 
+    // Start Screen
+    this.startScreenEl = document.getElementById("start-screen");
+
     // Elemen DOM HUD
-    this.questTitleEl = document.getElementById("quest-title");
-    this.questDescEl = document.getElementById("quest-desc");
+    this.hudLayerEl = document.getElementById("hud-layer");
+    this.questChapterEl = document.getElementById("quest-chapter");
+    this.questProgressFillEl = document.getElementById("quest-progress-fill");
     this.questStepEl = document.getElementById("quest-step");
+    this.questTitleEl = document.getElementById("quest-title");
+    this.questSubTitleEl = document.getElementById("quest-sub-title");
+    this.questDescEl = document.getElementById("quest-desc");
+
     this.promptBtnEl = document.getElementById("context-prompt");
     this.actionBtnEl = document.getElementById("btn-action");
     this.invBadgeEl = document.getElementById("inv-badge");
@@ -30,6 +42,7 @@ class UIManager {
     this.dialogText = document.getElementById("dialog-text");
 
     this.letterModal = document.getElementById("modal-letter");
+    this.letterSealText = document.getElementById("letter-seal-text");
     this.letterTitle = document.getElementById("letter-title");
     this.letterDate = document.getElementById("letter-date");
     this.letterGreeting = document.getElementById("letter-greeting");
@@ -56,13 +69,13 @@ class UIManager {
     this.setupVirtualJoystick();
   }
 
-  // Helper Penguncian Input Karakter saat Modal Terbuka
+  // Penguncian Input Karakter saat Modal Terbuka
   updateModalState() {
     const isAnyModalActive = !!document.querySelector(".modal-overlay.active");
-    this.game.isInputLocked = isAnyModalActive;
+    const isStartActive = this.startScreenEl && !this.startScreenEl.classList.contains("hidden");
+    this.game.isInputLocked = isAnyModalActive || isStartActive;
 
-    // Reset input agar karakter berhenti bergerak
-    if (isAnyModalActive) {
+    if (this.game.isInputLocked) {
       this.game.input.left = false;
       this.game.input.right = false;
       this.game.input.up = false;
@@ -74,38 +87,43 @@ class UIManager {
   }
 
   setupEventListeners() {
-    // Tombol Waktu (Siang / Sore / Malam)
-    const timeBtn = document.getElementById("btn-time");
-    if (timeBtn) {
-      timeBtn.addEventListener("click", () => {
+    // 1. Start Screen Buttons
+    const startPlayBtn = document.getElementById("btn-start-play");
+    if (startPlayBtn) {
+      startPlayBtn.addEventListener("click", () => {
+        window.soundSystem.ensureContext();
         window.soundSystem.playClick();
-        const nextTime = this.game.world.timeOfDay === "day" ? "dusk" : (this.game.world.timeOfDay === "dusk" ? "night" : "day");
-        this.game.setTimeOfDay(nextTime);
-        this.updateTimeButtonIcon(nextTime);
+        if (this.startScreenEl) {
+          this.startScreenEl.classList.add("hidden");
+        }
+        this.game.isInputLocked = false;
+        if (!window.soundSystem.bgmPlaying) {
+          window.soundSystem.toggleBGM();
+        }
+        this.showToast("Selamat datang di Taman Kecil! 🌿");
       });
     }
 
-    // Tombol Audio / Mute
-    const audioBtn = document.getElementById("btn-audio");
-    if (audioBtn) {
-      audioBtn.addEventListener("click", () => {
-        const isMuted = window.soundSystem.toggleMute();
-        audioBtn.innerHTML = isMuted ? "🔇" : "🔊";
-        this.showToast(isMuted ? "Suara dimatikan" : "Suara aktif");
+    const startSettingsBtn = document.getElementById("btn-start-settings");
+    if (startSettingsBtn) {
+      startSettingsBtn.addEventListener("click", () => {
+        window.soundSystem.ensureContext();
+        window.soundSystem.playClick();
+        this.openSettings();
       });
     }
 
-    // Tombol Musik BGM
-    const bgmBtn = document.getElementById("btn-bgm");
-    if (bgmBtn) {
-      bgmBtn.addEventListener("click", () => {
+    const startMusicBtn = document.getElementById("btn-start-music");
+    if (startMusicBtn) {
+      startMusicBtn.addEventListener("click", () => {
+        window.soundSystem.ensureContext();
         const playing = window.soundSystem.toggleBGM();
-        bgmBtn.classList.toggle("active", playing);
+        startMusicBtn.innerHTML = playing ? "🎵 Musik: Nyala" : "🎵 Musik: Mati";
         this.showToast(playing ? "Musik latar diputar 🎵" : "Musik latar dijeda");
       });
     }
 
-    // Tombol Buka Inventory
+    // 2. Top Controls
     const invBtn = document.getElementById("btn-inventory");
     if (invBtn) {
       invBtn.addEventListener("click", () => {
@@ -114,7 +132,15 @@ class UIManager {
       });
     }
 
-    // Tombol Pengaturan
+    const audioBtn = document.getElementById("btn-audio");
+    if (audioBtn) {
+      audioBtn.addEventListener("click", () => {
+        const isMuted = window.soundSystem.toggleMute();
+        audioBtn.innerHTML = isMuted ? "🔇" : "🔊";
+        this.showToast(isMuted ? "Suara dimatikan" : "Suara aktif 🔊");
+      });
+    }
+
     const settingsBtn = document.getElementById("btn-settings");
     if (settingsBtn) {
       settingsBtn.addEventListener("click", () => {
@@ -123,7 +149,17 @@ class UIManager {
       });
     }
 
-    // Tombol Aksi Mobile "A" & Prompt Kontekstual
+    // Pilihan Waktu di Pengaturan (Siang / Sore Senja / Malam)
+    document.querySelectorAll(".btn-time-opt").forEach(btn => {
+      btn.addEventListener("click", () => {
+        window.soundSystem.playClick();
+        const time = btn.getAttribute("data-time");
+        this.game.setTimeOfDay(time);
+        this.showToast(`Suasana diubah ke: ${btn.innerText}`);
+      });
+    });
+
+    // 3. Tombol Aksi Mobile "A" & Prompt Kontekstual
     if (this.actionBtnEl) {
       this.actionBtnEl.addEventListener("touchstart", (e) => {
         e.preventDefault();
@@ -143,7 +179,7 @@ class UIManager {
       });
     }
 
-    // Tombol Lanjut Dialog
+    // 4. Tombol Lanjut Dialog
     const dialogNextBtn = document.getElementById("dialog-next");
     if (dialogNextBtn) {
       dialogNextBtn.addEventListener("click", () => {
@@ -155,7 +191,16 @@ class UIManager {
       });
     }
 
-    // Tutup Modal via Tombol X
+    // 5. Tombol Simpan Petunjuk di Surat
+    const saveHintBtn = document.getElementById("btn-save-hint");
+    if (saveHintBtn) {
+      saveHintBtn.addEventListener("click", () => {
+        window.soundSystem.playClick();
+        this.closeLetter();
+      });
+    }
+
+    // 6. Tutup Modal via Tombol X
     document.querySelectorAll(".modal-close").forEach(btn => {
       btn.addEventListener("click", (e) => {
         window.soundSystem.playClick();
@@ -170,18 +215,18 @@ class UIManager {
       });
     });
 
-    // Reset Progress Game di Pengaturan
+    // 7. Reset Progres di Pengaturan
     const resetBtn = document.getElementById("btn-reset-progress");
     if (resetBtn) {
       resetBtn.addEventListener("click", () => {
-        if (confirm("Apakah kamu yakin ingin mereset seluruh progres petualangan ini dari awal?")) {
+        if (confirm("Apakah kamu yakin ingin mengulang petualangan ini dari awal?")) {
           this.game.resetProgress();
         }
       });
     }
   }
 
-  // --- VIRTUAL JOYSTICK MOBILE ---
+  // --- VIRTUAL COMPASS D-PAD MOBILE ---
   setupVirtualJoystick() {
     const zone = document.getElementById("joystick-zone");
     const knob = document.getElementById("joystick-knob");
@@ -190,7 +235,7 @@ class UIManager {
     let touchId = null;
     let startX = 0;
     let startY = 0;
-    const maxRadius = 38;
+    const maxRadius = 35;
 
     const handleStart = (clientX, clientY, id) => {
       if (this.game.isInputLocked) return;
@@ -219,7 +264,7 @@ class UIManager {
 
       knob.style.transform = `translate(${knobX}px, ${knobY}px)`;
 
-      const threshold = 10;
+      const threshold = 8;
       this.game.input.left = dx < -threshold;
       this.game.input.right = dx > threshold;
       this.game.input.up = dy < -threshold;
@@ -267,15 +312,18 @@ class UIManager {
   // --- UPDATE TAMPILAN HUD ---
 
   updateQuestTracker(questInfo) {
+    if (this.questChapterEl) this.questChapterEl.innerText = questInfo.chapter || "BAB 1 : TAMAN KECIL";
+    if (this.questProgressFillEl) this.questProgressFillEl.style.width = questInfo.progress || "20%";
     if (this.questStepEl) this.questStepEl.innerText = questInfo.step;
     if (this.questTitleEl) this.questTitleEl.innerText = questInfo.title;
+    if (this.questSubTitleEl) this.questSubTitleEl.innerText = questInfo.subTitle || "MISI AKTIF";
     if (this.questDescEl) this.questDescEl.innerText = questInfo.desc;
   }
 
   updateInventoryBadge(count) {
     if (this.invBadgeEl) {
       this.invBadgeEl.innerText = count;
-      this.invBadgeEl.style.display = count > 0 ? "inline-block" : "none";
+      this.invBadgeEl.style.display = count > 0 ? "inline-flex" : "none";
     }
   }
 
@@ -322,14 +370,6 @@ class UIManager {
     }, 450);
   }
 
-  updateTimeButtonIcon(time) {
-    const btn = document.getElementById("btn-time");
-    if (!btn) return;
-    if (time === "day") btn.innerHTML = "☀️";
-    else if (time === "dusk") btn.innerHTML = "🌅";
-    else btn.innerHTML = "🌙";
-  }
-
   showToast(message) {
     if (!this.toastEl) return;
     this.toastEl.innerText = message;
@@ -363,7 +403,7 @@ class UIManager {
         this.isTyping = false;
         clearInterval(this.typewriterTimer);
       }
-    }, 28);
+    }, 25);
   }
 
   skipTypewriter() {
@@ -378,9 +418,12 @@ class UIManager {
     this.updateModalState();
   }
 
-  // --- MODAL SURAT (SURAT PEMBUKA & SURAT PENUTUP PARCHMENT) ---
+  // --- MODAL SURAT (PARCHMENT WAX SEAL) ---
 
   openLetter(data, isClosing = false) {
+    if (this.letterSealText) {
+      this.letterSealText.innerText = data.badge || (isClosing ? "KADO & SURAT UTAMA" : "SEPUCUK SURAT UNTUKMU");
+    }
     this.letterTitle.innerText = data.title;
     this.letterDate.innerText = data.date;
     this.letterGreeting.innerText = data.greeting;
@@ -395,6 +438,7 @@ class UIManager {
     if (data.hint) {
       const hintEl = document.createElement("div");
       hintEl.className = "letter-hint";
+      hintEl.style.cssText = "font-style: italic; color: #8c735d; margin-top: 8px; font-size: 12px;";
       hintEl.innerText = data.hint;
       this.letterContent.appendChild(hintEl);
     }
@@ -423,6 +467,11 @@ class UIManager {
     this.updateModalState();
   }
 
+  closeLetter() {
+    this.letterModal.classList.remove("active");
+    this.updateModalState();
+  }
+
   // --- MODAL INVENTORY ---
 
   openInventory() {
@@ -430,18 +479,17 @@ class UIManager {
     const items = this.game.collectedItems;
 
     if (items.length === 0) {
-      this.invListEl.innerHTML = `<div class="empty-inv">Belum ada item kenangan yang terkumpul. Jelajahi taman untuk menemukannya!</div>`;
+      this.invListEl.innerHTML = `<div style="font-size: 13px; color: #7a6350; padding: 10px;">Belum ada item kenangan yang terkumpul. Jelajahi taman untuk menemukannya!</div>`;
       this.invDetailTitle.innerText = "Pilih Item";
       this.invDetailSummary.innerText = "";
       this.invDetailStory.innerText = "Klik salah satu item kenangan untuk membaca catatan di baliknya.";
     } else {
       items.forEach((item, idx) => {
         const btn = document.createElement("button");
-        btn.className = `inv-item-btn ${idx === 0 ? "active" : ""}`;
-        btn.innerHTML = `<span class="inv-item-icon">⭐</span> ${item.name}`;
+        btn.className = `btn-retro ${idx === 0 ? "active" : ""}`;
+        btn.style.cssText = "display: block; width: 100%; margin-bottom: 6px; text-align: left;";
+        btn.innerHTML = `<span style="color: #d4971c;">⭐</span> ${item.name}`;
         btn.addEventListener("click", () => {
-          document.querySelectorAll(".inv-item-btn").forEach(b => b.classList.remove("active"));
-          btn.classList.add("active");
           this.showItemDetail(item);
         });
         this.invListEl.appendChild(btn);
@@ -459,7 +507,7 @@ class UIManager {
     this.invDetailStory.innerText = item.story || item.desc || "";
   }
 
-  // --- MODAL ARCADE ---
+  // --- MODAL ARCADE TETRIS ---
 
   openArcade() {
     this.arcadeModal.classList.add("active");
@@ -471,24 +519,36 @@ class UIManager {
         this.game.onArcadeWin();
       });
 
+      // Kontrol Sentuh di Bawah Papan Layar (Sesuai Video Frame 00:40)
       const leftBtn = document.getElementById("arcade-btn-left");
       const rightBtn = document.getElementById("arcade-btn-right");
-      if (leftBtn && rightBtn) {
-        leftBtn.addEventListener("touchstart", (e) => { e.preventDefault(); this.game.arcadeGame.moveLeft = true; });
-        leftBtn.addEventListener("touchend", () => { this.game.arcadeGame.moveLeft = false; });
-        rightBtn.addEventListener("touchstart", (e) => { e.preventDefault(); this.game.arcadeGame.moveRight = true; });
-        rightBtn.addEventListener("touchend", () => { this.game.arcadeGame.moveRight = false; });
+      const rotateBtn = document.getElementById("arcade-btn-rotate");
+      const dropBtn = document.getElementById("arcade-btn-drop");
+
+      if (leftBtn) {
+        leftBtn.addEventListener("touchstart", (e) => { e.preventDefault(); this.game.arcadeGame.moveLeft(); });
+        leftBtn.addEventListener("click", () => this.game.arcadeGame.moveLeft());
+      }
+      if (rightBtn) {
+        rightBtn.addEventListener("touchstart", (e) => { e.preventDefault(); this.game.arcadeGame.moveRight(); });
+        rightBtn.addEventListener("click", () => this.game.arcadeGame.moveRight());
+      }
+      if (rotateBtn) {
+        rotateBtn.addEventListener("touchstart", (e) => { e.preventDefault(); this.game.arcadeGame.rotate(); });
+        rotateBtn.addEventListener("click", () => this.game.arcadeGame.rotate());
+      }
+      if (dropBtn) {
+        dropBtn.addEventListener("touchstart", (e) => { e.preventDefault(); this.game.arcadeGame.hardDrop(); });
+        dropBtn.addEventListener("click", () => this.game.arcadeGame.hardDrop());
       }
 
       window.addEventListener("keydown", (e) => {
         if (!this.arcadeModal.classList.contains("active")) return;
-        if (e.key === "ArrowLeft" || e.key === "a" || e.key === "A") this.game.arcadeGame.moveLeft = true;
-        if (e.key === "ArrowRight" || e.key === "d" || e.key === "D") this.game.arcadeGame.moveRight = true;
-      });
-      window.addEventListener("keyup", (e) => {
-        if (!this.arcadeModal.classList.contains("active")) return;
-        if (e.key === "ArrowLeft" || e.key === "a" || e.key === "A") this.game.arcadeGame.moveLeft = false;
-        if (e.key === "ArrowRight" || e.key === "d" || e.key === "D") this.game.arcadeGame.moveRight = false;
+        if (e.key === "ArrowLeft" || e.key === "a" || e.key === "A") this.game.arcadeGame.moveLeft();
+        if (e.key === "ArrowRight" || e.key === "d" || e.key === "D") this.game.arcadeGame.moveRight();
+        if (e.key === "ArrowUp" || e.key === "w" || e.key === "W") this.game.arcadeGame.rotate();
+        if (e.key === "ArrowDown" || e.key === "s" || e.key === "S") this.game.arcadeGame.drop();
+        if (e.key === " ") this.game.arcadeGame.hardDrop();
       });
     }
 
@@ -538,9 +598,9 @@ class UIManager {
       window.soundSystem.playClick();
       const a = document.createElement("a");
       a.href = currentPhotoData;
-      a.download = `Kenangan-Diorama-${window.GAME_CONFIG.recipientName}.png`;
+      a.download = `Kenangan-Taman-Kecil-${window.GAME_CONFIG.recipientName}.png`;
       a.click();
-      this.showToast("Foto Polaroid berhasil disimpan ke perangkatmu! 📸");
+      this.showToast("Foto Polaroid berhasil diunduh ke perangkatmu! 📸");
     };
   }
 
