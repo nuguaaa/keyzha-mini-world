@@ -123,7 +123,38 @@ class GameApp {
     this.npcs.push(rina);
     this.interactionManager.register(rina);
 
-    // B. Ayam Putih Riang Berkeliaran Bebas di Halaman (Sesuai Video)
+    // 5. Kumpul Warga di Area Api Unggun (Membicarakan Dimas & Menjawab Pencarian Keyzha)
+    // Bu RT di dekat bangku selatan api unggun
+    const buRt = new NPC(this.world, "bu_rt", cfg.npcs.bu_rt, 13.2, -9.2, 0);
+    buRt.promptText = "[A] Bicara dengan Bu RT";
+    buRt.onInteract = () => {
+      window.soundSystem.playClick();
+      this.ui.openDialog(cfg.npcs.bu_rt.name, cfg.npcs.bu_rt.role, cfg.npcs.bu_rt.avatarColor, buRt.getNextDialogue());
+    };
+    this.npcs.push(buRt);
+    this.interactionManager.register(buRt);
+
+    // Pak RT Broto di dekat bangku timur api unggun
+    const pakRt = new NPC(this.world, "pak_rt", cfg.npcs.pak_rt, 16.5, -11.5, 0);
+    pakRt.promptText = "[A] Bicara dengan Pak RT";
+    pakRt.onInteract = () => {
+      window.soundSystem.playClick();
+      this.ui.openDialog(cfg.npcs.pak_rt.name, cfg.npcs.pak_rt.role, cfg.npcs.pak_rt.avatarColor, pakRt.getNextDialogue());
+    };
+    this.npcs.push(pakRt);
+    this.interactionManager.register(pakRt);
+
+    // Mbak Tari di dekat bangku barat laut api unggun
+    const mbakTari = new NPC(this.world, "mbak_tari", cfg.npcs.mbak_tari, 12.5, -13.2, 0);
+    mbakTari.promptText = "[A] Bicara dengan Mbak Tari";
+    mbakTari.onInteract = () => {
+      window.soundSystem.playClick();
+      this.ui.openDialog(cfg.npcs.mbak_tari.name, cfg.npcs.mbak_tari.role, cfg.npcs.mbak_tari.avatarColor, mbakTari.getNextDialogue());
+    };
+    this.npcs.push(mbakTari);
+    this.interactionManager.register(mbakTari);
+
+    // B. Hewan Peliharaan Berkeliaran Bebas di Halaman (Ayam & Kucing Oranye)
     const chicken1 = new RoamingAnimal(this.world, "chicken", "chicken1", cfg.animals.chicken1, 1.5, 4.5);
     chicken1.promptText = "[A] Elus Ayam";
     chicken1.onInteract = () => {
@@ -141,6 +172,16 @@ class GameApp {
     };
     this.animals.push(chicken2);
     this.interactionManager.register(chicken2);
+
+    // Miko si Kucing Oranye
+    const cat = new RoamingAnimal(this.world, "cat", "catOrange", cfg.animals.catOrange, -7.0, 2.5);
+    cat.promptText = "[A] Elus Miko si Kucing";
+    cat.onInteract = () => {
+      window.soundSystem.playCatMeow();
+      this.ui.showToast(`🐱 ${cfg.animals.catOrange.petMessage}`);
+    };
+    this.animals.push(cat);
+    this.interactionManager.register(cat);
 
     // C. Objek Interaktif Khusus
     // 1. Peti Kayu Pelataran dengan Surat Sambutan (Box Sambutan di Taman Depan Bawah: X = 0.5, Z = 5.2)
@@ -205,6 +246,106 @@ class GameApp {
       }
     };
     this.interactionManager.register(campfire);
+
+    // 3.6. Kotak Surat Kayu (Letterbox di Sisi Barat Jalan Depan: X = -3.5, Z = 5.0)
+    const letterbox = {
+      x: -3.5,
+      z: 5.0,
+      y: 0.04,
+      zone: "exterior",
+      badgeHeight: 1.5,
+      promptText: "[A] Periksa Kotak Surat",
+      onInteract: () => {
+        window.soundSystem.playClick();
+        this.ui.openDialog(
+          "Kotak Surat Kayu",
+          "Secarik Kartu Pos Manis",
+          "#b08968",
+          "Ada secarik kartu pos bertuliskan tulisan tangan yang rapi:\n\n'Untuk Keyzha... Setiap sudut kecil di taman ini dibangun dengan penuh kehangatan. Semoga tempat ini selalu membuatmu tersenyum kapan pun kamu datang.'\n\n- Dimas"
+        );
+      }
+    };
+    this.interactionManager.register(letterbox);
+
+    // 3.7. Papan Mading Informasi Desa (X = 5.5, Z = 6.2)
+    const noticeBoard = {
+      x: 5.5,
+      z: 6.2,
+      y: 0.04,
+      zone: "exterior",
+      badgeHeight: 2.2,
+      promptText: "[A] Baca Mading Desa",
+      onInteract: () => {
+        window.soundSystem.playClick();
+        this.ui.openDialog(
+          "Mading Informasi Desa",
+          "Pengumuman Warga",
+          "#4a6b82",
+          "📌 PENGUMUMAN WARGA TAMAN KECIL:\n\n• Suasana desa hari ini sangat tenang dan bersahabat.\n• Para warga sedang berkumpul santai di area api unggun timur laut.\n• Bagi siapa pun yang mencari Mas Dimas, beliau menitipkan salam hangat dan kenangan manis untuk Keyzha di dalam rumah kayu teras atas."
+        );
+      }
+    };
+    this.interactionManager.register(noticeBoard);
+
+    // 3.8. Sumur Tua Batu Air Segar di Kebun Barat (X = -16.5, Z = -3.0)
+    const villageWell = {
+      x: -16.5,
+      z: -3.0,
+      y: 0.4,
+      zone: "exterior",
+      badgeHeight: 1.8,
+      promptText: "[A] Timba Air Sumur",
+      onInteract: () => {
+        window.soundSystem.playClick();
+        this.ui.showToast("💧 Gemericik air sumur terdengar segar. Membasuh tangan dengan air sumur yang dingin membuat pikiranmu tenang dan rileks.");
+      }
+    };
+    this.interactionManager.register(villageWell);
+
+    // 3.9. Keranjang Piknik Buah di Bangku Taman Depan (X = -4.8, Z = 4.5)
+    const picnicBasket = {
+      x: -4.8,
+      z: 4.5,
+      y: 0.5,
+      zone: "exterior",
+      badgeHeight: 1.4,
+      promptText: "[A] Cicipi Buah Segar",
+      onInteract: () => {
+        window.soundSystem.playClick();
+        this.ui.showToast("🍎 Kamu mencicipi sepotong apel merah manis yang renyah dari keranjang piknik. Rasanya begitu menyegarkan!");
+      }
+    };
+    this.interactionManager.register(picnicBasket);
+
+    // 3.10. Kotak Bunga Parapet Teras (X = -4.0, Z = -8.0, Y = 1.2)
+    const terraceFlowers = {
+      x: -4.0,
+      z: -8.0,
+      y: 1.2,
+      zone: "exterior",
+      badgeHeight: 2.2,
+      promptText: "[A] Cium Aroma Bunga Teras",
+      onInteract: () => {
+        window.soundSystem.playClick();
+        this.ui.showToast("🌸 Wangi harum bunga aster dan mawar teras yang segar menenangkan perasaanmu.");
+      }
+    };
+    this.interactionManager.register(terraceFlowers);
+
+    // 3.11. Tepian Dermaga Menatap Sungai (X = -9.2, Z = 1.5, Y = 0.2)
+    const riverOverlook = {
+      x: -9.2,
+      z: 1.5,
+      y: 0.22,
+      zone: "exterior",
+      badgeHeight: 1.4,
+      promptText: "[A] Nikmati Gemericik Sungai",
+      onInteract: () => {
+        window.soundSystem.playClick();
+        this.ui.showToast("🌊 Suara gemericik air sungai biru yang mengalir jernih di bawah jembatan membawa kedamaian di hatimu.");
+      }
+    };
+    this.interactionManager.register(riverOverlook);
 
     // 4. Pintu Depan Rumah Kayu di Atas Teras (Z = -10.4, Y = 1.2)
     const frontDoor = {

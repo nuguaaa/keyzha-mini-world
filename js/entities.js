@@ -151,14 +151,14 @@ class Player {
     if (isInterior) {
       targetY = 0;
     } else {
-      const onStairs = (this.x >= -3.0 && this.x <= 3.0 && this.z <= -4.0 && this.z >= -8.0);
+      const onStairs = (this.x >= -3.35 && this.x <= 3.35 && this.z <= -3.9 && this.z >= -8.1);
       const onTerrace = (this.x >= -9.0 && this.x <= 9.0 && this.z <= -8.0 && this.z >= -18.5);
 
       if (onTerrace) {
         targetY = 1.2;
       } else if (onStairs) {
-        // Interpolasi ramp tangga batu dari Z = -4.0 (Y=0) ke Z = -8.0 (Y=1.2)
-        const progress = 1 - (this.z - (-8.0)) / ((-4.0) - (-8.0));
+        // Interpolasi ramp tangga batu dari Z = -3.9 (Y=0) ke Z = -8.0 (Y=1.2)
+        const progress = ((-3.9) - this.z) / ((-3.9) - (-8.0));
         targetY = Math.max(0, Math.min(1.2, progress * 1.2));
       }
     }
@@ -236,6 +236,10 @@ class NPC {
     if (this.id === "paman") defaultTex = tg.getNpcPamanSprite();
     else if (this.id === "kakek") defaultTex = tg.getNpcKakekSprite();
     else if (this.id === "rina") defaultTex = tg.getNpcRinaSprite();
+    else if (this.id === "dito") defaultTex = tg.getNpcDitoSprite();
+    else if (this.id === "bu_rt") defaultTex = tg.getNpcBuRtSprite();
+    else if (this.id === "pak_rt") defaultTex = tg.getNpcPakRtSprite();
+    else if (this.id === "mbak_tari") defaultTex = tg.getNpcMbakTariSprite();
     else defaultTex = tg.getNpcPamanSprite();
 
     const mat = new THREE.MeshLambertMaterial({
@@ -307,7 +311,7 @@ class RoamingAnimal {
 
   initMesh() {
     const tg = window.textureGen;
-    const defaultTex = tg.getChickenSprite();
+    const defaultTex = (this.type === "cat") ? tg.getCatSprite() : tg.getChickenSprite();
 
     const mat = new THREE.MeshLambertMaterial({
       map: defaultTex.clone(),

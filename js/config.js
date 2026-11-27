@@ -143,6 +143,39 @@ window.GAME_CONFIG = {
         "Rumah kayu di belakangku ini sudah disiapkan dengan sangat hangat oleh Dimas. Perapiannya sudah menyala dan suasananya damai sekali.",
         "Kalau kamu mencari kunci kuningan untuk membukanya, sepertinya tersimpan di sudut teduh dekat tepian sungai sebelah barat. Coba periksa di balik pepohonan ya!"
       ]
+    },
+    bu_rt: {
+      name: "Bu RT",
+      role: "Warga Desa yang Ramah",
+      avatarColor: "#c97b63",
+      dialogues: [
+        "Loh, neng manis... kamu Keyzha ya? Dari tadi kelihatan mondar-mandir keliling taman, lagi nyariin seseorang ya?",
+        "Tadi kami para warga di sini lagi ngobrolin kamu sama Dimas. Mas Dimas itu kemarin sempat nungguin lama sekali di sudut taman ini...",
+        "Tapi kata Pak RT, Mas Dimas sudah tidak tinggal di desa ini lagi. Dia pamit pergi demi masa depan... tapi sebelum berangkat, dia sibuk sekali menata taman indah ini khusus untuk kamu.",
+        "Coba tanyakan ke Pak RT di sebelahku, beliau sempat bicara panjang lebar dengan Dimas sebelum dia berangkat."
+      ]
+    },
+    pak_rt: {
+      name: "Pak RT Broto",
+      role: "Ketua RT Desa",
+      avatarColor: "#4a6b82",
+      dialogues: [
+        "Betul nak Keyzha, Dimas memang sudah tidak tinggal di sini lagi. Waktu kemarin pamit ke bapak, wajahnya kelihatan berat sekali harus meninggalkan tempat ini.",
+        "Dia berpesan pada bapak: 'Pak RT, kalau nanti Keyzha datang ke taman mencari saya, tolong sampaikan kalau semua sudut taman ini sengaja saya buat agar dia bisa tersenyum dan rehat sejenak.'",
+        "Dia juga menitipkan kunci kuningan dan kado kenangan di dalam rumah kayu teras atas. Coba cari kuncinya di tepian sungai dekat pohon barat, lalu buka rumah itu ya nak.",
+        "Semoga kamu menyukai suasana damai di taman kecil ini ya nak Keyzha."
+      ]
+    },
+    mbak_tari: {
+      name: "Mbak Tari",
+      role: "Sahabat Warga",
+      avatarColor: "#9b5de5",
+      dialogues: [
+        "Hai Keyzha! Akhirnya kita ketemu langsung! Dari kemarin Dimas sering banget cerita soal kamu ke kami waktu lagi ngerawat taman ini.",
+        "Iya... Mas Dimas sudah pindah dan tidak tinggal di sini lagi. Tapi kamu jangan sedih ya, rasa sayangnya ke kamu masih terasa begitu hangat di setiap sudut tempat ini.",
+        "Dia ninggalin surat penuh cinta di meja belajar di dalam rumah teras. Masuklah ke sana, perapiannya hangat banget!",
+        "Kamu perempuan yang sangat beruntung dicintai setulus itu oleh Dimas."
+      ]
     }
   },
 

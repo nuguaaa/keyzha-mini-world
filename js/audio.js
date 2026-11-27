@@ -306,6 +306,30 @@ class SoundSystem {
     });
   }
 
+  playCatMeow() {
+    if (this.isMuted || !this.initialized) return;
+    this.ensureContext();
+    const t = this.ctx.currentTime;
+
+    const osc = this.ctx.createOscillator();
+    const gain = this.ctx.createGain();
+
+    osc.type = "sine";
+    osc.frequency.setValueAtTime(520, t);
+    osc.frequency.linearRampToValueAtTime(780, t + 0.12);
+    osc.frequency.exponentialRampToValueAtTime(440, t + 0.38);
+
+    gain.gain.setValueAtTime(0.001, t);
+    gain.gain.linearRampToValueAtTime(0.12, t + 0.08);
+    gain.gain.exponentialRampToValueAtTime(0.001, t + 0.38);
+
+    osc.connect(gain);
+    gain.connect(this.sfxGain);
+
+    osc.start(t);
+    osc.stop(t + 0.38);
+  }
+
   playCameraFlash() {
     if (this.isMuted || !this.initialized) return;
     this.ensureContext();
