@@ -240,6 +240,11 @@ class NPC {
     else if (this.id === "bu_rt") defaultTex = tg.getNpcBuRtSprite();
     else if (this.id === "pak_rt") defaultTex = tg.getNpcPakRtSprite();
     else if (this.id === "mbak_tari") defaultTex = tg.getNpcMbakTariSprite();
+    else if (this.id === "nenek_minah") defaultTex = tg.getNpcNenekSprite();
+    else if (this.id === "mas_bayu") defaultTex = tg.getNpcBayuSprite();
+    else if (this.id === "mang_ujang") defaultTex = tg.getNpcMangUjangSprite();
+    else if (this.id === "teh_sarah") defaultTex = tg.getNpcTehSarahSprite();
+    else if (this.id === "adit") defaultTex = tg.getNpcAditSprite();
     else defaultTex = tg.getNpcPamanSprite();
 
     const mat = new THREE.MeshLambertMaterial({

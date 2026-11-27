@@ -80,48 +80,99 @@ class GameApp {
   spawnEntities() {
     const cfg = window.GAME_CONFIG;
 
-    // A. NPC Ramah Sesuai Video Referensi & Karakter Baru
-    // 1. Paman Berkumis di Atas Jembatan Kayu (Frame 00:20 - Berdiri di Jembatan Lebar)
+    // A. Warga Desa Ramah Sesuai Cerita & Dialog Dinamis (Total 12 Karakter)
+    // 1. Paman Berkumis di Atas Jembatan Kayu (Frame 00:20 - Penghubung Quest 2)
     const paman = new NPC(this.world, "paman", cfg.npcs.paman, -11.75, 1.5, 0.22);
     paman.promptText = "[A] Bicara dengan Paman";
     paman.onInteract = () => {
       window.soundSystem.playClick();
-      if (this.currentQuestIndex === 2) {
+      if (this.hasHouseKey) {
+        this.ui.openDialog(cfg.npcs.paman.name, cfg.npcs.paman.role, cfg.npcs.paman.avatarColor, cfg.npcs.paman.postKeyDialogue);
+      } else if (this.currentQuestIndex === 2) {
         this.ui.openDialog(cfg.npcs.paman.name, cfg.npcs.paman.role, cfg.npcs.paman.avatarColor, cfg.npcs.paman.questDialogue);
         this.advanceQuest(3);
       } else {
+        // Jika belum membaca surat pembuka atau melompat langkah: ngobrol santai biasa
         this.ui.openDialog(cfg.npcs.paman.name, cfg.npcs.paman.role, cfg.npcs.paman.avatarColor, cfg.npcs.paman.casualDialogue);
       }
     };
     this.npcs.push(paman);
     this.interactionManager.register(paman);
 
-    // 2. Kakek Bijak di Kebun Barat Dekat Pohon Rindang (Frame 00:26)
+    // 2. Kakek Bijak di Kebun Barat Dekat Pohon Rindang
     const kakek = new NPC(this.world, "kakek", cfg.npcs.kakek, -16.5, -7.0, 0);
     kakek.promptText = "[A] Bicara dengan Kakek";
     kakek.onInteract = () => {
       window.soundSystem.playClick();
-      this.ui.openDialog(cfg.npcs.kakek.name, cfg.npcs.kakek.role, cfg.npcs.kakek.avatarColor, kakek.getNextDialogue());
+      const text = this.hasHouseKey ? cfg.npcs.kakek.postKeyDialogue : cfg.npcs.kakek.casualDialogue;
+      this.ui.openDialog(cfg.npcs.kakek.name, cfg.npcs.kakek.role, cfg.npcs.kakek.avatarColor, text);
     };
     this.npcs.push(kakek);
     this.interactionManager.register(kakek);
 
-    // 3. Dito di Pelataran Main & Foto (Dekat Mesin Arcade)
+    // 3. Nenek Minah di Sumur Tua Kebun Barat (Membasuh Sayur & Timba Air)
+    const nenekMinah = new NPC(this.world, "nenek_minah", cfg.npcs.nenek_minah, -14.8, -3.2, 0);
+    nenekMinah.promptText = "[A] Bicara dengan Nenek Minah";
+    nenekMinah.onInteract = () => {
+      window.soundSystem.playClick();
+      const text = this.hasHouseKey ? cfg.npcs.nenek_minah.postKeyDialogue : cfg.npcs.nenek_minah.casualDialogue;
+      this.ui.openDialog(cfg.npcs.nenek_minah.name, cfg.npcs.nenek_minah.role, cfg.npcs.nenek_minah.avatarColor, text);
+    };
+    this.npcs.push(nenekMinah);
+    this.interactionManager.register(nenekMinah);
+
+    // 4. Mas Bayu si Pemancing di Pinggir Sungai Dekat Jembatan
+    const masBayu = new NPC(this.world, "mas_bayu", cfg.npcs.mas_bayu, -9.5, 0.5, 0.22);
+    masBayu.promptText = "[A] Bicara dengan Mas Bayu";
+    masBayu.onInteract = () => {
+      window.soundSystem.playClick();
+      const text = this.hasHouseKey ? cfg.npcs.mas_bayu.postKeyDialogue : cfg.npcs.mas_bayu.casualDialogue;
+      this.ui.openDialog(cfg.npcs.mas_bayu.name, cfg.npcs.mas_bayu.role, cfg.npcs.mas_bayu.avatarColor, text);
+    };
+    this.npcs.push(masBayu);
+    this.interactionManager.register(masBayu);
+
+    // 5. Dito di Pelataran Main & Foto (Penghubung Quest 3)
     const dito = new NPC(this.world, "dito", cfg.npcs.dito, 8.2, -0.5, 0.06);
     dito.promptText = "[A] Bicara dengan Dito";
     dito.onInteract = () => {
       window.soundSystem.playClick();
-      if (this.currentQuestIndex === 3) {
+      if (this.hasHouseKey) {
+        this.ui.openDialog(cfg.npcs.dito.name, cfg.npcs.dito.role, cfg.npcs.dito.avatarColor, cfg.npcs.dito.postKeyDialogue);
+      } else if (this.currentQuestIndex === 3) {
         this.ui.openDialog(cfg.npcs.dito.name, cfg.npcs.dito.role, cfg.npcs.dito.avatarColor, cfg.npcs.dito.questDialogue);
         this.advanceQuest(4);
       } else {
+        // Jika dilewati (belum Quest 3), ngobrol santai seputar Tetris tanpa bocorkan rahasia
         this.ui.openDialog(cfg.npcs.dito.name, cfg.npcs.dito.role, cfg.npcs.dito.avatarColor, cfg.npcs.dito.casualDialogue);
       }
     };
     this.npcs.push(dito);
     this.interactionManager.register(dito);
 
-    // 4. Bibi Rina di Teras Rumah (Perawat Bunga & Penjaga Rumah)
+    // 6. Adit (Bocah Cilik di Samping Mesin Arcade)
+    const adit = new NPC(this.world, "adit", cfg.npcs.adit, 11.2, -0.5, 0.06);
+    adit.promptText = "[A] Bicara dengan Adit";
+    adit.onInteract = () => {
+      window.soundSystem.playClick();
+      const text = this.hasHouseKey ? cfg.npcs.adit.postKeyDialogue : cfg.npcs.adit.casualDialogue;
+      this.ui.openDialog(cfg.npcs.adit.name, cfg.npcs.adit.role, cfg.npcs.adit.avatarColor, text);
+    };
+    this.npcs.push(adit);
+    this.interactionManager.register(adit);
+
+    // 7. Teh Sarah di Kebun Bunga Depan Tangga Teras
+    const tehSarah = new NPC(this.world, "teh_sarah", cfg.npcs.teh_sarah, 3.5, -3.2, 0);
+    tehSarah.promptText = "[A] Bicara dengan Teh Sarah";
+    tehSarah.onInteract = () => {
+      window.soundSystem.playClick();
+      const text = this.hasHouseKey ? cfg.npcs.teh_sarah.postKeyDialogue : cfg.npcs.teh_sarah.casualDialogue;
+      this.ui.openDialog(cfg.npcs.teh_sarah.name, cfg.npcs.teh_sarah.role, cfg.npcs.teh_sarah.avatarColor, text);
+    };
+    this.npcs.push(tehSarah);
+    this.interactionManager.register(tehSarah);
+
+    // 8. Bibi Rina di Teras Rumah (Perawat Bunga & Penjaga Rumah)
     const rina = new NPC(this.world, "rina", cfg.npcs.rina, 4.2, -8.8, 1.2);
     rina.promptText = "[A] Bicara dengan Bibi Rina";
     rina.onInteract = () => {
@@ -135,57 +186,58 @@ class GameApp {
     this.npcs.push(rina);
     this.interactionManager.register(rina);
 
-    // 5. Kumpul Warga di Area Api Unggun (Membicarakan Nugua & Menjawab Pencarian Keyzha)
+    // 9. Kumpul Warga di Area Api Unggun Timur Laut
     // Bu RT di dekat bangku selatan api unggun
     const buRt = new NPC(this.world, "bu_rt", cfg.npcs.bu_rt, 13.2, -9.2, 0);
     buRt.promptText = "[A] Bicara dengan Bu RT";
     buRt.onInteract = () => {
       window.soundSystem.playClick();
-      let text = cfg.npcs.bu_rt.casualDialogue;
-      if (this.hasHouseKey) {
-        text = cfg.npcs.bu_rt.postKeyDialogue;
-      } else if (this.currentQuestIndex === 4) {
-        text = cfg.npcs.bu_rt.questDialogue;
-      }
+      const text = this.hasHouseKey ? cfg.npcs.bu_rt.postKeyDialogue : cfg.npcs.bu_rt.casualDialogue;
       this.ui.openDialog(cfg.npcs.bu_rt.name, cfg.npcs.bu_rt.role, cfg.npcs.bu_rt.avatarColor, text);
     };
     this.npcs.push(buRt);
     this.interactionManager.register(buRt);
 
-    // Pak RT Broto di dekat bangku timur api unggun (Pemegang Kunci Rumah Titipan Nugua)
+    // 10. Pak RT Broto di dekat bangku timur api unggun (Pemegang Kunci Titipan Nugua)
     const pakRt = new NPC(this.world, "pak_rt", cfg.npcs.pak_rt, 16.5, -11.5, 0);
     pakRt.promptText = "[A] Bicara dengan Pak RT Broto";
     pakRt.onInteract = () => {
       window.soundSystem.playClick();
-      if (this.currentQuestIndex === 4) {
+      if (this.hasHouseKey) {
+        this.ui.openDialog(cfg.npcs.pak_rt.name, cfg.npcs.pak_rt.role, cfg.npcs.pak_rt.avatarColor, cfg.npcs.pak_rt.postKeyDialogue);
+      } else if (this.currentQuestIndex === 4) {
         this.ui.openDialog(cfg.npcs.pak_rt.name, cfg.npcs.pak_rt.role, cfg.npcs.pak_rt.avatarColor, cfg.npcs.pak_rt.questDialogue);
         this.receiveHouseKeyFromPakRt();
         this.advanceQuest(5);
-      } else if (this.hasHouseKey) {
-        this.ui.openDialog(cfg.npcs.pak_rt.name, cfg.npcs.pak_rt.role, cfg.npcs.pak_rt.avatarColor, cfg.npcs.pak_rt.postKeyDialogue);
       } else {
-        // Jika dilewati (belum Quest 4), ngobrol santai seolah tidak ada rahasia kejutan
+        // Jika dilewati (belum Quest 4): pura-pura tidak tahu dan ngobrol santai seputar kerukunan desa
         this.ui.openDialog(cfg.npcs.pak_rt.name, cfg.npcs.pak_rt.role, cfg.npcs.pak_rt.avatarColor, cfg.npcs.pak_rt.casualDialogue);
       }
     };
     this.npcs.push(pakRt);
     this.interactionManager.register(pakRt);
 
-    // Mbak Tari di dekat bangku barat laut api unggun
+    // 11. Mbak Tari di dekat bangku barat laut api unggun
     const mbakTari = new NPC(this.world, "mbak_tari", cfg.npcs.mbak_tari, 12.5, -13.2, 0);
     mbakTari.promptText = "[A] Bicara dengan Mbak Tari";
     mbakTari.onInteract = () => {
       window.soundSystem.playClick();
-      let text = cfg.npcs.mbak_tari.casualDialogue;
-      if (this.hasHouseKey) {
-        text = cfg.npcs.mbak_tari.postKeyDialogue;
-      } else if (this.currentQuestIndex === 4) {
-        text = cfg.npcs.mbak_tari.questDialogue;
-      }
+      const text = this.hasHouseKey ? cfg.npcs.mbak_tari.postKeyDialogue : cfg.npcs.mbak_tari.casualDialogue;
       this.ui.openDialog(cfg.npcs.mbak_tari.name, cfg.npcs.mbak_tari.role, cfg.npcs.mbak_tari.avatarColor, text);
     };
     this.npcs.push(mbakTari);
     this.interactionManager.register(mbakTari);
+
+    // 12. Mang Ujang di sisi utara api unggun (Menjaga Bara Api & Membakar Jagung)
+    const mangUjang = new NPC(this.world, "mang_ujang", cfg.npcs.mang_ujang, 15.0, -13.5, 0);
+    mangUjang.promptText = "[A] Bicara dengan Mang Ujang";
+    mangUjang.onInteract = () => {
+      window.soundSystem.playClick();
+      const text = this.hasHouseKey ? cfg.npcs.mang_ujang.postKeyDialogue : cfg.npcs.mang_ujang.casualDialogue;
+      this.ui.openDialog(cfg.npcs.mang_ujang.name, cfg.npcs.mang_ujang.role, cfg.npcs.mang_ujang.avatarColor, text);
+    };
+    this.npcs.push(mangUjang);
+    this.interactionManager.register(mangUjang);
 
     // B. Hewan Peliharaan Berkeliaran Bebas di Halaman (Ayam & Kucing Oranye)
     const chicken1 = new RoamingAnimal(this.world, "chicken", "chicken1", cfg.animals.chicken1, 1.5, 4.5);
@@ -265,17 +317,17 @@ class GameApp {
     };
     this.interactionManager.register(photobooth);
 
-    // 3.5. Api Unggun Hangat (Campfire di Halaman Timur Laut: X = 14.5, Z = -11.5)
+    // 3.5. Api Unggun Hangat Warga (Campfire di Halaman Timur Laut: X = 14.5, Z = -11.5)
     const campfire = {
       x: 14.5,
       z: -11.5,
       y: 0.2,
       zone: "exterior",
       badgeHeight: 1.8,
-      promptText: "[A] Hangatkan Diri di Api Unggun",
+      promptText: "[A] Duduk & Hangatkan Diri di Api Unggun",
       onInteract: () => {
-        window.soundSystem.playClick();
-        this.ui.showToast("🔥 Kehangatan api unggun membuat suasana sore terasa begitu damai dan tenang.");
+        window.soundSystem.playFireCrackle();
+        this.ui.showToast("🔥 Kamu duduk santai di dekat api unggun hangat bersama para warga desa. Gemeretak kayu bakar dan aroma jagung manis membawa ketenangan mendalam.");
       }
     };
     this.interactionManager.register(campfire);
@@ -327,10 +379,10 @@ class GameApp {
       y: 0.4,
       zone: "exterior",
       badgeHeight: 1.8,
-      promptText: "[A] Timba Air Sumur",
+      promptText: "[A] Timba Air Sumur yang Segar",
       onInteract: () => {
-        window.soundSystem.playClick();
-        this.ui.showToast("💧 Gemericik air sumur terdengar segar. Membasuh tangan dengan air sumur yang dingin membuat pikiranmu tenang dan rileks.");
+        window.soundSystem.playWaterSplash();
+        this.ui.showToast("💧 Timba kayu ditarik ke atas sumur, membasuh tangan dan wajahmu dengan air tanah yang begitu jernih dan dingin. Badanmu terasa segar kembali!");
       }
     };
     this.interactionManager.register(villageWell);
@@ -342,10 +394,10 @@ class GameApp {
       y: 0.5,
       zone: "exterior",
       badgeHeight: 1.4,
-      promptText: "[A] Cicipi Buah Segar",
+      promptText: "[A] Cicipi Apel Segar dari Keranjang",
       onInteract: () => {
-        window.soundSystem.playClick();
-        this.ui.showToast("🍎 Kamu mencicipi sepotong apel merah manis yang renyah dari keranjang piknik. Rasanya begitu menyegarkan!");
+        window.soundSystem.playCrunch();
+        this.ui.showToast("🍎 Kamu mencicipi sepotong apel merah yang manis dan renyah dari keranjang piknik. Rasanya begitu menyegarkan!");
       }
     };
     this.interactionManager.register(picnicBasket);
@@ -357,28 +409,43 @@ class GameApp {
       y: 1.2,
       zone: "exterior",
       badgeHeight: 2.2,
-      promptText: "[A] Cium Aroma Bunga Teras",
+      promptText: "[A] Hirup Harum Bunga Aster & Mawar",
       onInteract: () => {
-        window.soundSystem.playClick();
-        this.ui.showToast("🌸 Wangi harum bunga aster dan mawar teras yang segar menenangkan perasaanmu.");
+        window.soundSystem.playRustle();
+        this.ui.showToast("🌸 Aroma manis bunga aster dan kelopak mawar teras tercium lembut di hidungmu, menenangkan hati.");
       }
     };
     this.interactionManager.register(terraceFlowers);
 
-    // 3.11. Tepian Dermaga Menatap Sungai (X = -9.2, Z = 1.5, Y = 0.2)
+    // 3.11. Tepian Dermaga & Melempar Kerikil Sungai (X = -9.2, Z = 1.5, Y = 0.2)
     const riverOverlook = {
       x: -9.2,
       z: 1.5,
       y: 0.22,
       zone: "exterior",
       badgeHeight: 1.4,
-      promptText: "[A] Nikmati Gemericik Sungai",
+      promptText: "[A] Lempar Kerikil & Nikmati Sungai",
       onInteract: () => {
-        window.soundSystem.playClick();
-        this.ui.showToast("🌊 Suara gemericik air sungai biru yang mengalir jernih di bawah jembatan membawa kedamaian di hatimu.");
+        window.soundSystem.playWaterSplash();
+        this.ui.showToast("🌊 Kamu melempar kerikil kecil ke aliran sungai yang jernih di bawah jembatan. Riak-riak air beriak indah memantulkan cahaya senja yang damai.");
       }
     };
     this.interactionManager.register(riverOverlook);
+
+    // 3.12. Bangku Kayu Santai Taman Depan (X = -4.8, Z = 3.8, Y = 0.1)
+    const parkBench = {
+      x: -4.8,
+      z: 3.8,
+      y: 0.1,
+      zone: "exterior",
+      badgeHeight: 1.4,
+      promptText: "[A] Duduk Santai di Bangku Taman",
+      onInteract: () => {
+        window.soundSystem.playClick();
+        this.ui.showToast("🪑 Kamu duduk sejenak di bangku kayu taman, memandangi panorama diorama kecil yang asri dan tenang.");
+      }
+    };
+    this.interactionManager.register(parkBench);
 
     // 4. Pintu Depan Rumah Kayu di Atas Teras (Z = -10.4, Y = 1.2)
     const frontDoor = {

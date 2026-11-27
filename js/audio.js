@@ -451,6 +451,136 @@ class SoundSystem {
     });
   }
 
+  // Gemericik & Kecipak Air Sumur / Air Sungai (Fresh Water Splash)
+  playWaterSplash() {
+    if (this.isMuted || !this.initialized) return;
+    this.ensureContext();
+    const t = this.ctx.currentTime;
+
+    // 1. Tetesan & plop air
+    [0, 0.05, 0.11].forEach((delay, idx) => {
+      const osc = this.ctx.createOscillator();
+      const gain = this.ctx.createGain();
+      osc.type = "sine";
+      const startF = 560 + idx * 120 + Math.random() * 40;
+      osc.frequency.setValueAtTime(startF, t + delay);
+      osc.frequency.exponentialRampToValueAtTime(startF * 0.45, t + delay + 0.12);
+
+      gain.gain.setValueAtTime(0.12, t + delay);
+      gain.gain.exponentialRampToValueAtTime(0.001, t + delay + 0.12);
+
+      osc.connect(gain);
+      gain.connect(this.sfxGain);
+      osc.start(t + delay);
+      osc.stop(t + delay + 0.12);
+    });
+
+    // 2. Desir riak air lembut (filtered noise burst)
+    const bufferSize = this.ctx.sampleRate * 0.22;
+    const buffer = this.ctx.createBuffer(1, bufferSize, this.ctx.sampleRate);
+    const data = buffer.getChannelData(0);
+    for (let i = 0; i < bufferSize; i++) {
+      data[i] = Math.random() * 2 - 1;
+    }
+    const noise = this.ctx.createBufferSource();
+    noise.buffer = buffer;
+
+    const filter = this.ctx.createBiquadFilter();
+    filter.type = "bandpass";
+    filter.frequency.setValueAtTime(800, t);
+    filter.Q.setValueAtTime(1.5, t);
+
+    const noiseGain = this.ctx.createGain();
+    noiseGain.gain.setValueAtTime(0.08, t);
+    noiseGain.gain.exponentialRampToValueAtTime(0.001, t + 0.22);
+
+    noise.connect(filter);
+    filter.connect(noiseGain);
+    noiseGain.connect(this.sfxGain);
+    noise.start(t);
+  }
+
+  // Gemeretak Kayu Bakar Api Unggun (Campfire Crackle)
+  playFireCrackle() {
+    if (this.isMuted || !this.initialized) return;
+    this.ensureContext();
+    const t = this.ctx.currentTime;
+
+    // Desisan hangat
+    const osc = this.ctx.createOscillator();
+    const gain = this.ctx.createGain();
+    osc.type = "triangle";
+    osc.frequency.setValueAtTime(120, t);
+    osc.frequency.exponentialRampToValueAtTime(50, t + 0.35);
+
+    gain.gain.setValueAtTime(0.15, t);
+    gain.gain.exponentialRampToValueAtTime(0.001, t + 0.35);
+
+    osc.connect(gain);
+    gain.connect(this.sfxGain);
+    osc.start(t);
+    osc.stop(t + 0.35);
+
+    // Letupan bara kecil (micro crackles)
+    [0.04, 0.12, 0.21, 0.28].forEach(d => {
+      const popOsc = this.ctx.createOscillator();
+      const popGain = this.ctx.createGain();
+      popOsc.type = "sawtooth";
+      popOsc.frequency.setValueAtTime(1200 + Math.random() * 600, t + d);
+      popGain.gain.setValueAtTime(0.07, t + d);
+      popGain.gain.exponentialRampToValueAtTime(0.001, t + d + 0.02);
+
+      popOsc.connect(popGain);
+      popGain.connect(this.sfxGain);
+      popOsc.start(t + d);
+      popOsc.stop(t + d + 0.02);
+    });
+  }
+
+  // Gigitan Renyah Buah Segar (Crisp Apple Crunch)
+  playCrunch() {
+    if (this.isMuted || !this.initialized) return;
+    this.ensureContext();
+    const t = this.ctx.currentTime;
+
+    [0, 0.04, 0.09].forEach((delay, idx) => {
+      const osc = this.ctx.createOscillator();
+      const gain = this.ctx.createGain();
+      osc.type = "sawtooth";
+      osc.frequency.setValueAtTime(800 - idx * 150, t + delay);
+      osc.frequency.exponentialRampToValueAtTime(180, t + delay + 0.06);
+
+      gain.gain.setValueAtTime(0.14, t + delay);
+      gain.gain.exponentialRampToValueAtTime(0.001, t + delay + 0.06);
+
+      osc.connect(gain);
+      gain.connect(this.sfxGain);
+      osc.start(t + delay);
+      osc.stop(t + delay + 0.06);
+    });
+  }
+
+  // Gesekan Kelopak Bunga / Daun Segar (Flower Rustle)
+  playRustle() {
+    if (this.isMuted || !this.initialized) return;
+    this.ensureContext();
+    const t = this.ctx.currentTime;
+
+    const osc = this.ctx.createOscillator();
+    const gain = this.ctx.createGain();
+    osc.type = "sine";
+    osc.frequency.setValueAtTime(1400, t);
+    osc.frequency.exponentialRampToValueAtTime(600, t + 0.16);
+
+    gain.gain.setValueAtTime(0.08, t);
+    gain.gain.exponentialRampToValueAtTime(0.001, t + 0.16);
+
+    osc.connect(gain);
+    gain.connect(this.sfxGain);
+    osc.start(t);
+    osc.stop(t + 0.16);
+  }
+
   // --- BGM PROCEDURAL (Musik Lofi / Santai yang Damai) ---
   startBGM() {
     this.ensureContext();

@@ -1080,6 +1080,322 @@ class TextureGenerator {
     return this.cache.npcMbakTari;
   }
 
+  // 1. Sprite Nenek Minah di Sumur Tua (Kebaya Hijau Lumut, Jarik Batik & Sanggul Uban)
+  getNpcNenekSprite() {
+    if (this.cache.npcNenek) return this.cache.npcNenek;
+    this.cache.npcNenek = this.createCanvasTexture(32, 38, (ctx, w, h) => {
+      const cx = 16;
+      const cy = 20;
+
+      // Selop kayu tradisional
+      ctx.fillStyle = "#4a3525";
+      ctx.fillRect(cx - 5, cy + 14, 4, 3);
+      ctx.fillRect(cx + 1, cy + 14, 4, 3);
+
+      // Kain jarik batik cokelat tanah
+      ctx.fillStyle = "#6c584c";
+      ctx.fillRect(cx - 7, cy + 7, 14, 8);
+      // Motif batik titik emas
+      ctx.fillStyle = "#dda15e";
+      for (let bx = cx - 6; bx <= cx + 4; bx += 3) {
+        ctx.fillRect(bx, cy + 8, 1, 1);
+        ctx.fillRect(bx + 1, cy + 11, 1, 1);
+      }
+
+      // Kebaya panjang hijau lumut tua
+      ctx.fillStyle = "#556b2f";
+      ctx.fillRect(cx - 7, cy - 2, 14, 10);
+      // Stagen / selendang krem di pinggang
+      ctx.fillStyle = "#faedcd";
+      ctx.fillRect(cx - 7, cy + 4, 14, 3);
+
+      // Kerah kebaya krem
+      ctx.fillStyle = "#fefae0";
+      ctx.fillRect(cx - 2, cy - 2, 4, 7);
+
+      // Lengan kebaya
+      ctx.fillStyle = "#556b2f";
+      ctx.fillRect(cx - 9, cy - 1, 3, 9);
+      ctx.fillRect(cx + 6, cy - 1, 3, 9);
+      // Tangan sepuh
+      ctx.fillStyle = "#e2b896";
+      ctx.fillRect(cx - 9, cy + 8, 3, 3);
+      ctx.fillRect(cx + 6, cy + 8, 3, 3);
+
+      // Wajah nenek ramah
+      ctx.fillStyle = "#e2b896";
+      ctx.fillRect(cx - 6, cy - 13, 12, 11);
+
+      // Kacamata bulat vintage
+      ctx.strokeStyle = "#495057";
+      ctx.lineWidth = 1;
+      ctx.strokeRect(cx - 5, cy - 8, 3, 3);
+      ctx.strokeRect(cx + 2, cy - 8, 3, 3);
+      ctx.fillStyle = "#495057";
+      ctx.fillRect(cx - 2, cy - 7, 4, 1); // gagang kacamata
+
+      // Mata tersenyum hangat
+      ctx.fillStyle = "#2b2d42";
+      ctx.fillRect(cx - 4, cy - 7, 1, 1);
+      ctx.fillRect(cx + 3, cy - 7, 1, 1);
+
+      // Kerutan senyum & bibir ramah
+      ctx.fillStyle = "#bc6c25";
+      ctx.fillRect(cx - 2, cy - 4, 4, 1);
+
+      // Rambut abu-abu uban & sanggul tradisional
+      ctx.fillStyle = "#adb5bd";
+      ctx.fillRect(cx - 7, cy - 16, 14, 5);
+      ctx.fillRect(cx - 8, cy - 13, 2, 7);
+      ctx.fillRect(cx + 6, cy - 13, 2, 7);
+      // Sanggul atas berhias tusuk konde emas
+      ctx.fillRect(cx - 4, cy - 18, 8, 3);
+      ctx.fillStyle = "#d4af37";
+      ctx.fillRect(cx - 1, cy - 19, 2, 4);
+    });
+    return this.cache.npcNenek;
+  }
+
+  // 2. Sprite Mas Bayu si Pemancing (Caping Jerami, Rompi Indigo & Celana Santai)
+  getNpcBayuSprite() {
+    if (this.cache.npcBayu) return this.cache.npcBayu;
+    this.cache.npcBayu = this.createCanvasTexture(32, 38, (ctx, w, h) => {
+      const cx = 16;
+      const cy = 20;
+
+      // Sandal jepit kulit
+      ctx.fillStyle = "#5c4033";
+      ctx.fillRect(cx - 5, cy + 14, 4, 3);
+      ctx.fillRect(cx + 1, cy + 14, 4, 3);
+
+      // Celana pendek santai cokelat pasir
+      ctx.fillStyle = "#8d7b68";
+      ctx.fillRect(cx - 6, cy + 6, 12, 8);
+      ctx.fillStyle = "#2b2b2b";
+      ctx.fillRect(cx - 1, cy + 9, 2, 5); // belahan celana
+
+      // Rompi indigo biru di atas kaos putih
+      ctx.fillStyle = "#f8f9fa";
+      ctx.fillRect(cx - 6, cy - 2, 12, 9);
+      ctx.fillStyle = "#1d3557";
+      ctx.fillRect(cx - 7, cy - 2, 3, 9);
+      ctx.fillRect(cx + 4, cy - 2, 3, 9);
+
+      // Lengan kulit cokelat sehat
+      ctx.fillStyle = "#d4a373";
+      ctx.fillRect(cx - 9, cy - 1, 3, 8);
+      ctx.fillRect(cx + 6, cy - 1, 3, 8);
+      ctx.fillRect(cx - 9, cy + 7, 3, 3);
+      ctx.fillRect(cx + 6, cy + 7, 3, 3);
+
+      // Tongkat pancing bambu di tangan kanan
+      ctx.fillStyle = "#6b705c";
+      ctx.fillRect(cx + 8, cy - 14, 2, 28);
+      ctx.fillStyle = "#e9d8a6";
+      ctx.fillRect(cx + 8, cy - 16, 2, 2); // pucuk pancing
+
+      // Wajah pemuda ramah
+      ctx.fillStyle = "#d4a373";
+      ctx.fillRect(cx - 5, cy - 12, 10, 10);
+      ctx.fillStyle = "#1b263b";
+      ctx.fillRect(cx - 3, cy - 8, 2, 2);
+      ctx.fillRect(cx + 2, cy - 8, 2, 2);
+      ctx.fillStyle = "#bc6c25";
+      ctx.fillRect(cx - 1, cy - 5, 3, 1);
+
+      // Topi Caping Jerami Tradisional Segitiga Lebar
+      ctx.fillStyle = "#e9c46a";
+      ctx.beginPath();
+      ctx.moveTo(cx, cy - 18);
+      ctx.lineTo(cx - 11, cy - 11);
+      ctx.lineTo(cx + 11, cy - 11);
+      ctx.closePath();
+      ctx.fill();
+
+      // Tekstur anyaman caping
+      ctx.fillStyle = "#d4a373";
+      ctx.fillRect(cx - 6, cy - 13, 12, 1);
+      ctx.fillRect(cx - 3, cy - 15, 6, 1);
+    });
+    return this.cache.npcBayu;
+  }
+
+  // 3. Sprite Mang Ujang di Api Unggun (Ikat Kepala Sunda, Pangsi Cokelat & Jagung Bakar)
+  getNpcMangUjangSprite() {
+    if (this.cache.npcMangUjang) return this.cache.npcMangUjang;
+    this.cache.npcMangUjang = this.createCanvasTexture(32, 38, (ctx, w, h) => {
+      const cx = 16;
+      const cy = 20;
+
+      // Sandal selop hitam
+      ctx.fillStyle = "#212529";
+      ctx.fillRect(cx - 5, cy + 14, 4, 3);
+      ctx.fillRect(cx + 1, cy + 14, 4, 3);
+
+      // Celana pangsi longgar hitam
+      ctx.fillStyle = "#2b2d42";
+      ctx.fillRect(cx - 7, cy + 6, 14, 8);
+      ctx.fillStyle = "#161a1d";
+      ctx.fillRect(cx - 1, cy + 8, 2, 6);
+
+      // Baju pangsi cokelat tua & sabuk merah
+      ctx.fillStyle = "#4a3525";
+      ctx.fillRect(cx - 7, cy - 3, 14, 10);
+      ctx.fillStyle = "#ba181b";
+      ctx.fillRect(cx - 7, cy + 4, 14, 2); // sabuk ikat merah
+
+      // Lengan baju pangsi
+      ctx.fillStyle = "#4a3525";
+      ctx.fillRect(cx - 9, cy - 2, 3, 8);
+      ctx.fillRect(cx + 6, cy - 2, 3, 8);
+      ctx.fillStyle = "#cb997e";
+      ctx.fillRect(cx - 9, cy + 6, 3, 3);
+      ctx.fillRect(cx + 6, cy + 6, 3, 3);
+
+      // Jagung bakar di tangan kiri
+      ctx.fillStyle = "#ffb703";
+      ctx.fillRect(cx - 11, cy + 1, 3, 6);
+      ctx.fillStyle = "#603813";
+      ctx.fillRect(cx - 10, cy + 7, 1, 4); // tusukan kayu
+
+      // Wajah Mang Ujang tersenyum lebar & kumis tebal
+      ctx.fillStyle = "#cb997e";
+      ctx.fillRect(cx - 5, cy - 13, 10, 10);
+      ctx.fillStyle = "#1b1b1b";
+      ctx.fillRect(cx - 3, cy - 9, 2, 2);
+      ctx.fillRect(cx + 2, cy - 9, 2, 2);
+      // Kumis khas
+      ctx.fillStyle = "#161a1d";
+      ctx.fillRect(cx - 4, cy - 6, 9, 2);
+      ctx.fillStyle = "#ffffff";
+      ctx.fillRect(cx - 1, cy - 4, 3, 1); // gigi ramah
+
+      // Ikat kepala / Udeng Sunda merah batik
+      ctx.fillStyle = "#a4161a";
+      ctx.fillRect(cx - 7, cy - 16, 14, 5);
+      ctx.fillStyle = "#e5383b";
+      ctx.fillRect(cx + 4, cy - 18, 4, 4); // simpul udeng atas
+    });
+    return this.cache.npcMangUjang;
+  }
+
+  // 4. Sprite Teh Sarah di Kebun Bunga (Bandana Kuning, Celemek Hijau & Bunga Daisy)
+  getNpcTehSarahSprite() {
+    if (this.cache.npcTehSarah) return this.cache.npcTehSarah;
+    this.cache.npcTehSarah = this.createCanvasTexture(32, 38, (ctx, w, h) => {
+      const cx = 16;
+      const cy = 20;
+
+      // Sepatu bot kebun cokelat
+      ctx.fillStyle = "#6f4e37";
+      ctx.fillRect(cx - 5, cy + 14, 4, 3);
+      ctx.fillRect(cx + 1, cy + 14, 4, 3);
+
+      // Rok terakota santai
+      ctx.fillStyle = "#e07a5f";
+      ctx.fillRect(cx - 6, cy + 6, 12, 8);
+
+      // Baju putih & celemek berkebun hijau muda
+      ctx.fillStyle = "#f8f9fa";
+      ctx.fillRect(cx - 6, cy - 3, 12, 10);
+      ctx.fillStyle = "#81b29a";
+      ctx.fillRect(cx - 5, cy - 1, 10, 8);
+      // Kantong celemek berhias bunga aster kecil
+      ctx.fillStyle = "#3d405b";
+      ctx.fillRect(cx - 3, cy + 2, 6, 4);
+      ctx.fillStyle = "#ffffff";
+      ctx.fillRect(cx - 1, cy + 1, 2, 2);
+      ctx.fillStyle = "#f4a261";
+      ctx.fillRect(cx, cy + 2, 1, 1); // putik bunga
+
+      // Lengan baju
+      ctx.fillStyle = "#f8f9fa";
+      ctx.fillRect(cx - 8, cy - 2, 3, 8);
+      ctx.fillRect(cx + 5, cy - 2, 3, 8);
+      ctx.fillStyle = "#f5d0b0";
+      ctx.fillRect(cx - 8, cy + 6, 3, 3);
+      ctx.fillRect(cx + 5, cy + 6, 3, 3);
+
+      // Wajah ceria & pipi merah
+      ctx.fillStyle = "#f5d0b0";
+      ctx.fillRect(cx - 5, cy - 13, 10, 10);
+      ctx.fillStyle = "#3d405b";
+      ctx.fillRect(cx - 3, cy - 9, 2, 2);
+      ctx.fillRect(cx + 2, cy - 9, 2, 2);
+      ctx.fillStyle = "#ff758f";
+      ctx.fillRect(cx - 5, cy - 6, 2, 2);
+      ctx.fillRect(cx + 3, cy - 6, 2, 2);
+      ctx.fillStyle = "#e63946";
+      ctx.fillRect(cx - 1, cy - 5, 3, 1);
+
+      // Rambut bergelombang & bandana kuning cerah
+      ctx.fillStyle = "#4a2810";
+      ctx.fillRect(cx - 6, cy - 16, 12, 5);
+      ctx.fillRect(cx - 7, cy - 13, 2, 8);
+      ctx.fillRect(cx + 5, cy - 13, 2, 8);
+      // Bandana kuning
+      ctx.fillStyle = "#f9c74f";
+      ctx.fillRect(cx - 6, cy - 15, 12, 2);
+    });
+    return this.cache.npcTehSarah;
+  }
+
+  // 5. Sprite Adit di Pelataran Arcade (Topi Baseball Terbalik, Kaos Strip Merah & Celana Pendek)
+  getNpcAditSprite() {
+    if (this.cache.npcAdit) return this.cache.npcAdit;
+    this.cache.npcAdit = this.createCanvasTexture(32, 38, (ctx, w, h) => {
+      const cx = 16;
+      const cy = 20;
+
+      // Sneaker merah
+      ctx.fillStyle = "#d90429";
+      ctx.fillRect(cx - 5, cy + 14, 4, 3);
+      ctx.fillRect(cx + 1, cy + 14, 4, 3);
+      ctx.fillStyle = "#ffffff";
+      ctx.fillRect(cx - 5, cy + 15, 4, 1);
+      ctx.fillRect(cx + 1, cy + 15, 4, 1);
+
+      // Celana pendek denim biru
+      ctx.fillStyle = "#2b6cb0";
+      ctx.fillRect(cx - 5, cy + 7, 10, 7);
+      ctx.fillStyle = "#1a365d";
+      ctx.fillRect(cx - 1, cy + 9, 2, 5);
+
+      // Kaos bergaris merah-putih
+      ctx.fillStyle = "#ffffff";
+      ctx.fillRect(cx - 6, cy - 2, 12, 9);
+      ctx.fillStyle = "#d90429";
+      ctx.fillRect(cx - 6, cy - 1, 12, 2);
+      ctx.fillRect(cx - 6, cy + 3, 12, 2);
+
+      // Lengan anak-anak
+      ctx.fillStyle = "#f5d0b0";
+      ctx.fillRect(cx - 8, cy - 1, 3, 7);
+      ctx.fillRect(cx + 5, cy - 1, 3, 7);
+
+      // Wajah bocah bersemangat
+      ctx.fillStyle = "#f5d0b0";
+      ctx.fillRect(cx - 5, cy - 12, 10, 10);
+      ctx.fillStyle = "#1b263b";
+      ctx.fillRect(cx - 3, cy - 8, 2, 2);
+      ctx.fillRect(cx + 2, cy - 8, 2, 2);
+      ctx.fillStyle = "#e63946";
+      ctx.fillRect(cx - 1, cy - 4, 3, 2); // senyum lebar
+
+      // Topi baseball merah dipakai terbalik (lidah topi di belakang)
+      ctx.fillStyle = "#d90429";
+      ctx.fillRect(cx - 6, cy - 15, 12, 4);
+      ctx.fillStyle = "#023e8a";
+      ctx.fillRect(cx - 2, cy - 16, 4, 2); // kancing topi
+      ctx.fillStyle = "#d90429";
+      ctx.fillRect(cx - 4, cy - 12, 8, 2); // lidah topi di tengkuk
+      // Poni rambut cokelat
+      ctx.fillStyle = "#3e2723";
+      ctx.fillRect(cx - 4, cy - 12, 8, 2);
+    });
+    return this.cache.npcAdit;
+  }
+
   // Sprite Kucing Oranye Lucu (Miko si Kucing Desa)
   getCatSprite() {
     if (this.cache.catOrange) return this.cache.catOrange;
